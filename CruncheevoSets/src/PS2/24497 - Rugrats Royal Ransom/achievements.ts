@@ -1,7 +1,7 @@
-﻿import { define as $, ConditionBuilder, Condition, AchievementSet } from '@cruncheevos/core'
+﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext } from '@cruncheevos/core'
 import * as data from './data.js'
 import { comparison } from '../../helpers.js'
-import { stringify } from 'querystring'
+import * as fs from 'fs'
 
 
 function inGame(): ConditionBuilder {
@@ -244,5 +244,28 @@ export function makeAchievements(set: AchievementSet): void {
             'alt1': littleb.alt1,
             'alt2': littleb.alt2
         }
+    })
+
+
+    set.addAchievement({
+        title: 'snowplace to hide no damage challenge',
+        description: 'Complete Snowplace to Hide on Reptar Tough after unlocking the door and without taking damage',
+        points: 5,
+        conditions: $(
+            inGame(),
+            beatLevel(0x7, 2).andNext(
+                $(comparison(data.levelIDLoaded, '=', 0x1b, true, false)),
+                $(comparison(data.levelIDLoaded, '=', 0x7))).withLast({ hits: 1 }),
+            data.chainLinkedListDataRange(0, 60, [
+                $(
+                    ['AddAddress', 'Mem', '32bit', 0xd8],
+                    ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328]
+                ),
+                $(
+                    ['ResetIf', 'Mem', 'Float', 0x7b4, '!=', 'Value', '', 1]
+                )
+            ], true)
+
+        )
     })
 }

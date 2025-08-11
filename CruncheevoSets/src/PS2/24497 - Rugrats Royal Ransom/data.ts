@@ -264,9 +264,9 @@ export function chainLinkedListData(node: number, ifForward: boolean = true, acc
 
     let chain: ConditionBuilder = $(
         $(['AddAddress', '', '', 0]).withLast({ lvalue: mainPointer.lvalue }),
-        ifForward && ['AddAddress', 'Value', '', 0x10],
-        !ifForward && ['AddAddress', 'Value', '', 0x44],
-        !ifForward && ['AddAddress', 'Value', '', 0x30]
+        ifForward && ['AddAddress', 'Mem', '32bit', 0x10],
+        !ifForward && ['AddAddress', 'Mem', '32bit', 0x44],
+        !ifForward && ['AddAddress', 'Mem', '32bit', 0x30]
     )
 
 
@@ -275,13 +275,13 @@ export function chainLinkedListData(node: number, ifForward: boolean = true, acc
     while (i < node) {
         chain = $(
             chain,
-            ifForward && ['AddAddress', 'Value', '', 0x14],
-            !ifForward && ['AddAddress', 'Value', '', 0x10]
+            ifForward && ['AddAddress', 'Mem', '32bit', 0x14],
+            !ifForward && ['AddAddress', 'Mem', '32bit', 0x10]
         )
         i = i + 1
     }
 
-    return $(chain, accessNode && ['AddAddress', 'Value', '', 0x0])
+    return $(chain, accessNode && ['AddAddress', 'Mem', '32bit', 0x0])
 }
 
    
@@ -292,15 +292,15 @@ export function chainLinkedListDataRange(startnode: number, endnode: number, con
 
     let i: number = endnode - startnode
     let chain: ConditionBuilder = chainLinkedListData(startnode, ifForward, false).withLast({ flag: 'Remember' })
-    let nextRowForward: ConditionBuilder = $('I:{recall}', ['Remember', 'Value', '', 0x14])
-    const nextRowBackward = $('I:{recall}', ['Remember', 'Value', '', 0x10])
+    let nextRowForward: ConditionBuilder = $('I:{recall}', ['Remember', 'Mem', '32bit', 0x14])
+    const nextRowBackward = $('I:{recall}', ['Remember', 'Mem', '32bit', 0x10])
    
     while (i >= 0) {
         for (const condition of conditions) {
             chain = $(
                 chain,
                 'I:{recall}',
-                ['AddAddress', 'Value', '', 0x0],
+                ['AddAddress', 'Mem', '32bit', 0x0],
                 condition
             )
         }
