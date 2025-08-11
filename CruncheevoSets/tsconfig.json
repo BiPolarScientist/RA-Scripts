@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": [ "ESNext" ],
+    "rootDir": "src",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "types": [ "node" ],
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "outDir": "build",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true
+  },
+  "exclude": [ "node_modules" ],
+  "include": [ "src/**/*.ts" ]
+}
