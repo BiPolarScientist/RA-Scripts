@@ -318,5 +318,74 @@ export function chainLinkedListDataRange(startnode: number, endnode: number, con
 }
 
 
+/*
 
 
+
+Non-memory data
+
+
+
+*/
+
+
+export const floorUnlockedDicts = { 2: { 0: 0x3, 1: 0x3, 2: 0x5 }, 3: { 0: 0x8, 1: 0x9, 2: 0xd }, 4: { 0: 0xd, 1: 0xf, 2: 0x14 } }
+
+/** Takes in baby order in linked list, and outputs babyID number */
+export const babyIdentificationDict = {
+    0: 4,
+    1: 5,
+    2: 2,
+    3: 1,
+    4: 0
+}
+
+export const levelOnFloorDict = {
+    0x01 : 2,
+    0x02 : 2,
+    0x03 : 2,
+    0x04 : 1,
+    0x05: 1,
+    0x07: 1,
+    0x08: 1,
+    0x09: 1,
+    0x0a: 1,
+    0x0b: 2,
+    0x0c: 2,
+    0x0d: 2,
+    0x0e: 2,
+    0x10: 2,
+    0x11: 3,
+    0x12: 3,
+    0x14: 3,
+    0x15: 3,
+    0x17: 3,
+    0x18: 3,
+    0x19: 3,
+    0x1a: 4
+}
+
+export const levelNames = {
+    0x01: { title: 'Rugrat Rug Race', achTitle: 'a', points:1 },
+    0x02: { title: 'Meanie Genie', achTitle: 'a', points:1 },
+    0x03: { title: 'temple of the lamp', achTitle: 'a', points: 1},
+    0x04: { title: 'Mr. Snowtato Head', achTitle: 'a', points:1 },
+    0x05: { title: 'Ready, Set, Snow', achTitle: 'a', points:1 },
+    0x07: { title: 'Snowplace to Hide', achTitle: 'a', points:1 },
+    0x08: { title: 'River Fun Run', achTitle: 'a', points: 1},
+    0x09: { title: 'Punting Papayas', achTitle: 'a', points: 1},
+    0x0a: { title: 'Monkey Business', achTitle: 'a', points:1 },
+    0x0b: { title: 'Cone Caper', achTitle: 'a', points: 1},
+    0x0c: { title: 'Acrobatty Dash', achTitle: 'a', points:1 },
+    0x0d: { title: 'Cream Pie Flyer', achTitle: 'a', points:1 },
+    0x0e: { title: 'Sub-a-Dub-Dub', achTitle: 'a', points:1 },
+    0x10: { title: 'Hot Cod Racer', achTitle: 'a', points:1 },
+    0x11: { title: 'Fly High Egg Hunt', achTitle: 'a', points:1 },
+    0x12: { title: 'Rex Riding', achTitle: 'a', points: 1},
+    0x14: { title: 'Bow and Apple', achTitle: 'a', points:1 },
+    0x15: { title: 'The Holey Pail', achTitle: 'a', points:1 },
+    0x17: { title: 'Moon Buggy Madness', achTitle: 'a', points:1 },
+    0x18: { title: 'Cheesy Chase', achTitle: 'a', points:1 },
+    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'a', points:1 },
+
+}
