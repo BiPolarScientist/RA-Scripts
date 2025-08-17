@@ -386,6 +386,20 @@ export const levelNames = {
     0x15: { title: 'The Holey Pail', achTitle: 'a', points:1 },
     0x17: { title: 'Moon Buggy Madness', achTitle: 'a', points:1 },
     0x18: { title: 'Cheesy Chase', achTitle: 'a', points:1 },
-    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'a', points:1 },
+    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'a', points:1 }
 
 }
+
+export const littleBatteryData = {
+    0x01: { title: 'snow', achTitle: 'a', points: 1, levelArray: [0x4, 0x5, 0x7] },
+    0x02: { title: 'jungle', achTitle: 'a', points: 1, levelArray: [0x8, 0x9, 0xa] },
+    0x03: { title: 'undersea', achTitle: 'a', points: 1, levelArray: [0xe, 0x10] },
+    0x04: { title: 'Arabian', achTitle: 'a', points: 1, levelArray: [0x1, 0x2, 0x3] },
+    0x05: { title: 'circus', achTitle: 'a', points: 1, levelArray: [0xb, 0xc, 0xd] },
+    0x06: { title: 'dino', achTitle: 'a', points: 1, levelArray: [0x11, 0x12] },
+    0x07: { title: 'Moon', achTitle: 'a', points: 1, levelArray: [0x17, 0x18, 0x19] },
+    0x08: { title: 'Medieval', achTitle: 'a', points: 1, levelArray: [0x14, 0x15] }
+}
+
+
+

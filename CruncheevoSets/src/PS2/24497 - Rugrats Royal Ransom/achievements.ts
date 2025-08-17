@@ -48,6 +48,7 @@ function gatheredAllLittleBatteries(levelIDArray: Array<number>, oneWorld: boole
         }
         return output
     }
+
     else {
         return core
     }
@@ -122,8 +123,69 @@ function beatLevel(levelID: number, difficulty: number): ConditionBuilder {
 
 export function makeAchievements(set: AchievementSet): void {
 
+    set.addAchievement({
+        title: 'No Rugrat Left Behind',
+        description: 'Have all five controllable rugrats in the Play Palace 3000 at once',
+        points: 1,
+        conditions: {
+            core: $(
+                inGame(),
+                comparison(data.levelIDLoaded,'=',0x1b)
+            ),
+
+            alt1: $( // Alt checking the case where Angelica isn't present
+                data.chainLinkedListDataRange(0, 4, [
+                    $(
+                        ['AddAddress', 'Mem', '32bit', 0xd8],
+                        ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328]
+                    ),
+                    $(
+                        ['AddAddress', 'Mem', '32bit', 0xd8],
+                        ['AndNext', 'Delta', '32bit', 0xec, '=', 'Value', '', 0x111328]
+                    ),
+                    $(
+                        ['AndNext', 'Mem', '16bit', 0x7e8, '>=', 'Value', '', 1]
+                    ),
+                    $(
+                        ['', 'Mem', '16bit', 0x7e8, '<=', 'Value', '', 3]
+                    )
+                ], true),
+
+                data.chainLinkedListDataRange(0, 4, [
+                    $(['OrNext', 'Delta', '16bit', 0x7e8, '=', 'Value', '', 0])
+                ]).withLast({ flag: '' })
+            ),
+
+            alt2: $( // Alt checking the case where Angelica is present
+                data.chainLinkedListDataRange(1, 5, [
+                    $(
+                        ['AddAddress', 'Mem', '32bit', 0xd8],
+                        ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328]
+                    ),
+                    $(
+                        ['AddAddress', 'Mem', '32bit', 0xd8],
+                        ['AndNext', 'Delta', '32bit', 0xec, '=', 'Value', '', 0x111328]
+                    ),
+                    $(
+                        ['AndNext', 'Mem', '16bit', 0x7e8, '>=', 'Value', '', 1]
+                    ),
+                    $(
+                        ['', 'Mem', '16bit', 0x7e8, '<=', 'Value', '', 3]
+                    )
+                ], true),
+
+                data.chainLinkedListDataRange(1, 5, [
+                    $(['OrNext', 'Delta', '16bit', 0x7e8, '=', 'Value', '', 0])
+                ]).withLast({ flag: '' })
+            )
+        }
+    })
+
+    // Complete each level on floors 1-3 on Reptar Tough
+
     let i:number = 1
     while (i < 0x1a) {
+
         if (data.levelNames.hasOwnProperty(i)) {
             set.addAchievement({
                 title: data.levelNames[i].achTitle,
@@ -136,116 +198,75 @@ export function makeAchievements(set: AchievementSet): void {
     }
 
 
+    // Collect all the small batteries in each world
 
-    let littleb: any = gatheredAllLittleBatteries([0x4, 0x5, 0x7], true)
+    i = 1
+    while (i < 0x9) {
+
+        let littleb: any = gatheredAllLittleBatteries(data.littleBatteryData[i].levelArray, true)
+
+        if (data.littleBatteryData[i].levelArray.length == 2) {
+            set.addAchievement({
+                title: data.littleBatteryData[i].achTitle,
+                description: 'Collect all the small batteries in the ' + data.littleBatteryData[i].title + ' world',
+                points: data.littleBatteryData[i].points,
+                conditions: {
+                    'core': $(inGame(), littleb.core),
+                    'alt1': littleb.alt1,
+                    'alt2': littleb.alt2
+                }
+            })
+        }
+        else {
+            set.addAchievement({
+                title: data.littleBatteryData[i].achTitle,
+                description: 'Collect all the small batteries in the ' + data.littleBatteryData[i].title + ' world',
+                points: data.littleBatteryData[i].points,
+                conditions: {
+                    'core': $(inGame(), littleb.core),
+                    'alt1': littleb.alt1,
+                    'alt2': littleb.alt2,
+                    'alt3': littleb.alt3
+                }
+            })
+        }
+        
+
+        i=i+1
+    }
+
+
+    // Progression and final level achievements
 
     set.addAchievement({
-        title: 'test',
-        description: 'Collect all the small batteries in the snow world',
-        points: 1,
+        title: 'a',
+        description: 'Activate the Hover-vator to the second level',
+        points: 5,
+        type: 'progression',
         conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2,
-            'alt3': littleb.alt3
+            'core': inGame(),
+            'alt1': activatedHoverVator(2, 0), // Can be done on any difficulty
+            'alt2': activatedHoverVator(2, 1),
+            'alt3': activatedHoverVator(2, 2)
         }
     })
 
-    littleb = gatheredAllLittleBatteries([0x8, 0x9, 0xa], true)
-
     set.addAchievement({
-        title: 'test' ,
-        description: 'Collect all the small batteries in the jungle world',
-        points: 1,
+        title: 'a',
+        description: 'Activate the Hover-vator to the third level',
+        points: 10,
+        type: 'progression',
         conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2,
-            'alt3': littleb.alt3
+            'core': inGame(),
+            'alt1': activatedHoverVator(3, 0), // Can be done on any difficulty
+            'alt2': activatedHoverVator(3, 1),
+            'alt3': activatedHoverVator(3, 2)
         }
     })
 
-    littleb = gatheredAllLittleBatteries([0xe, 0x10], true)
 
-    set.addAchievement({
-        title: 'test',
-        description: 'Collect all the small batteries in the undersea world',
-        points: 1,
-        conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2
-        }
-    })
 
-    littleb = gatheredAllLittleBatteries([0x1, 0x2, 0x3], true)
-
-    set.addAchievement({
-        title: 'test',
-        description: 'Collect all the small batteries in the Arabian world',
-        points:1 ,
-        conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2,
-            'alt3': littleb.alt3
-        }
-    })
-
-    littleb = gatheredAllLittleBatteries([0xb, 0xc, 0xd], true)
-
-    set.addAchievement({
-        title: 'test',
-        description: 'Collect all the small batteries in the circus world',
-        points:1 ,
-        conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2,
-            'alt3': littleb.alt3
-        }
-    })
-
-    littleb = gatheredAllLittleBatteries([0x11, 0x12], true)
-
-    set.addAchievement({
-        title: 'test',
-        description: 'Collect all the small batteries in the dino world',
-        points:1 ,
-        conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2
-        }
-    })
-
-    littleb = gatheredAllLittleBatteries([0x17, 0x18, 0x19], true)
-
-    set.addAchievement({
-        title: 'test',
-        description: 'Collect all the small batteries in the Moon world',
-        points: 1,
-        conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2,
-            'alt3': littleb.alt3
-        }
-    })
-
-    littleb = gatheredAllLittleBatteries([0x14, 0x15], true)
-
-    set.addAchievement({
-        title: 'test',
-        description: 'Collect all the small batteries in the Medieval world',
-        points: 1,
-        conditions: {
-            'core': $(inGame(), littleb.core),
-            'alt1': littleb.alt1,
-            'alt2': littleb.alt2
-        }
-    })
-
+    //Challenges
 
     set.addAchievement({
         title: 'snowplace to hide no damage challenge',
@@ -253,10 +274,24 @@ export function makeAchievements(set: AchievementSet): void {
         points: 5,
         conditions: $(
             inGame(),
-            beatLevel(0x7, 2).andNext(
-                $(comparison(data.levelIDLoaded, '=', 0x1b, true, false)),
-                $(comparison(data.levelIDLoaded, '=', 0x7))).withLast({ hits: 1 }),
-            data.chainLinkedListDataRange(0, 60, [
+
+            beatLevel(0x7, 2),
+
+            comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), // Sets a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x7).withLast({ hits: 1 }),
+
+            data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). // Checks that the door has been unlocked
+                also(
+                    'I: { recall }',
+                    ['AddAddress', 'Mem', '32bit', 0xd8],
+                    ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x192098],
+                    'I: { recall }',
+                    ['AndNext', 'Delta', 'Float', 0xc, '>=', 'Value', '', 0],
+                    'I: { recall }',
+                    $(['', 'Mem', 'Float', 0xc, '<', 'Value', '', 0]).withLast({ hits: 1 })
+            ),
+
+            data.chainLinkedListDataRange(0, 80, [  // Checks all positions for the health value, and resets the checkpoint if it's ever less than full
                 $(
                     ['AddAddress', 'Mem', '32bit', 0xd8],
                     ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328]
@@ -266,6 +301,64 @@ export function makeAchievements(set: AchievementSet): void {
                 )
             ], true)
 
+        )
+    })
+
+    set.addAchievement({
+        title: 'snowplace to hide no key challenge',
+        description: 'Complete Snowplace to Hide without unlocking the door',
+        points: 5,
+        conditions: {
+            'core': $(
+                inGame(),
+
+                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), // Sets a checkpoint hit at the start of the level
+                comparison(data.levelIDLoaded, '=', 0x7).withLast({ hits: 1 }),
+
+                data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). // Resets the checkpoint if the door is ever opened
+                    also(
+                        'I: { recall }',
+                        ['AddAddress', 'Mem', '32bit', 0xd8],
+                        ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x192098],
+                        'I: { recall }',
+                        ['ResetIf', 'Mem', 'Float', 0xc, '<', 'Value', '', 0]
+                )
+            ),
+            'alt1': beatLevel(0x7, 0), // Can be done on any difficulty
+            'alt2': beatLevel(0x7, 1),
+            'alt3': beatLevel(0x7, 2)
+        }
+    })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Complete Rugrat Rug Race on Reptar Tough within 2 laps',
+        points: 5,
+        conditions: $(
+            inGame(),
+
+            comparison(data.levelIDLoaded, '=', 0x1),
+            comparison(data.difficulty, '=', 2),
+
+            data.chainLinkedListData(0, true).withLast({ flag: 'Remember' }). // Checks for the moment the game counter goes from 1 to 0
+                also(
+                    'I: { recall }',
+                    ['AddAddress', 'Mem', '32bit', 0xd8],
+                    ['', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328],
+                    'I: { recall }',
+                    ['Trigger', 'Delta', '16bit', 0x8d4, '=', 'Value', '', 1],
+                    'I: { recall }',
+                    ['Trigger', 'Mem', '16bit', 0x8d4, '=', 'Value', '', 0]
+                ),
+
+            data.chainLinkedListData(1, true).withLast({ flag: 'Remember' }). // Checks that you haven't started the third lap, with one extra checkpoint for saftey
+                also(
+                    'I: { recall }',
+                    ['AddAddress', 'Mem', '32bit', 0xd8],
+                    ['', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x129b38],
+                    'I: { recall }',
+                    ['', 'Mem', '16bit', 0x208, '<=', 'Value', '', 0xe7]
+                )
         )
     })
 }
