@@ -203,16 +203,16 @@ export function shopItemAvailable(levelID: number): Partial<Condition.Data> {
 //          
 //          Notable entry, item 36
 //          0x003f67b8 = Secret Funny Money
-export function shopItemPurchased(levelID: number): Partial<Condition.Data> {
+export function shopItemPurchased(itemID: number): Partial<Condition.Data> {
     return {
-        lvalue: { type: 'Mem', size: '32bit', value: 0x3F672C + 4 * (levelID - 1) }, rvalue: { type: 'Mem', size: '32bit', value: 0x3F672C + 4 * (levelID - 1) }
+        lvalue: { type: 'Mem', size: '32bit', value: 0x3F672C + 4 * (itemID - 1) }, rvalue: { type: 'Mem', size: '32bit', value: 0x3F672C + 4 * (itemID - 1) }
     }
 }
 
 // $3F98C2: [16-bit][Array of 54 bytes] Little batteries left to collect in level, indexed by level id starting at 1, see list of id's in 0x3d277c
-export function littleBatteriesLeft(levelID: number): Partial<Condition.Data> {
+export function littleBatteriesLeft(itemID: number): Partial<Condition.Data> {
     return {
-        lvalue: { type: 'Mem', size: '16bit', value: 0x3F98C2 + 2 * (levelID - 1) }, rvalue: { type: 'Mem', size: '16bit', value: 0x3F98C2 + 2 * (levelID - 1) }
+        lvalue: { type: 'Mem', size: '16bit', value: 0x3F98C2 + 2 * (itemID - 1) }, rvalue: { type: 'Mem', size: '16bit', value: 0x3F98C2 + 2 * (itemID - 1) }
     }
 }
 
@@ -245,16 +245,33 @@ Chains
 /**
  * Provides an Add Source chain that provides total amount of cash stacks found in a level, follow it up with ['', 'Value', '', 0, (cmp), (rvalue)]
  */
-export function chainFunnyMoneyStacksCollected( levelID: number): ConditionBuilder  {
-    return $(
-        '', '', '', '', '', '', '', ''
-    ).map((c, index) => c.with({
-        flag: 'AddSource',
-        lvalue: {
-            type: 'Mem',
-            size: 'BitCount',
-            value: (0x3F68C0 + (levelID * 0x100)) + index
-        }}))
+export function chainFunnyMoneyStacksCollected( levelID: number, ifDelta: boolean = false): ConditionBuilder  {
+
+    if (!ifDelta) {
+        return $(
+            '', '', '', '', '', '', '', ''
+        ).map((c, index) => c.with({
+            flag: 'AddSource',
+            lvalue: {
+                type: 'Mem',
+                size: 'BitCount',
+                value: (0x3F68C0 + (levelID * 0x100)) + index
+            }
+        }))
+    }
+    else {
+        return $(
+            '', '', '', '', '', '', '', ''
+        ).map((c, index) => c.with({
+            flag: 'AddSource',
+            lvalue: {
+                type: 'Delta',
+                size: 'BitCount',
+                value: (0x3F68C0 + (levelID * 0x100)) + index
+            }
+        }))
+    }
+    
 }
 
 /** Accessing one element in the linked list, forwards or backwards
@@ -329,7 +346,11 @@ Non-memory data
 */
 
 
-export const floorUnlockedDicts = { 2: { 0: 0x3, 1: 0x3, 2: 0x5 }, 3: { 0: 0x8, 1: 0x9, 2: 0xd }, 4: { 0: 0xd, 1: 0xf, 2: 0x14 } }
+export const floorUnlockedDicts = {
+    2: { 0: 0x3, 1: 0x3, 2: 0x5 },
+    3: { 0: 0x8, 1: 0x9, 2: 0xd },
+    4: { 0: 0xd, 1: 0xf, 2: 0x14 }
+}
 
 /** Takes in baby order in linked list, and outputs babyID number */
 export const babyIdentificationDict = {
@@ -366,39 +387,51 @@ export const levelOnFloorDict = {
 }
 
 export const levelNames = {
-    0x01: { title: 'Rugrat Rug Race', achTitle: 'a', points:1 },
-    0x02: { title: 'Meanie Genie', achTitle: 'a', points:1 },
-    0x03: { title: 'temple of the lamp', achTitle: 'a', points: 1},
-    0x04: { title: 'Mr. Snowtato Head', achTitle: 'a', points:1 },
-    0x05: { title: 'Ready, Set, Snow', achTitle: 'a', points:1 },
-    0x07: { title: 'Snowplace to Hide', achTitle: 'a', points:1 },
-    0x08: { title: 'River Fun Run', achTitle: 'a', points: 1},
-    0x09: { title: 'Punting Papayas', achTitle: 'a', points: 1},
-    0x0a: { title: 'Monkey Business', achTitle: 'a', points:1 },
-    0x0b: { title: 'Cone Caper', achTitle: 'a', points: 1},
-    0x0c: { title: 'Acrobatty Dash', achTitle: 'a', points:1 },
-    0x0d: { title: 'Cream Pie Flyer', achTitle: 'a', points:1 },
-    0x0e: { title: 'Sub-a-Dub-Dub', achTitle: 'a', points:1 },
-    0x10: { title: 'Hot Cod Racer', achTitle: 'a', points:1 },
-    0x11: { title: 'Fly High Egg Hunt', achTitle: 'a', points:1 },
-    0x12: { title: 'Rex Riding', achTitle: 'a', points: 1},
-    0x14: { title: 'Bow and Apple', achTitle: 'a', points:1 },
-    0x15: { title: 'The Holey Pail', achTitle: 'a', points:1 },
-    0x17: { title: 'Moon Buggy Madness', achTitle: 'a', points:1 },
-    0x18: { title: 'Cheesy Chase', achTitle: 'a', points:1 },
-    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'a', points:1 }
+    0x01: { title: 'Rugrat Rug Race', achTitle: 'a', points: 3 },
+    0x02: { title: 'Meanie Genie', achTitle: 'a', points: 4 },
+    0x03: { title: 'temple of the lamp', achTitle: 'a', points: 2 },
+    0x04: { title: 'Mr. Snowtato Head', achTitle: 'a', points: 1 },
+    0x05: { title: 'Ready, Set, Snow', achTitle: 'a', points: 3 },
+    0x07: { title: 'Snowplace to Hide', achTitle: 'a', points: 1 },
+    0x08: { title: 'River Fun Run', achTitle: 'a', points: 10 },
+    0x09: { title: 'Punting Papayas', achTitle: 'a', points: 3 },
+    0x0a: { title: 'Monkey Business', achTitle: 'a', points: 3 },
+    0x0b: { title: 'Cone Caper', achTitle: 'a', points: 4 },
+    0x0c: { title: 'Acrobatty Dash', achTitle: 'a', points: 3 },
+    0x0d: { title: 'Cream Pie Flyer', achTitle: 'a', points: 10 },
+    0x0e: { title: 'Sub-a-Dub-Dub', achTitle: 'a', points: 2 },
+    0x10: { title: 'Hot Cod Racer', achTitle: 'a', points: 3 },
+    0x11: { title: 'Fly High Egg Hunt', achTitle: 'a', points: 1 },
+    0x12: { title: 'Rex Riding', achTitle: 'a', points: 5 },
+    0x14: { title: 'Bow and Apple', achTitle: 'a', points: 5 },
+    0x15: { title: 'The Holey Pail', achTitle: 'a', points: 4 },
+    0x17: { title: 'Moon Buggy Madness', achTitle: 'a', points: 3 },
+    0x18: { title: 'Cheesy Chase', achTitle: 'a', points: 1 },
+    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'a', points: 1 }
 
 }
 
 export const littleBatteryData = {
-    0x01: { title: 'snow', achTitle: 'a', points: 1, levelArray: [0x4, 0x5, 0x7] },
-    0x02: { title: 'jungle', achTitle: 'a', points: 1, levelArray: [0x8, 0x9, 0xa] },
-    0x03: { title: 'undersea', achTitle: 'a', points: 1, levelArray: [0xe, 0x10] },
-    0x04: { title: 'Arabian', achTitle: 'a', points: 1, levelArray: [0x1, 0x2, 0x3] },
-    0x05: { title: 'circus', achTitle: 'a', points: 1, levelArray: [0xb, 0xc, 0xd] },
-    0x06: { title: 'dino', achTitle: 'a', points: 1, levelArray: [0x11, 0x12] },
-    0x07: { title: 'Moon', achTitle: 'a', points: 1, levelArray: [0x17, 0x18, 0x19] },
-    0x08: { title: 'Medieval', achTitle: 'a', points: 1, levelArray: [0x14, 0x15] }
+    0x01: { title: 'snow', achTitle: 'Cold Fusion', points: 5, levelArray: [0x4, 0x5, 0x7] },
+    0x02: { title: 'jungle', achTitle: 'Photosynthetic Energy', points: 5, levelArray: [0x8, 0x9, 0xa] },
+    0x03: { title: 'undersea', achTitle: 'Hydropower Energy', points: 5, levelArray: [0xe, 0x10] },
+    0x04: { title: 'Arabian', achTitle: 'Solar Energy', points: 5, levelArray: [0x1, 0x2, 0x3] },
+    0x05: { title: 'circus', achTitle: 'a', points: 5, levelArray: [0xb, 0xc, 0xd] },
+    0x06: { title: 'dino', achTitle: 'Fossil Fuels', points: 5, levelArray: [0x11, 0x12] },
+    0x07: { title: 'Moon', achTitle: 'Lunar Energy', points: 5, levelArray: [0x17, 0x18, 0x19] },
+    0x08: { title: 'Medieval', achTitle: 'Were These Even Invented Yet?', points: 5, levelArray: [0x14, 0x15] }
+}
+
+export const funnyMoneyData = {
+    0x01: { title: 'snow', achTitle: 'Frozen Assets', points: 10, levelArray: [0x4, 0x5, 0x7], stacksArray: [] },
+    0x02: { title: 'jungle', achTitle: 'Your Papaya Paycheck', points: 10, levelArray: [0x8, 0x9, 0xa], stacksArray: [] },
+    0x03: { title: 'undersea', achTitle: 'Jackpot at the Seahorse Track', points: 10, levelArray: [0xe, 0x10], stacksArray: [] },
+    0x04: { title: 'Arabian', achTitle: 'Accessing Your Offshore Account', points: 10, levelArray: [0x1, 0x2, 0x3], stacksArray: [] },
+    0x05: { title: 'circus', achTitle: 'a', points: 10, levelArray: [0xb, 0xc, 0xd], stacksArray: [] },
+    0x06: { title: 'dino', achTitle: 'Their Bones are Their Money', points: 10, levelArray: [0x11, 0x12], stacksArray: [] },
+    0x07: { title: 'Moon', achTitle: 'a', points: 10, levelArray: [0x17, 0x18, 0x19], stacksArray: [] },
+    0x08: { title: 'Medieval', achTitle: 'Investing Early', points: 10, levelArray: [0x14, 0x15], stacksArray: [] },
+    0x09: { title: 'Stomin\' the Castle', achTitle: 'Your Treasury Bond Has Matured', points: 10, levelArray: [0x1a], stacksArray: [] }
 }
 
 

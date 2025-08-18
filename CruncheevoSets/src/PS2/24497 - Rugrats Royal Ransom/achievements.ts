@@ -25,36 +25,7 @@ function beatLevelOnToughFirstTime(levelID: number): ConditionBuilder {
     ) 
 }
 
-function gatheredAllLittleBatteries(levelIDArray: Array<number>, oneWorld: boolean = true): any {
-    let core: ConditionBuilder = $()
 
-    for (var id of levelIDArray) {
-        core = core.also(comparison(data.littleBatteriesLeft(id), '=', 0))
-    }
-
-    if (oneWorld) {
-        let i: number = 0
-        let alts: Array<ConditionBuilder> = []
-        for (var id of levelIDArray) {
-            alts[i] = $(comparison(data.levelIDLoaded,'=',id))
-            alts[i] = alts[i].also(comparison(data.littleBatteriesLeft(id), '=', 1, true, false))
-            i = i + 1
-        }
-        let output: any = { 'core': core }
-        i = 1
-        for (var index in alts) {
-            output['alt' + i.toString()] = alts[index]
-            i = i+1
-        }
-        return output
-    }
-
-    else {
-        return core
-    }
-
-
-}
 
 function activatedHoverVator(floorUnlocked: number, difficulty: number): ConditionBuilder {
     return $(
@@ -66,9 +37,6 @@ function activatedHoverVator(floorUnlocked: number, difficulty: number): Conditi
 
 
 // This function is mostly used as a helper for beatLevel() in order to reset hits if the baby you are playing failed the level
-// Winning and failing the level is indistinguisable without this or checking level data itself
-// Not using level data which is stored in a very long linked list that has the potential to change greatly keeps consitency up, and code length down
-// In comparison, the hub world level data is very simple, and only has one thing that can change at the start of the list (the presence of Angelica)
 function didBabyFailLevel(levelID: number, difficulty: number, babyIdentification, angelicaPresent: number = 0): ConditionBuilder {
 
     if (angelicaPresent) {
@@ -76,6 +44,7 @@ function didBabyFailLevel(levelID: number, difficulty: number, babyIdentificatio
             comparison(data.levelIDLoaded, '=', 0x1b).withLast({ hits: 29 }),                         //Count if you've loaded the hub world for 29 frames, this is enough time for all the babies to load (still on loading screen)
             comparison(data.currentBigBatteries, '<', data.floorUnlockedDicts[4][difficulty]),        //Makes sure angelica isn't loaded
             comparison(data.baby, '=', data.babyIdentificationDict[babyIdentification]),              //Are you playing as the baby being asked about?
+            comparison(data.difficulty, '=', difficulty),                                             //Are you on the right difficulty?
             data.chainLinkedListData(babyIdentification + angelicaPresent, true),                     //Goes to the node in the linked list where the baby in question is asked about
             comparison(0x7e8, '=', 0)                                                                 //Check if the floor data is 0, i.e. you've been kicked out of the play castle
         )
@@ -85,12 +54,18 @@ function didBabyFailLevel(levelID: number, difficulty: number, babyIdentificatio
             comparison(data.levelIDLoaded, '=', 0x1b).withLast({ hits: 29 }),  
             comparison(data.currentBigBatteries, '>=', data.floorUnlockedDicts[4][difficulty]),       //Makes sure angelica is loaded
             comparison(data.baby, '=', data.babyIdentificationDict[babyIdentification]),
+            comparison(data.difficulty, '=', difficulty),                                          
             data.chainLinkedListData(babyIdentification + angelicaPresent, true),
             comparison(0x7e8, '=', 0)
         )
     }
 }
 
+
+// Winning after the first time and failing the level are directly indistinguisable without checking level data itself
+// Instead we indirectly check by where the baby you are controlling ends up after the hub world loads
+// Not using level data which is stored in a very long linked list that has the potential to change greatly keeps consitency up, and code length down
+// In comparison, the hub world level data is very simple, and only has one thing that can change at the start of the list (the presence of Angelica)
 function beatLevel(levelID: number, difficulty: number): ConditionBuilder {
     
     let logic:ConditionBuilder = $(
@@ -119,6 +94,17 @@ function beatLevel(levelID: number, difficulty: number): ConditionBuilder {
     return logic
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 export function makeAchievements(set: AchievementSet): void {
@@ -181,10 +167,11 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
-    // Complete each level on floors 1-3 on Reptar Tough
 
-    let i:number = 1
-    while (i < 0x1a) {
+
+
+    // Complete each level on floors 1-3 on Reptar Tough
+    for (let i = 1; i < 0x1a; i++) {
 
         if (data.levelNames.hasOwnProperty(i)) {
             set.addAchievement({
@@ -194,49 +181,114 @@ export function makeAchievements(set: AchievementSet): void {
                 conditions: $( inGame() ,beatLevelOnToughFirstTime(i) )
             })
         }
-        i = i + 1
     }
+
+
 
 
     // Collect all the small batteries in each world
+    for (let i: number = 1; i < 0x9; i++) {
 
-    i = 1
-    while (i < 0x9) {
+        let core: ConditionBuilder = $(
+            inGame(),
+            comparison(data.difficulty, '=', 2)
+        )
+        let deltaChain: ConditionBuilder = $()
 
-        let littleb: any = gatheredAllLittleBatteries(data.littleBatteryData[i].levelArray, true)
+        for (var levelID of data.littleBatteryData[i].levelArray) {
+            core = $(
+                core,
+                comparison(data.littleBatteriesLeft(levelID), '=', 0)
+            )
 
-        if (data.littleBatteryData[i].levelArray.length == 2) {
-            set.addAchievement({
-                title: data.littleBatteryData[i].achTitle,
-                description: 'Collect all the small batteries in the ' + data.littleBatteryData[i].title + ' world',
-                points: data.littleBatteryData[i].points,
-                conditions: {
-                    'core': $(inGame(), littleb.core),
-                    'alt1': littleb.alt1,
-                    'alt2': littleb.alt2
-                }
-            })
+            deltaChain = $(
+                deltaChain,
+                $().withLast({
+                    flag: 'AddSource',
+                    lvalue: data.littleBatteriesLeft(levelID).lvalue
+                }).withLast({
+                    lvalue: {type: 'Delta'}
+                })
+            )
         }
-        else {
-            set.addAchievement({
-                title: data.littleBatteryData[i].achTitle,
-                description: 'Collect all the small batteries in the ' + data.littleBatteryData[i].title + ' world',
-                points: data.littleBatteryData[i].points,
-                conditions: {
-                    'core': $(inGame(), littleb.core),
-                    'alt1': littleb.alt1,
-                    'alt2': littleb.alt2,
-                    'alt3': littleb.alt3
-                }
-            })
-        }
-        
 
-        i=i+1
+        set.addAchievement({
+            title: data.littleBatteryData[i].achTitle,
+            description: 'Collect all the small batteries in the ' + data.littleBatteryData[i].title + ' world on Reptar Tough',
+            points: data.littleBatteryData[i].points,
+            conditions: $(
+                core,
+                deltaChain.withLast({
+                    flag: '',
+                    cmp: '=',
+                    rvalue: {type: 'Value', value: 1}
+                })
+            )
+        })
     }
 
 
-    // Progression and final level achievements
+
+
+
+    // Collect all the Funny Money in each world
+    for (let i = 1; i < 0xa; i++) {
+
+        let core: ConditionBuilder = $(
+            inGame(),
+            comparison(data.difficulty, '=', 2)
+        )
+        let deltaChain: ConditionBuilder = $()
+
+        
+        for (const [index, levelID] of data.funnyMoneyData[i].levelArray.entries()) {
+            core = $(
+                core,
+                // Checks that you have all the stacks collected in each level in the world
+                data.chainFunnyMoneyStacksCollected(levelID).withLast({
+                    flag: '',
+                    cmp: '=',
+                    rvalue: { type: 'Value', value: data.funnyMoneyData[i].stacksArray[index] }
+                })
+            )
+
+            // Sums up the delta values of all stacks collected in the world
+            deltaChain = $(deltaChain, data.chainFunnyMoneyStacksCollected(levelID, true))
+        }
+
+        // Total amount of stacks to be collected in the world
+        let totalStacks: number = data.funnyMoneyData[i].stacksArray.reduce( (a,b) => a+b, 0 )
+
+        core = $(
+            core,
+            deltaChain.withLast({
+                flag: '',
+                cmp: '=',
+                rvalue: {type: 'Value', value: totalStacks - 1}
+            })
+        )
+
+        // Small change to the desctiption for the final achievement in this series
+        let description: string = 'Collect all the funny money in the ' + data.funnyMoneyData[i].title + ' world on Reptar Tough'
+        if (i == 0x9) {
+            description = 'Collect all the funny money in Stormin\' the Castle on Reptar Tough'
+        }
+
+        set.addAchievement({
+            title: data.funnyMoneyData[i].achTitle,
+            description: description,
+            points: data.funnyMoneyData[i].points,
+            conditions: core
+        })
+
+        
+    }
+
+
+
+
+
+    // Progression-like and final level achievements
 
     set.addAchievement({
         title: 'a',
@@ -263,6 +315,22 @@ export function makeAchievements(set: AchievementSet): void {
             'alt3': activatedHoverVator(3, 2)
         }
     })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Purchase Secret Funny Money from the ATM after unlocking floor 3. This will activate counters for each level on Reptar Tough for how much funny money is left to collect',
+        points: 1,
+        conditions: $(
+            inGame(),
+            comparison(data.shopItemAvailable(36), '=', 1),
+            comparison(data.shopItemPurchased(36), '=', 0, true, false),
+            comparison(data.shopItemPurchased(36), '=', 1, false, false)
+        )
+    })
+
+
+
+
 
 
 
@@ -304,6 +372,8 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+
+
     set.addAchievement({
         title: 'snowplace to hide no key challenge',
         description: 'Complete Snowplace to Hide without unlocking the door',
@@ -329,6 +399,8 @@ export function makeAchievements(set: AchievementSet): void {
             'alt3': beatLevel(0x7, 2)
         }
     })
+
+
 
     set.addAchievement({
         title: 'a',
