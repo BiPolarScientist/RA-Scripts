@@ -27,3 +27,19 @@ export function comparison(leftobject: Partial<Condition.Data> | number, cmp:str
 
     return output
 }
+
+/**
+ * Takes in an addsource chain that ends with =value, spits out the same addsource chain extended ready to be attached to more addsources, and the value this section was tested against previously
+ * @param chain
+ * @returns
+ */
+export function connectAddSourceChains(chain: ConditionBuilder): any {
+
+    let tally: number = chain.conditions[chain.conditions.length - 1].rvalue.value
+    let condOutput = chain
+    condOutput.conditions[chain.conditions.length - 1] = new Condition('B:' + chain.conditions[chain.conditions.length - 1].toString().split('=')[0])
+    return {
+        chain: condOutput,
+        tally: tally
+    }
+}

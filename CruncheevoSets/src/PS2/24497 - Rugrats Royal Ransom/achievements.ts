@@ -1,6 +1,6 @@
 ﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext } from '@cruncheevos/core'
 import * as data from './data.js'
-import { comparison } from '../../helpers.js'
+import { comparison, connectAddSourceChains } from '../../helpers.js'
 import * as fs from 'fs'
 
 
@@ -175,11 +175,11 @@ export function makeAchievements(set: AchievementSet): void {
     // Complete each level on floors 1-3 on Reptar Tough
     for (let i = 1; i < 0x1a; i++) {
 
-        if (data.levelNames.hasOwnProperty(i)) {
+        if (data.levelNamesAchData.hasOwnProperty(i)) {
             set.addAchievement({
-                title: data.levelNames[i].achTitle,
-                description: 'Collect the big battery in \"' + data.levelNames[i].title + '\" on Reptar Tough',
-                points: data.levelNames[i].points,
+                title: data.levelNamesAchData[i].achTitle,
+                description: 'Collect the big battery in \"' + data.levelNamesAchData[i].title + '\" on Reptar Tough',
+                points: data.levelNamesAchData[i].points,
                 conditions: $( inGame() ,beatLevelOnToughFirstTime(i) )
             })
         }
@@ -189,7 +189,7 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     // Collect all the small batteries in each world
-    for (let i: number = 1; i < 0x9; i++) {
+    for (var worldID in data.littleBatteryAchData) {
 
         // Will check if there are 0 little batteries left to collect in each level this frame
         let core: ConditionBuilder = $()
@@ -197,149 +197,125 @@ export function makeAchievements(set: AchievementSet): void {
         // Will check if there was 1 little battery left to collect last frame
         let deltaChains: Array<ConditionBuilder> = []
 
+        // Will keep track of the total amount of little batteries to collect in the world, adding on each level at a time
+        let totalBatteries: number = 0
 
-        for (var levelID of data.littleBatteryData[i].levelArray) {
+
+        // Repeat loop for each level in the world
+        for (var levelID of data.littleBatteryAchData[worldID].levelArray) {
+
+            // Connects all the addsource chains for little batteries in each level
+            let addition: any = connectAddSourceChains(data.chainLittleBatteriesCollected(levelID, 2, true))
+            totalBatteries = totalBatteries + addition.tally
+
             core = $(
                 core,
-                data.chainLittleBatteriesCollected(levelID, 2, false)
+                addition.chain
             )
 
+            // Adds a delta addsource chain of little batteries to the array to be made into a new alt group
             deltaChains.push(data.chainLittleBatteriesCollected(levelID, 2, true) )
         }
 
-        let description: string = 'Collect every small battery in the ' + data.littleBatteryData[i].title + ' world on Reptar Tough'
-        let title: string = data.littleBatteryData[i].achTitle
-        let points: number = data.littleBatteryData[i].points
+        // Change the end of the addsource chain to a measured flag that checks if you have all the batteries in the world
+        core = core.withLast({
+            flag: 'Measured',
+            cmp: '=',
+            rvalue: {
+                type: 'Value',
+                value: totalBatteries
+            }
+        })
 
 
-        switch (data.littleBatteryData[i].levelArray.length) {
-
-            case 2:
-                set.addAchievement({
-                    title: title,
-                    description: description,
-                    points: points,
-                    conditions: {
-                        'core': $(
-                            inGame(),
-                            comparison(data.difficulty, '=', 2),
-                            core
-                        ),
-                        'alt1': deltaChains[0],
-                        'alt2': deltaChains[1]
-                    }
-                })
-                break
-
-            case 3:
-                set.addAchievement({
-                    title: title,
-                    description: description,
-                    points: points,
-                    conditions: {
-                        'core': $(
-                            inGame(),
-                            comparison(data.difficulty, '=', 2),
-                            core
-                        ),
-                        'alt1': deltaChains[0],
-                        'alt2': deltaChains[1],
-                        'alt3': deltaChains[2]
-                    }
-                })
-                break
-
-            default:
-                console.log('Something went wrong in collect all little batteries in each world achievement building, attempted to build a world without 2-3 levels')
+        // Creation of the object that will store the core and alt groups to be used in achievement creation
+        let conditions: any = {
+            core: $(
+                inGame(),
+                comparison(data.difficulty, '=', 2),
+                core
+            )
         }
+        // Creation of the alt groups
+        for (let index in deltaChains) {
+            conditions['alt' + (+index + 1).toString()] = deltaChains[index]
+        }
+
+
+
+        let description: string = 'Collect every small battery in the ' + data.littleBatteryAchData[worldID].title + ' world on Reptar Tough'
+        let title: string = data.littleBatteryAchData[worldID].achTitle
+        let points: number = data.littleBatteryAchData[worldID].points
+
+        set.addAchievement({
+            title: title,
+            description: description,
+            points: points,
+            conditions: conditions
+        }) 
     }
 
 
 
 
 
-    // Collect all the Funny Money in each world
-    for (let i = 1; i < 0xa; i++) {
+    // Collect all the Funny Money in each world, see the above loop in the little batteries achievements for comments, logic is nearly identical
+    for (var worldID in data.funnyMoneyAchData) {
 
-        // Will check if all of the stacks have been collected on this frame
         let core: ConditionBuilder = $()
 
-        // Will check if you were missing just one stack last frame
         let deltaChains: Array<ConditionBuilder> = []
 
+        let totalStacks: number = 0
 
-        for (var levelID of data.funnyMoneyData[i].levelArray) {
+        for (var levelID of data.funnyMoneyAchData[worldID].levelArray) {
+
+            let addition: any = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(levelID, 2, true))
+            totalStacks = totalStacks + addition.tally
 
             core = $(
                 core,
-                data.chainFunnyMoneyStacksCollected(levelID, 2, true)
+                addition.chain
             )
 
             deltaChains.push(data.chainFunnyMoneyStacksCollected(levelID, 2, false))
 
         }
 
+        core = core.withLast({
+            flag: 'Measured',
+            cmp: '=',
+            rvalue: {
+                type: 'Value',
+                value: totalStacks
+            }
+        })
+
 
         // Small change to the desctiption for the final achievement in this series
-        let description: string = 'Collect all the funny money in the ' + data.funnyMoneyData[i].title + ' world on Reptar Tough'
+        let description: string = 'Collect all the funny money in the ' + data.funnyMoneyAchData[worldID].title + ' world on Reptar Tough'
         if (i == 0x9) {
             description = 'Collect all the funny money in \"Stormin\' the Castle\" on Reptar Tough'
         }
 
-
-        switch (data.funnyMoneyData[i].levelArray.length) {
-            case 1:
-                set.addAchievement({
-                    title: data.funnyMoneyData[i].achTitle,
-                    description: description,
-                    points: data.funnyMoneyData[i].points,
-                    conditions: $(
-                        inGame(),
-                        comparison(data.difficulty, '=', 2),
-                        deltaChains[0],
-                        core
-                    )
-                })
-                break
-
-            case 2:
-                set.addAchievement({
-                    title: data.funnyMoneyData[i].achTitle,
-                    description: description,
-                    points: data.funnyMoneyData[i].points,
-                    conditions: {
-                        'core': $(
-                            inGame(),
-                            comparison(data.difficulty, '=', 2),
-                            core
-                        ),
-                        'alt1': deltaChains[0],
-                        'alt2': deltaChains[1]
-                    }
-                })
-                break
-
-            case 3:
-                set.addAchievement({
-                    title: data.funnyMoneyData[i].achTitle,
-                    description: description,
-                    points: data.funnyMoneyData[i].points,
-                    conditions: {
-                        'core': $(
-                            inGame(),
-                            comparison(data.difficulty, '=', 2),
-                            core
-                        ),
-                        'alt1': deltaChains[0],
-                        'alt2': deltaChains[1],
-                        'alt3': deltaChains[2]
-                    }
-                })
-                break
-
-            default:
-                console.log('Something went wrong in collect all funny money in each world achievement building, attempted to build a world without 1-3 levels')
+        let conditions: any = {
+            core: $(
+                inGame(),
+                comparison(data.difficulty, '=', 2),
+                core
+            )
         }
+
+        for (let index in deltaChains) {
+            conditions['alt' + (+index + 1).toString()] = deltaChains[index]
+        }
+
+        set.addAchievement({
+            title: data.funnyMoneyAchData[worldID].achTitle,
+            description: description,
+            points: data.funnyMoneyAchData[worldID].points,
+            conditions: conditions
+        }) 
     }
 
 
@@ -385,30 +361,47 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+
+    // Collect all the funny money and batteries in the game
+
     let finalCore: ConditionBuilder = $()
     let finalAlts: Array<ConditionBuilder> = []
 
-    for (var levelID in [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 20, 21, 23, 24, 25]) {
-        finalCore = $(
-            finalCore,
+    let totalCounter: number = 0
+    let addition: any
+   
+    for (var levelID in data.levelOnFloorDict) {
+
+        // Connects addsource chains of each level's funny money, little batteries, and big battery
+        for (var addSourceChain of [
             data.chainFunnyMoneyStacksCollected(levelID, 2, false),
             data.chainLittleBatteriesCollected(levelID, 2, false),
-            comparison(data.bigBatteryCollected(levelID), '=' , 1)
-        )
+            comparison(data.bigBatteryCollected(levelID), '=', 1)
+        ]) {
+            addition = connectAddSourceChains(addSourceChain)
+            totalCounter = totalCounter + addition.tally
+            finalCore = finalCore.also(addition.chain)
+        }
 
         finalAlts.push(data.chainFunnyMoneyStacksCollected(levelID, 2, true))
         finalAlts.push(data.chainLittleBatteriesCollected(levelID, 2, true))
         finalAlts.push(comparison(data.bigBatteryCollected(levelID), '=', 0, true, false))
     }
 
-    finalCore = $(
-        finalCore,
-        data.chainFunnyMoneyStacksCollected(0x1a, 2, false),
-        data.chainLittleBatteriesCollected(0x1b, 2, false)
-    )
+    // Special cases for funny money in final level and little batteries in play palace 3000
+    addition = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(0x1a, 2, false))
+    totalCounter = totalCounter + addition.tally
+    finalCore = finalCore.also(addition.chain)
+
+    addition = connectAddSourceChains(data.chainLittleBatteriesCollected(0x1b, 2, false))
+    totalCounter = totalCounter + addition.tally
+    finalCore = finalCore.also(addition.chain)
+
     finalAlts.push(data.chainFunnyMoneyStacksCollected(0x1a, 2, true))
     finalAlts.push(data.chainLittleBatteriesCollected(0x1b, 2, true))
 
+
+    // Creation of the core and alt groups
     let finalConditions: any = {
         core: $(
             inGame(),
@@ -418,13 +411,13 @@ export function makeAchievements(set: AchievementSet): void {
     }
 
     finalAlts.forEach(function (condition, index) {
-        finalConditions['alt'+(index+1).toString()] = condition
+        finalConditions['alt'+(+index+1).toString()] = condition
     })
 
 
     set.addAchievement({
         title: 'a',
-        description: 'Gather all the batteries and funny money available in the game on Reptar Tough',
+        description: 'Collect all the batteries and funny money available in the game on Reptar Tough',
         points: 25,
         conditions: finalConditions
     })
@@ -445,16 +438,16 @@ export function makeAchievements(set: AchievementSet): void {
             inGame(),
             comparison(data.levelIDLoaded, '=', 0x5),
             data.chainLinkedListData(0).withLast({ flag: 'Remember' }),
-            'I: { recall }',
+            'I:{recall}',
             ['AddAddress', 'Mem', '32bit', 0xd8],
             ['AndNext', 'Delta', '32bit', 0xec, '=', 'Value', '', 0x111328],
-            'I: { recall }',
+            'I:{recall}',
             ['AddAddress', 'Mem', '32bit', 0xd8],
             ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328],
-            'I: { recall }',
-            ['', 'Delta', 'Float', 0xcc8, '<', 'Float', '', .625],
-            'I: { recall }',
-            ['', 'Mem', 'Float', 0xcc8, '>=', 'Float', '', .625]
+            'I:{recall}',
+            ['', 'Delta', 'Float', 0xcc8, '<', 'Float', '', 0.625],
+            'I:{recall}',
+            ['', 'Mem', 'Float', 0xcc8, '>=', 'Float', '', 0.625]
         )
     })
 
@@ -472,12 +465,12 @@ export function makeAchievements(set: AchievementSet): void {
 
             data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). // Checks that the door has been unlocked
                 also(
-                    'I: { recall }',
+                    'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0xd8],
                     ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x192098],
-                    'I: { recall }',
+                    'I:{recall}',
                     ['AndNext', 'Delta', 'Float', 0xc, '>=', 'Float', '', 0],
-                    'I: { recall }',
+                    'I:{recall}',
                     $(['', 'Mem', 'Float', 0xc, '<', 'Float', '', 0]).withLast({ hits: 1 })
             ),
 
@@ -509,10 +502,10 @@ export function makeAchievements(set: AchievementSet): void {
 
                 data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). // Resets the checkpoint if the door is ever opened
                     also(
-                        'I: { recall }',
+                        'I:{recall}',
                         ['AddAddress', 'Mem', '32bit', 0xd8],
                         ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x192098],
-                        'I: { recall }',
+                        'I:{recall}',
                         ['ResetIf', 'Mem', 'Float', 0xc, '<', 'Float', '', 0]
                 )
             ),
@@ -536,21 +529,21 @@ export function makeAchievements(set: AchievementSet): void {
 
             data.chainLinkedListData(0, true).withLast({ flag: 'Remember' }). // Checks for the moment the game counter goes from 1 to 0
                 also(
-                    'I: { recall }',
+                    'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0xd8],
                     ['', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328],
-                    'I: { recall }',
+                    'I:{recall}',
                     ['Trigger', 'Delta', '16bit', 0x8d4, '=', 'Value', '', 1],
-                    'I: { recall }',
+                    'I:{recall}',
                     ['Trigger', 'Mem', '16bit', 0x8d4, '=', 'Value', '', 0]
                 ),
 
             data.chainLinkedListData(1, true).withLast({ flag: 'Remember' }). // Checks that you haven't started the third lap, with one extra checkpoint for saftey
                 also(
-                    'I: { recall }',
+                    'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0xd8],
                     ['', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x129b38],
-                    'I: { recall }',
+                    'I:{recall}',
                     ['', 'Mem', '16bit', 0x208, '<=', 'Value', '', 0xe7]
                 )
         )

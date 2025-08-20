@@ -1,5 +1,8 @@
 ﻿import { define as $, Condition, ConditionBuilder } from '@cruncheevos/core'
-import collectablesData from './collectables.json'
+import * as fs from 'fs'
+import * as commentjson from 'comment-json'
+const collectablesData = commentjson.parse(fs.readFileSync('./src/PS2/24497 - Rugrats Royal Ransom/collectables.json', 'utf8'))
+//import collectablesData from './collectables.json'
 
 /*
 
@@ -250,7 +253,7 @@ export function chainFunnyMoneyStacksCollected( levelID: number, difficulty: num
 
     let output: ConditionBuilder = $()
 
-    const levelData = collectablesData[levelID][difficulty]
+    const levelData = collectablesData!['0x' + levelID.toString(16)][difficulty.toString()]
 
     let amountOfFunnyMoneyStacks: number = levelData.totalCollectables - levelData.littleBatteries
     let amountOfFunnyMoneyStacksNeeded: number = 0
@@ -331,7 +334,7 @@ export function chainFunnyMoneyStacksCollected( levelID: number, difficulty: num
 export function chainLittleBatteriesCollected(levelID: number, difficulty: number, ifDelta: boolean = false): ConditionBuilder {
     let output: ConditionBuilder = $()
 
-    const levelData = collectablesData[levelID][difficulty]
+    const levelData = collectablesData!['0x' + levelID.toString(16)][difficulty.toString()]
 
     let amountOfFunnyMoneyStacks: number = levelData.totalCollectables - levelData.littleBatteries
 
@@ -501,7 +504,7 @@ export const levelOnFloorDict = {
     0x1a: 4
 }
 
-export const levelNames = {
+export const levelNamesAchData = {
     0x01: { title: 'Rugrat Rug Race', achTitle: 'a', points: 3 },
     0x02: { title: 'Meanie Genie', achTitle: 'a', points: 4 },
     0x03: { title: 'Temple of the Lamp', achTitle: 'Not as Good as Mr. Fluffles', points: 2 },
@@ -526,7 +529,7 @@ export const levelNames = {
 
 }
 
-export const littleBatteryData = {
+export const littleBatteryAchData = {
     0x01: { title: 'snow', achTitle: 'Cold Fusion', points: 5, levelArray: [0x4, 0x5, 0x7] },
     0x02: { title: 'jungle', achTitle: 'Photosynthetic Energy', points: 5, levelArray: [0x8, 0x9, 0xa] },
     0x03: { title: 'undersea', achTitle: 'Hydropower Energy', points: 5, levelArray: [0xe, 0x10] },
@@ -537,7 +540,7 @@ export const littleBatteryData = {
     0x08: { title: 'Medieval', achTitle: 'Were These Even Invented Yet?', points: 5, levelArray: [0x14, 0x15] }
 }
 
-export const funnyMoneyData = {
+export const funnyMoneyAchData = {
     0x01: { title: 'snow', achTitle: 'Frozen Assets', points: 10, levelArray: [0x4, 0x5, 0x7]},
     0x02: { title: 'jungle', achTitle: 'Your Papaya Paycheck', points: 10, levelArray: [0x8, 0x9, 0xa] },
     0x03: { title: 'undersea', achTitle: 'Jackpot at the Seahorse Track', points: 10, levelArray: [0xe, 0x10]},
@@ -548,6 +551,7 @@ export const funnyMoneyData = {
     0x08: { title: 'Medieval', achTitle: 'Investing Early', points: 10, levelArray: [0x14, 0x15] },
     0x09: { title: 'Stomin\' the Castle', achTitle: 'Your Treasury Bond Has Matured', points: 10, levelArray: [0x1a] }
 }
+
 
 
 
