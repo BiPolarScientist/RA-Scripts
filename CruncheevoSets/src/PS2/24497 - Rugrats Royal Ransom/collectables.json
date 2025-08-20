@@ -1,0 +1,327 @@
+// LevelID > Difficulty > Collectable Bitfield Data
+{
+  "0x1": {
+    "0": {
+      "totalCollectables": 39,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x2": {
+    "0": {
+      "totalCollectables": 39,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x3": {
+    "0": {
+      "totalCollectables": 40,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 43,
+      "littleBatteries": 2,
+      "funnyMoneyStacksMissing": 6 // stacks of money are underwater, at a depth I couldn't reach by jumping in
+    }
+  },
+  "0x4": {
+    "0": {
+      "totalCollectables": 37,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 45,
+      "littleBatteries": 2
+    }
+  },
+  "0x5": {
+    "0": {
+      "totalCollectables": 37,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 46,
+      "littleBatteries": 2,
+      "funnyMoneyStacksMissing": 0 // Some may be impossible to grab due to physics, needs more testers
+    }
+  },
+  "0x7": {
+    "0": {
+      "totalCollectables": 37,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": 41,
+      "littleBatteries": 2
+    },
+    "2": {
+      "totalCollectables": 46,
+      "littleBatteries": 2
+    }
+  },
+  "0x8": {
+    "0": {
+      "totalCollectables": 35,
+      "littleBatteries": 2
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 47,
+      "littleBatteries": 2
+    }
+  },
+  "0x9": {
+    "0": {
+      "totalCollectables": 56,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 63,
+      "littleBatteries": 2
+    }
+  },
+  "0xa": {
+    "0": {
+      "totalCollectables": 38,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 47,
+      "littleBatteries": 2
+    }
+  },
+  "0xb": {
+    "0": {
+      "totalCollectables": 39,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 46,
+      "littleBatteries": 3
+    }
+  },
+  "0xc": {
+    "0": {
+      "totalCollectables": 38,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 44,
+      "littleBatteries": 3
+    }
+  },
+  "0xd": {
+    "0": {
+      "totalCollectables": 39,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 46,
+      "littleBatteries": 3
+    }
+  },
+  "0xe": {
+    "0": {
+      "totalCollectables": 38,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x10": {
+    "0": {
+      "totalCollectables": 40,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x11": {
+    "0": {
+      "totalCollectables": 26,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 45,
+      "littleBatteries": 3
+    }
+  },
+  "0x12": {
+    "0": {
+      "totalCollectables": 26,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 45,
+      "littleBatteries": 3
+    }
+  },
+  "0x14": {
+    "0": {
+      "totalCollectables": 27,
+      "littleBatteries": 5
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": 49,
+      "littleBatteries": 5
+    }
+  },
+  "0x15": {
+    "0": {
+      "totalCollectables": 34,
+      "littleBatteries": 5
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x17": {
+    "0": {
+      "totalCollectables": 58,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x18": {
+    "0": {
+      "totalCollectables": 24,
+      "littleBatteries": 4
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x19": {
+    "0": {
+      "totalCollectables": 42,
+      "littleBatteries": 6
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": "A"
+    }
+  },
+  "0x1a": {
+    "0": {
+      "totalCollectables": "A",
+      "littleBatteries": 0
+    },
+    "1": {
+      "totalCollectables": "A",
+      "littleBatteries": 0
+    },
+    "2": {
+      "totalCollectables": "A",
+      "littleBatteries": 0
+    }
+  },
+  "0x1b": {
+    "0": {
+      "totalCollectables": 3,
+      "littleBatteries": 3
+    },
+    "1": {
+      "totalCollectables": 3,
+      "littleBatteries": 3
+    },
+    "2": {
+      "totalCollectables": 3,
+      "littleBatteries": 3
+    }
+  }
+}
