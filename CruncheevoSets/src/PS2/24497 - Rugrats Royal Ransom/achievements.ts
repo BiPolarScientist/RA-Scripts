@@ -301,7 +301,7 @@ export function makeAchievements(set: AchievementSet): void {
 
         // Small change to the desctiption for the final achievement in this series
         let description: string = 'Collect all the funny money in the ' + data.funnyMoneyAchData[worldID].title + ' world on Reptar Tough'
-        if (i == 0x9) {
+        if (+worldID == 0x9) {
             description = 'Collect all the funny money in \"Stormin\' the Castle\" on Reptar Tough'
         }
 
@@ -367,6 +367,31 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.shopItemPurchased(36), '=', 1, false, false)
         )
     })
+
+    set.addAchievement({
+        title: 'The Cootie Tah Worked!',
+        description: 'Defeat Angela in \"Stormin\' the Castle\"',
+        points: 25,
+        type: 'win_condition',
+        conditions: $(
+            comparison(data.levelIDLoaded, '=', 0x1a),
+            comparison(data.gameplayID, '=', 3, true, false),
+            comparison(data.gameplayID, '=', 1, false, false)
+        )
+    })
+
+    set.addAchievement({
+        title: 'Punishment for Elastic Perjury',
+        description: 'Defeat Angela in \"Stormin\' the Castle\" on Reptar Tough',
+        points: 5,
+        conditions: $(
+            comparison(data.levelIDLoaded, '=', 0x1a),
+            comparison(data.difficulty, '=', 2),
+            comparison(data.gameplayID, '=', 3, true, false),
+            comparison(data.gameplayID, '=', 1, false, false)
+        )
+    })
+
 
 
     // Collect all the funny money and batteries in the game
@@ -547,14 +572,14 @@ export function makeAchievements(set: AchievementSet): void {
                     ['AddAddress', 'Mem', '32bit', 0x0],
                     checkItemType(0x1b2868)
                 ),
-                comparison({ type: 'Delta', size: '16bit', value: 0x234 }, '=', 299).withLast({ flag: 'AndNext' }),
-                comparison({ type: 'Mem', size: '16bit', value: 0x234 }, '=', 300).withLast({ flag: 'AddHits' })
+                comparison(data.scarabCounter, '=', 299, true, false).withLast({ flag: 'AndNext' }),
+                comparison(data.scarabCounter, '=', 300, false, false).withLast({ flag: 'AddHits' })
             ], false),
             $('0=1').withLast({ hits: 1 }),
 
             data.chainLinkedListDataRange(0, 150, [
-                checkItemType(0x111328).withLast({ flag: 'andNext' }),
-                comparison({ type: 'Mem', size: 'Float', value: 0x7b4 }, '<', 1).withLast({ flag: 'ResetIf', rvalue: {type: 'Float'} })
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.healthCounter, '<', 1).withLast({ flag: 'ResetIf', rvalue: { type: 'Float' } })
             ])
 
         )
@@ -590,6 +615,28 @@ export function makeAchievements(set: AchievementSet): void {
                     'I:{recall}',
                     ['', 'Mem', '16bit', 0x208, '<=', 'Value', '', 0xe7]
                 )
+        )
+    })
+
+    set.addAchievement({
+        title: 'Baby Paulie Bleeker',
+        description: 'Complete the game in under 40 minutes in one sitting',
+        points: 25,
+        conditions: $(
+            andNext(
+                comparison(data.currentFunnyMoney, '=', 0),
+                comparison(data.currentCoins, '=', 500),
+                comparison(data.currentBigBatteries, '=', 0),
+                comparison(data.currentLittleBatteries, '=', 0),
+                comparison(data.gameplayID, '=', 2, true, false),
+                comparison(data.gameplayID, '=', 3, false, false).withLast({hits: 1})
+            ),
+            comparison(data.gameplayID, '=', 3).withLast({ flag: 'ResetNextIf' }),
+            comparison(data.gameplayID, '!=', 3).withLast({ flag: 'ResetIf', hits: 2 }),
+            comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 144000 }),
+            comparison(data.levelIDLoaded, '=', 0x1a),
+            comparison(data.gameplayID, '=', 3, true, false),
+            comparison(data.gameplayID, '=', 1, false, false)
         )
     })
 }

@@ -117,7 +117,7 @@ export let currentBigBatteries: Partial<Condition.Data> = {
 
 // $3F6504: [32-bit] Currnet small batteries
 //          Starts at 0x0 at the start of a save file
-export let currnetSmallBatteries: Partial<Condition.Data> = {
+export let currentLittleBatteries: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '32bit', value: 0x3F6504 }, rvalue: { type: 'Mem', size: '32bit', value: 0x3F6504 }
 }
 
@@ -461,6 +461,18 @@ Non-memory data
 
 
 */
+
+export let healthCounter: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0x7b4 }, rvalue: { type: 'Mem', size: 'Float', value: 0x7b4 }
+}
+
+export let scarabCounter: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x234 }, rvalue: { type: 'Mem', size: '16bit', value: 0x234 }
+}
+
+export let gemCounter: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x8d4 }, rvalue: { type: 'Mem', size: '16bit', value: 0x8d4 }
+}
 
 
 export const floorUnlockedDicts = {

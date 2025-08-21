@@ -306,7 +306,7 @@
       "littleBatteries": 0
     },
     "2": {
-      "totalCollectables": "A",
+      "totalCollectables": 50, // temp for testing
       "littleBatteries": 0
     }
   },
