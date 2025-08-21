@@ -2,7 +2,6 @@
 import * as fs from 'fs'
 import * as commentjson from 'comment-json'
 const collectablesData = commentjson.parse(fs.readFileSync('./src/PS2/24497 - Rugrats Royal Ransom/collectables.json', 'utf8'))
-//import collectablesData from './collectables.json'
 
 /*
 
@@ -500,16 +499,15 @@ export const levelOnFloorDict = {
     0x15: 3,
     0x17: 3,
     0x18: 3,
-    0x19: 3,
-    0x1a: 4
+    0x19: 3
 }
 
 export const levelNamesAchData = {
-    0x01: { title: 'Rugrat Rug Race', achTitle: 'a', points: 3 },
-    0x02: { title: 'Meanie Genie', achTitle: 'a', points: 4 },
+    0x01: { title: 'Rugrat Rug Race', achTitle: 'Way to Burn Rugger!', points: 3 },
+    0x02: { title: 'Meanie Genie', achTitle: 'You\'re a Real Lamp Champ', points: 4 },
     0x03: { title: 'Temple of the Lamp', achTitle: 'Not as Good as Mr. Fluffles', points: 2 },
     0x04: { title: 'Mr. Snowtato Head', achTitle: 'Let\'s Make a Snowbaby', points: 1 },
-    0x05: { title: 'Ready, Set, Snow', achTitle: 'a', points: 3 },
+    0x05: { title: 'Ready, Set, Snow', achTitle: 'You\'re a Snow Pro!', points: 3 },
     0x07: { title: 'Snowplace to Hide', achTitle: 'a', points: 1 },
     0x08: { title: 'River Fun Run', achTitle: 'Race to the Jungle Beaver Medicine', points: 10 },
     0x09: { title: 'Punting Papayas', achTitle: 'You Should Be a Papaya Crate-r!', points: 3 },
@@ -519,13 +517,13 @@ export const levelNamesAchData = {
     0x0d: { title: 'Cream Pie Flyer', achTitle: 'The Ring Monster\'s Trial', points: 10 },
     0x0e: { title: 'Sub-a-Dub-Dub', achTitle: 'Scrubmarine to the Rescue!', points: 2 },
     0x10: { title: 'Hot Cod Racer', achTitle: 'That\'s Them, the Sea Monies', points: 3 },
-    0x11: { title: 'Fly High Egg Hunt', achTitle: 'How Many Is a Gross of Eggs?', points: 1 },
+    0x11: { title: 'Fly High Egg Hunt', achTitle: 'How Many Is a Gross of Eggs?', points: 5 },
     0x12: { title: 'Rex Riding', achTitle: 'Where\'s Reptar?', points: 5 },
-    0x14: { title: 'Bow and Apple', achTitle: 'The Days of Shovelry', points: 5 },
-    0x15: { title: 'The Holey Pail', achTitle: 'The Knightses of the Sand Table', points: 4 },
+    0x14: { title: 'Bow and Apple', achTitle: 'The Days of Shovelry', points: 4 },
+    0x15: { title: 'The Holey Pail', achTitle: 'The Knightses of the Sand Table', points: 10 },
     0x17: { title: 'Moon Buggy Madness', achTitle: 'Driving with Less Grabity', points: 3 },
-    0x18: { title: 'Cheesy Chase', achTitle: 'Moon Cheese Comes from Moon Graters', points: 1 },
-    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'Lonely Space Vixens', points: 1 }
+    0x18: { title: 'Cheesy Chase', achTitle: 'Moon Cheese Comes from Moon Graters', points: 3 },
+    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'Lonely Space Vixens', points: 4 }
 
 }
 

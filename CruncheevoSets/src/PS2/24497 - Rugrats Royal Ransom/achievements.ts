@@ -8,6 +8,13 @@ function inGame(): ConditionBuilder {
     return $(comparison(data.gameplayID,'=',3))
 }
 
+function checkItemType(type: number): ConditionBuilder {
+    return $(
+        ['AddAddress', 'Mem', '32bit', 0xd8],
+        ['', 'Mem', '32bit', 0xec, '=', 'Value', '', type]
+    )
+}
+
 /**
  * 
  * @param levelID 
@@ -515,6 +522,43 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+
+    set.addAchievement({
+        title: 'Baby Dwayne LaFontant',
+        description: 'In Meanie Genie, defeat every scarab without getting injured on Reptar Tough',
+        points: 5,
+        conditions: $(
+            inGame(),
+            comparison(data.difficulty, '=', 2),
+
+            comparison(data.levelIDLoaded, '=', 0x2, true, false).withLast({ flag: 'AndNext' }), // Sets a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x2).withLast({ hits: 1 }),
+
+            data.chainLinkedListDataRange(0, 200, [
+                andNext(
+                    checkItemType(0x1b2868),
+                    'I:{recall}',
+                    ['AddAddress', 'Mem', '32bit', 0x14],
+                    ['AddAddress', 'Mem', '32bit', 0x0],
+                    checkItemType(0x1b2868),
+                    'I:{recall}',
+                    ['AddAddress', 'Mem', '32bit', 0x14],
+                    ['AddAddress', 'Mem', '32bit', 0x14],
+                    ['AddAddress', 'Mem', '32bit', 0x0],
+                    checkItemType(0x1b2868)
+                ),
+                comparison({ type: 'Delta', size: '16bit', value: 0x234 }, '=', 299).withLast({ flag: 'AndNext' }),
+                comparison({ type: 'Mem', size: '16bit', value: 0x234 }, '=', 300).withLast({ flag: 'AddHits' })
+            ], false),
+            $('0=1').withLast({ hits: 1 }),
+
+            data.chainLinkedListDataRange(0, 150, [
+                checkItemType(0x111328).withLast({ flag: 'andNext' }),
+                comparison({ type: 'Mem', size: 'Float', value: 0x7b4 }, '<', 1).withLast({ flag: 'ResetIf', rvalue: {type: 'Float'} })
+            ])
+
+        )
+    })
 
 
     set.addAchievement({
