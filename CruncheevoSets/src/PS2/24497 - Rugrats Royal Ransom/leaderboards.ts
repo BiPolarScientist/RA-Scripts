@@ -15,13 +15,19 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
+                comparison(data.levelUnlocked(0x4), '=', 0),
+                comparison(data.levelUnlocked(0x5), '=', 0),
+                comparison(data.levelUnlocked(0x7), '=', 0),
+                comparison(data.levelUnlocked(0x8), '=', 0),
+                comparison(data.levelUnlocked(0x9), '=', 0),
+                comparison(data.levelUnlocked(0xa), '=', 0),
                 comparison(data.difficulty, '=', 0),
                 comparison(data.gameplayID, '=', 2, true, false),
                 comparison(data.gameplayID, '=', 3, false, false)
             ),
             cancel: $(
-                comparison(data.gameplayID, '=', 3).withLast({ flag: 'ResetNextIf' }),
-                comparison(data.gameplayID, '!=', 3).withLast({ flag: 'ResetIf', hits: 2 })
+                comparison(data.gameplayID, '!=', 3),
+                comparison(data.gameplayID, '!=', 3)
             ),
             submit: $(
                 comparison(data.levelIDLoaded, '=', 0x1a),
@@ -45,13 +51,19 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
+                comparison(data.levelUnlocked(0x4), '=', 0),
+                comparison(data.levelUnlocked(0x5), '=', 0),
+                comparison(data.levelUnlocked(0x7), '=', 0),
+                comparison(data.levelUnlocked(0x8), '=', 0),
+                comparison(data.levelUnlocked(0x9), '=', 0),
+                comparison(data.levelUnlocked(0xa), '=', 0),
                 comparison(data.difficulty, '=', 1),
                 comparison(data.gameplayID, '=', 2, true, false),
                 comparison(data.gameplayID, '=', 3, false, false)
             ),
             cancel: $(
-                comparison(data.gameplayID, '=', 3).withLast({ flag: 'ResetNextIf' }),
-                comparison(data.gameplayID, '!=', 3).withLast({ flag: 'ResetIf', hits: 2 })
+                comparison(data.gameplayID, '!=', 3),
+                comparison(data.gameplayID, '!=', 3)
             ),
             submit: $(
                 comparison(data.levelIDLoaded, '=', 0x1a),
@@ -75,13 +87,19 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
+                comparison(data.levelUnlocked(0x4), '=', 0),
+                comparison(data.levelUnlocked(0x5), '=', 0),
+                comparison(data.levelUnlocked(0x7), '=', 0),
+                comparison(data.levelUnlocked(0x8), '=', 0),
+                comparison(data.levelUnlocked(0x9), '=', 0),
+                comparison(data.levelUnlocked(0xa), '=', 0),
                 comparison(data.difficulty, '=', 2),
                 comparison(data.gameplayID, '=', 2, true, false),
                 comparison(data.gameplayID, '=', 3, false, false)
             ),
             cancel: $(
-                comparison(data.gameplayID, '=', 3).withLast({ flag: 'ResetNextIf' }),
-                comparison(data.gameplayID, '!=', 3).withLast({ flag: 'ResetIf', hits: 2 })
+                comparison(data.gameplayID, '!=', 3),
+                comparison(data.gameplayID, '!=', 3)
             ),
             submit: $(
                 comparison(data.levelIDLoaded, '=', 0x1a),
@@ -105,6 +123,7 @@ export function makeLeaderboards(set: AchievementSet): void {
             title: 'Funny Money Detector - ' + data.levelNamesAchData[levelID].title,
             description: 'Shows how many stacks of funny money are left to collect in the level',
             type: 'VALUE',
+            lowerIsBetter: true,
             conditions: {
                 start: $(
                     comparison(data.gameplayID,'=',3),

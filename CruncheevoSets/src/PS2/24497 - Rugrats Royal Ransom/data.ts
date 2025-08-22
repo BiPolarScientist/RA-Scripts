@@ -394,7 +394,7 @@ export function chainLittleBatteriesCollected(levelID: number, difficulty: numbe
 /** Accessing one element in the linked list, forwards or backwards
  * Ends with Add Address Value 0x0 if accessNode is true, and the previous Add Address Value 0x14/0x10 if false
  */
-export function chainLinkedListData(node: number, ifForward: boolean = true, accessNode: boolean = true): ConditionBuilder {
+export function chainLinkedListData(node: number, ifForward: boolean = true, accessNode: boolean = true, rememberNode: boolean = false): ConditionBuilder {
 
     let chain: ConditionBuilder = $(
         $(['AddAddress', '', '', 0]).withLast({ lvalue: mainPointer.lvalue }),
@@ -415,7 +415,7 @@ export function chainLinkedListData(node: number, ifForward: boolean = true, acc
         i = i + 1
     }
 
-    return $(chain, accessNode && ['AddAddress', 'Mem', '32bit', 0x0])
+    return $(chain, accessNode && ['AddAddress', 'Mem', '32bit', 0x0], rememberNode && ['Remember', 'Mem', '32bit', 0x0])
 }
 
    
@@ -470,8 +470,20 @@ export let scarabCounter: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x234 }, rvalue: { type: 'Mem', size: '16bit', value: 0x234 }
 }
 
-export let gemCounter: Partial<Condition.Data> = {
+export let itemCounter: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x8d4 }, rvalue: { type: 'Mem', size: '16bit', value: 0x8d4 }
+}
+    
+export let ringCounter: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }, rvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }
+}
+
+export let timer: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0xcfc }, rvalue: { type: 'Mem', size: 'Float', value: 0xcfc }
+}
+
+export let bossPhase: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x3fc }, rvalue: { type: 'Mem', size: '16bit', value: 0x3fc }
 }
 
 

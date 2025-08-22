@@ -1,5 +1,6 @@
 // LevelID > Difficulty > Collectable Bitfield Data
-{
+
+{ // I'm unsure about the amounts of funny money on baby easy and rugrat normal, that is the number listed is the amount of bits allowed for funny money on that level, but there may be some that are missing/unatainable, I've only searched through reptar tough for this set
   "0x1": {
     "0": {
       "totalCollectables": 39,

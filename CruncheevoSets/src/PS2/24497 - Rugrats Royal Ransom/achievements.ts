@@ -11,7 +11,8 @@ function inGame(): ConditionBuilder {
 function checkItemType(type: number): ConditionBuilder {
     return $(
         ['AddAddress', 'Mem', '32bit', 0xd8],
-        ['', 'Mem', '32bit', 0xec, '=', 'Value', '', type]
+        ['', 'Mem', '32bit', 0xec, '=', 'Value', '', type],
+
     )
 }
 
@@ -492,10 +493,12 @@ export function makeAchievements(set: AchievementSet): void {
 
             beatLevel(0x7, 2),
 
-            comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), // Sets a checkpoint hit at the start of the level
+            // Sets a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), 
             comparison(data.levelIDLoaded, '=', 0x7).withLast({ hits: 1 }),
 
-            data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). // Checks that the door has been unlocked
+            // Checks that the door has been unlocked
+            data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). 
                 also(
                     'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0xd8],
@@ -506,7 +509,8 @@ export function makeAchievements(set: AchievementSet): void {
                     $(['', 'Mem', 'Float', 0xc, '<', 'Float', '', 0]).withLast({ hits: 1 })
             ),
 
-            data.chainLinkedListDataRange(0, 80, [  // Checks all positions for the health value, and resets the checkpoint if it's ever less than full
+            // Checks all positions for the health value, and resets the checkpoint if it's ever less than full
+            data.chainLinkedListDataRange(0, 80, [  
                 $(
                     ['AddAddress', 'Mem', '32bit', 0xd8],
                     ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328]
@@ -529,10 +533,12 @@ export function makeAchievements(set: AchievementSet): void {
             'core': $(
                 inGame(),
 
-                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), // Sets a checkpoint hit at the start of the level
+                // Sets a checkpoint hit at the start of the level
+                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), 
                 comparison(data.levelIDLoaded, '=', 0x7).withLast({ hits: 1 }),
 
-                data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). // Resets the checkpoint if the door is ever opened
+                // Resets the checkpoint if the door is ever opened
+                data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). 
                     also(
                         'I:{recall}',
                         ['AddAddress', 'Mem', '32bit', 0xd8],
@@ -549,6 +555,29 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     set.addAchievement({
+        title: 'Baby Carmen Berzatto',
+        description: 'Complete \"Punting Papayas\" on Reptar Tough without breaking more than 2 papayas',
+        points: 5,
+        conditions: $(
+
+        )
+    })
+
+
+    set.addAchievement({
+        title: 'The Baby in the Yellow Hat',
+        description: 'Catch a monkey in \"Monkey Business\" without using a banana',
+        points: 1,
+        conditions: $(
+            inGame(),
+            comparison(data.levelIDLoaded, '!=', 0xa).withLast({ flag: 'PauseIf' }),
+
+
+        )
+    })
+
+
+    set.addAchievement({
         title: 'Baby Dwayne LaFontant',
         description: 'In Meanie Genie, defeat every scarab without getting injured on Reptar Tough',
         points: 5,
@@ -556,27 +585,21 @@ export function makeAchievements(set: AchievementSet): void {
             inGame(),
             comparison(data.difficulty, '=', 2),
 
-            comparison(data.levelIDLoaded, '=', 0x2, true, false).withLast({ flag: 'AndNext' }), // Sets a checkpoint hit at the start of the level
+            // Sets a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x2, true, false).withLast({ flag: 'AndNext' }), 
             comparison(data.levelIDLoaded, '=', 0x2).withLast({ hits: 1 }),
 
+            // Sets a hit upon defeat of the 300th scarab
+            // an addhits chain used as a higher level ornext chain since having 200 alts without use of recall would reach the ach length limit
             data.chainLinkedListDataRange(0, 200, [
-                andNext(
-                    checkItemType(0x1b2868),
-                    'I:{recall}',
-                    ['AddAddress', 'Mem', '32bit', 0x14],
-                    ['AddAddress', 'Mem', '32bit', 0x0],
-                    checkItemType(0x1b2868),
-                    'I:{recall}',
-                    ['AddAddress', 'Mem', '32bit', 0x14],
-                    ['AddAddress', 'Mem', '32bit', 0x14],
-                    ['AddAddress', 'Mem', '32bit', 0x0],
-                    checkItemType(0x1b2868)
-                ),
-                comparison(data.scarabCounter, '=', 299, true, false).withLast({ flag: 'AndNext' }),
-                comparison(data.scarabCounter, '=', 300, false, false).withLast({ flag: 'AddHits' })
+                // The total scarab killed count is held in the first node of type 0x1b2868 in a row of three, but the other two only reach a max of 200 before resetting, so no harm in reading those as well
+                checkItemType(0x1b2868).withLast({ flag: 'AndNext' }),
+                comparison(data.scarabCounter, '=', 299, true).withLast({ flag: 'AndNext' }),
+                comparison(data.scarabCounter, '=', 300, false).withLast({ flag: 'AddHits' })
             ], false),
-            $('0=1').withLast({ hits: 1 }),
+            $('0=1').withLast({ flag: 'Trigger', hits: 1 }),
 
+            // Reset if health ever goes below full
             data.chainLinkedListDataRange(0, 150, [
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                 comparison(data.healthCounter, '<', 1).withLast({ flag: 'ResetIf', rvalue: { type: 'Float' } })
@@ -588,7 +611,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Baby Smaug',
-        description: 'Complete Rugrat Rug Race on Reptar Tough within 2 laps',
+        description: 'Complete \"Rugrat Rug Race\" on Reptar Tough within 2 laps',
         points: 5,
         conditions: $(
             inGame(),
@@ -596,7 +619,8 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.levelIDLoaded, '=', 0x1),
             comparison(data.difficulty, '=', 2),
 
-            data.chainLinkedListData(0, true).withLast({ flag: 'Remember' }). // Checks for the moment the game counter goes from 1 to 0
+            // Tests the moment the gem counter goes from 1 to 0
+            data.chainLinkedListData(0, true).withLast({ flag: 'Remember' }). 
                 also(
                     'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0xd8],
@@ -607,7 +631,8 @@ export function makeAchievements(set: AchievementSet): void {
                     ['Trigger', 'Mem', '16bit', 0x8d4, '=', 'Value', '', 0]
                 ),
 
-            data.chainLinkedListData(1, true).withLast({ flag: 'Remember' }). // Checks that you haven't started the third lap, with one extra checkpoint for saftey
+            // Checks that you haven't started the third lap, with one extra checkpoint for saftey
+            data.chainLinkedListData(1, true).withLast({ flag: 'Remember' }). 
                 also(
                     'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0xd8],
@@ -618,25 +643,269 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+
+    set.addAchievement({
+        title: 'Baby Bill Denbrough',
+        description: 'Defeat the clown boss in \"Cone Caper\" on Reptar Tough without taking damage',
+        points: 5,
+        conditions: $(
+            inGame(),
+            comparison(data.difficulty, '=', 2),
+
+            // reset if not in Cone caper to fix any issues with hits holding over from previous attempts/other level data
+            comparison(data.levelIDLoaded, '!=', 0xb).withLast({ flag: 'ResetIf' }),
+
+
+            // Set a checkpoint hit upon hitting the start of the boss battle
+            data.chainLinkedListDataRange(0, 50, [
+                checkItemType(0x1e87e8).withLast({ flag: 'AndNext' }),
+                $(
+                    'I:{recall}',
+                    ['AddAddress', 'Mem', '32bit', 0x10],
+                    ['AddAddress', 'Mem', '32bit', 0x0],
+                    checkItemType(0x1e87e8).withLast({ flag: 'AndNext' })
+                ),
+                comparison(data.bossPhase, '=', 0, true).withLast({ flag: 'AndNext' }),
+                comparison(data.bossPhase, '=', 1, false).withLast({ flag: 'AddHits' })
+            ], false),
+            '0=1.1.',
+
+
+            // Reset if your health lowers
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.healthCounter, '<', data.healthCounter, false, true).withLast({ flag: 'ResetIf' })
+            ], true),
+
+
+            // Sets a hit upon completion of the boss fight
+            // set up as a hit with an addhits chain acting a higher level ornext chain
+            // if these were all in alt groups, the ach length limit would beceome an issue
+            data.chainLinkedListDataRange(0, 50, [
+                checkItemType(0x1e87e8).withLast({ flag: 'AndNext' }),
+                $(
+                    'I:{recall}',
+                    ['AddAddress', 'Mem', '32bit', 0x10],
+                    ['AddAddress', 'Mem', '32bit', 0x0],
+                    checkItemType(0x1e87e8).withLast({ flag: 'AndNext' })
+                ),
+                comparison(data.bossPhase, '=', 6, true).withLast({ flag: 'AndNext' }),
+                comparison(data.bossPhase, '=', 7, false).withLast({ flag: 'AddHits' })
+            ], false),
+            'T:0=1.1.'
+
+        )
+    })
+
+    set.addAchievement({
+        title: 'Baby Bob Lee Swagger',
+        description: 'Make it through the circus and first phase of the clown boss in \"Cone Caper\" on Reptar Tough by only throwing a single snowcone',
+        points: 5,
+        conditions: $(
+            inGame(),
+            comparison(data.difficulty, '=', 2),
+
+            // set a checkpoint hit upon entering Cone Caper
+            comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0xb, false, false).withLast({ hits: 1 }),
+
+            // reset if not in Cone caper to fix any issues with hits holding over from previous attempts/other level data
+            comparison(data.levelIDLoaded, '!=', 0xb).withLast({ flag: 'ResetIf' }),
+
+
+            // Reset if your snowcone count goes down twice
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.itemCounter, '<', data.itemCounter, false, true).withLast({ flag: 'AddHits'})
+            ], true),
+            'R=0=1.2.',
+
+
+            // Sets a hit upon completion of the first phase of the boss fight
+            // set up as a hit with an addhits chain acting a higher level ornext chain
+            // if these were all in alt groups, the ach length limit would beceome an issue
+            data.chainLinkedListDataRange(0, 50, [
+                checkItemType(0x1e87e8).withLast({flag: 'AndNext'}),
+                $(
+                    'I:{recall}',
+                    ['AddAddress', 'Mem', '32bit', 0x10],
+                    ['AddAddress', 'Mem', '32bit', 0x0],
+                    checkItemType(0x1e87e8).withLast({ flag: 'AndNext' })
+                ),
+                comparison(data.bossPhase, '=', 2, true).withLast({ flag: 'AndNext' }),
+                comparison(data.bossPhase, '=', 3, false).withLast({ flag: 'AddHits' })
+            ], false),
+            'T:0=1.1.'
+        )
+    })
+
+    set.addAchievement({
+        title: 'Baby Nina Sayers',
+        description: 'Complete Acrobatty Dash within 3:40',
+        points: 5,
+        conditions: {
+            core: $(
+                inGame(),
+
+                // Pause the hits timer if you are not in Acrobatty Dash
+                comparison(data.levelIDLoaded, '!=', 0xc).withLast({ flag: 'PauseIf' }),
+
+                // Set a checkpoint hit at the start of the level
+                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }),
+                comparison(data.levelIDLoaded, '=', 0xc, false, false).withLast({ hits: 1 }),
+
+                // Reset the hits timer at the start of the level
+                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }),
+                comparison(data.levelIDLoaded, '=', 0xc, false, false).withLast({ flag: 'ResetNextIf' }),
+
+                // Hits timer (may count an extra frame at the start of the level, but this is negligable)
+                andNext(
+                    // check if data is the timer to be safe
+                    data.chainLinkedListData(0, true),
+                    checkItemType(0x111328), 
+                    // check if the timer has changed this frame, reset if exceeds 3:40 worth of changes
+                    data.chainLinkedListData(0, true),
+                    comparison(data.timer, '!=', data.timer, true, false).withLast({ flag: 'ResetIf', hits:13200}) 
+                )
+            ),
+            alt1: beatLevel(0xc, 0), // Possible on any difficulty (the difficulties only decrease the time limit for the level, which won't affect this challenge)
+            alt2: beatLevel(0xc, 1),
+            alt3: beatLevel(0xc, 2)
+        }
+    })
+
+    set.addAchievement({
+        title: 'Baby Mark Watney',
+        description: 'Complete Moon Buggy Madness on Reptar Tough without using more than X fuel canisters',
+        points: 5,
+        conditions: $(
+            inGame(),
+
+            // Set a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0x11, false).withLast({ hits: 1 }),
+
+            // Reset all hits when not in the level
+            comparison(data.levelIDLoaded, '!=', 0x11).withLast({ flag: 'ResetIf' }),
+
+            
+            data.chainLinkedListDataRange(0, 0, [
+
+                // Reset upon increasing fuel gauge X times
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.healthCounter, '<', data.healthCounter, true, false).withLast({ flag: 'ResetIf', hits: 5 }), // X+1 hits [CHANGE ONCE DECIDED]
+
+                // Check for the moment you reach 0 cheese left to collect
+                checkItemType(0x111328).withLast({ flag: 'Trigger' }),
+                comparison(data.itemCounter, '=', 1, true).withLast({ flag: 'Trigger' }),
+                comparison(data.itemCounter, '=', 0, false).withLast({ flag: 'Trigger' })
+
+            ], true)       
+        )
+    })
+
     set.addAchievement({
         title: 'Baby Paulie Bleeker',
         description: 'Complete the game in under 40 minutes in one sitting',
         points: 25,
         conditions: $(
+            // Sets a checkpoint hit upon entering a fresh save 
+            //checked by making sure you have all the normal amount of starting resources and none of the first floor levels are unlocked
             andNext(
                 comparison(data.currentFunnyMoney, '=', 0),
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
+                comparison(data.levelUnlocked(0x4), '=', 0),
+                comparison(data.levelUnlocked(0x5), '=', 0),
+                comparison(data.levelUnlocked(0x7), '=', 0),
+                comparison(data.levelUnlocked(0x8), '=', 0),
+                comparison(data.levelUnlocked(0x9), '=', 0),
+                comparison(data.levelUnlocked(0xa), '=', 0),
                 comparison(data.gameplayID, '=', 2, true, false),
                 comparison(data.gameplayID, '=', 3, false, false).withLast({hits: 1})
             ),
-            comparison(data.gameplayID, '=', 3).withLast({ flag: 'ResetNextIf' }),
-            comparison(data.gameplayID, '!=', 3).withLast({ flag: 'ResetIf', hits: 2 }),
+
+            // Game completion is tested by seeing tha gameplay id go from 3 to 1 during level 0x1a
+            // so we only want to reset the timer if the gameplay ID isn't 3 for two frames in a row
+            comparison(data.gameplayID, '!=', 3, true).withLast({ flag: 'AndNext' }),
+            comparison(data.gameplayID, '!=', 3, false).withLast({ flag: 'ResetIf'}),
+
+            // Gameplay timer, reset if it gets too high
             comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 144000 }),
+
+            // End of game completion test
             comparison(data.levelIDLoaded, '=', 0x1a),
             comparison(data.gameplayID, '=', 3, true, false),
             comparison(data.gameplayID, '=', 1, false, false)
         )
     })
+
+    set.addAchievement({
+        title: 'A',
+        description: 'Grab more than X carrots in \"Carrot Catchin\'\"',
+        points: 5,
+        conditions: $(
+            inGame(),
+
+            // Don't allow the hit to count if you aren't in the right level
+            comparison(data.levelIDLoaded, '!=', 0x1e).withLast({ flag: 'PauseIf' }),
+
+            // Check for when the amount of carrots is X
+            // set up as a hit with an addhits chain acting a higher level ornext chain
+            // if these were all in alt groups, the ach length limit would beceome an issue
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.itemCounter, '=', 29, true).withLast({ flag: 'AndNext' }), // x-1
+                comparison(data.itemCounter, '=', 30, false).withLast({ flag: 'AddHits' }) // X
+            ], true),
+            '0=1.1.'
+        )
+    })
+
+    set.addAchievement({
+        title: 'A',
+        description: 'Fly through more than X rings in \"Ring Roller Coaster\"',
+        points: 5,
+        conditions: $(
+            inGame(),
+
+            // Don't allow the hit to count if you aren't in the right level
+            comparison(data.levelIDLoaded, '!=', 0x20).withLast({ flag: 'PauseIf' }),
+
+            // Check for when the amount of rings is X
+            // set up as a hit with an addhits chain acting a higher level ornext chain
+            // if these were all in alt groups, the ach length limit would beceome an issue
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.ringCounter, '=', 29).withLast({ flag: 'AndNext' }), // X
+                comparison(data.ringCounter, '=', 30).withLast({ flag: 'AddHits' }) // X
+            ], true),
+            '0=1.1.'
+        )
+    })
+
+    set.addAchievement({
+        title: 'A',
+        description: 'Smash more than X targets in \"Target Bash\"',
+        points: 5,
+        conditions: $(
+            inGame(),
+
+            // Don't allow the hit to count if you aren't in the right level
+            comparison(data.levelIDLoaded, '!=', 0x24).withLast({ flag: 'PauseIf' }),
+
+            // Check for when the amount of bashes is X
+            // set up as a hit with an addhits chain acting a higher level ornext chain
+            // if these were all in alt groups, the ach length limit would beceome an issue
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.itemCounter, '=', 29, true).withLast({ flag: 'AndNext' }), // x-1
+                comparison(data.itemCounter, '=', 30, false).withLast({ flag: 'AddHits' }) // X
+            ], true),
+            '0=1.1.'
+        )
+    })
+
+
 }

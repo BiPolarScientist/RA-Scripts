@@ -1,7 +1,7 @@
 ﻿import { define as $, ConditionBuilder, Condition } from '@cruncheevos/core'
 
 
-export function comparison(leftobject: Partial<Condition.Data> | number, cmp:string, rightobject: Partial<Condition.Data> | number, leftdelta:boolean = false, rightdelta:boolean=false): ConditionBuilder {
+export function comparison(leftobject: Partial<Condition.Data> | number, cmp:string, rightobject: Partial<Condition.Data> | number | string, leftdelta:boolean = false, rightdelta:boolean=false): ConditionBuilder {
 
     let output: ConditionBuilder = $('0'+cmp+'0')
 
@@ -15,7 +15,10 @@ export function comparison(leftobject: Partial<Condition.Data> | number, cmp:str
         }
     }
 
-    if (typeof rightobject === 'number') {
+    if (typeof rightobject == 'string') {
+        output = output.withLast({ rvalue: { type: 'Recall' } })
+    }
+    else if (typeof rightobject === 'number') {
         output = output.withLast({ rvalue: { type: 'Value', value: rightobject } })
     }
     else {
