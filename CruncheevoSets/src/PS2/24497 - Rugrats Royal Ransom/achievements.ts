@@ -1,4 +1,4 @@
-﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext } from '@cruncheevos/core'
+﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger } from '@cruncheevos/core'
 import * as data from './data.js'
 import { comparison, connectAddSourceChains } from '../../helpers.js'
 import * as fs from 'fs'
@@ -491,7 +491,7 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: $(
             inGame(),
 
-            beatLevel(0x7, 2),
+            trigger(beatLevel(0x7, 2)),
 
             // Sets a checkpoint hit at the start of the level
             comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), 
@@ -506,7 +506,7 @@ export function makeAchievements(set: AchievementSet): void {
                     'I:{recall}',
                     ['AndNext', 'Delta', 'Float', 0xc, '>=', 'Float', '', 0],
                     'I:{recall}',
-                    $(['', 'Mem', 'Float', 0xc, '<', 'Float', '', 0]).withLast({ hits: 1 })
+                    $(['', 'Mem', 'Float', 0xc, '<', 'Float', '', 0]).withLast({ flag: 'Trigger', hits: 1 })
             ),
 
             // Checks all positions for the health value, and resets the checkpoint if it's ever less than full
@@ -534,8 +534,8 @@ export function makeAchievements(set: AchievementSet): void {
                 inGame(),
 
                 // Sets a checkpoint hit at the start of the level
-                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), 
-                comparison(data.levelIDLoaded, '=', 0x7).withLast({ hits: 1 }),
+                comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }), 
+                comparison(data.levelIDLoaded, '=', 0x7, false).withLast({ hits: 1 }),
 
                 // Resets the checkpoint if the door is ever opened
                 data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). 
@@ -547,9 +547,9 @@ export function makeAchievements(set: AchievementSet): void {
                         ['ResetIf', 'Mem', 'Float', 0xc, '<', 'Float', '', 0]
                 )
             ),
-            'alt1': beatLevel(0x7, 0), // Can be done on any difficulty
-            'alt2': beatLevel(0x7, 1),
-            'alt3': beatLevel(0x7, 2)
+            'alt1': trigger(beatLevel(0x7, 0)), // Can be done on any difficulty
+            'alt2': trigger(beatLevel(0x7, 1)),
+            'alt3': trigger(beatLevel(0x7, 2))
         }
     })
 
@@ -559,7 +559,34 @@ export function makeAchievements(set: AchievementSet): void {
         description: 'Complete \"Punting Papayas\" on Reptar Tough without breaking more than 2 papayas',
         points: 5,
         conditions: $(
+            inGame(),
+            comparison(data.difficulty, '=', 2),
 
+            // Reset any hits if you aren't in the level
+            comparison(data.levelIDLoaded, '!=', 0x9).withLast({ flag: 'ResetIf' }),
+
+            // Sets a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0x9, false).withLast({ hits: 1 }),
+
+            // Reset if you drop more than 2 papayas
+            // Testing if you've dropped a papaya by checking if you aren't holding a papaya while there is a papaya not spawned under a tree
+            data.chainLinkedListDataRange(0, 200, [
+                checkItemType(0x276cf8).withLast({ flag: 'AndNext' }),
+                comparison(data.papayaNotUnderTree, '=', 1).withLast({ flag: 'AndNext' }),
+                comparison(data.papayaHeld, '=', 1, true).withLast({ flag: 'AndNext' }),
+                comparison(data.papayaHeld, '=', 0, false).withLast({ flag: 'AddHits' })
+            ], true),
+            'R:0=1.3.',
+
+            // Sets a hit if you complete the level
+            // an addhits chain used as a higher level ornext chain since having 200 alts without use of recall would reach the ach length limit
+            data.chainLinkedListDataRange(0, 200, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.itemCounter, '=', 1, true).withLast({ flag: 'AndNext' }),
+                comparison(data.itemCounter, '=', 0, false).withLast({ flag: 'AddHits' })
+            ], true),
+            'T:0=1.1.'
         )
     })
 
@@ -570,9 +597,36 @@ export function makeAchievements(set: AchievementSet): void {
         points: 1,
         conditions: $(
             inGame(),
-            comparison(data.levelIDLoaded, '!=', 0xa).withLast({ flag: 'PauseIf' }),
+            comparison(data.levelIDLoaded, '!=', 0xa).withLast({ flag: 'ResetIf' }),
 
+            // Create a checkpoint hit whenever the level is loaded or a monkey is put in a box
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0xa, false).withLast({ flag: 'AddHits' }),
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({flag: 'AndNext'}),
+                comparison(data.itemCounter, '<', data.itemCounter, false, true).withLast({ flag: 'AddHits' })
+            ], true),
+            '0=1.1.',
 
+            // Reset if you throw a banana
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.itemTwoCounter, '<', data.itemTwoCounter, false, true).withLast({ flag: 'ResetIf' })
+            ], true),
+
+            // Sets a hit for only a frame when you pick up a monkey
+            // a two hit resetnextif and a one hit checkpoint with the same logic only differing by a delta check
+            // an addhits chain used as a higher level ornext chain since having 100 alts without use of recall would reach the ach length limit
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x1ccdb8).withLast({ flag: 'AndNext' }),
+                comparison(data.monkeyGrabbed, '=', 1).withLast({ flag: 'AddHits' })
+            ], true),
+            'Z:0=1.2.',
+            data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x1ccdb8).withLast({ flag: 'AndNext' }),
+                comparison(data.monkeyGrabbed, '<', data.monkeyGrabbed, true, false).withLast({ flag: 'AddHits' })
+            ], true),
+            'T:0=1.1.'
         )
     })
 
@@ -768,9 +822,9 @@ export function makeAchievements(set: AchievementSet): void {
                     comparison(data.timer, '!=', data.timer, true, false).withLast({ flag: 'ResetIf', hits:13200}) 
                 )
             ),
-            alt1: beatLevel(0xc, 0), // Possible on any difficulty (the difficulties only decrease the time limit for the level, which won't affect this challenge)
-            alt2: beatLevel(0xc, 1),
-            alt3: beatLevel(0xc, 2)
+            alt1: trigger(beatLevel(0xc, 0)), // Possible on any difficulty (the difficulties only decrease the time limit for the level, which won't affect this challenge)
+            alt2: trigger(beatLevel(0xc, 1)),
+            alt3: trigger(beatLevel(0xc, 2))
         }
     })
 

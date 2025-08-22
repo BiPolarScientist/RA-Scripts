@@ -473,6 +473,22 @@ export let scarabCounter: Partial<Condition.Data> = {
 export let itemCounter: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x8d4 }, rvalue: { type: 'Mem', size: '16bit', value: 0x8d4 }
 }
+
+export let itemTwoCounter: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x8d6 }, rvalue: { type: 'Mem', size: '16bit', value: 0x8d6 }
+}
+
+export let monkeyGrabbed: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0xa54 }, rvalue: { type: 'Mem', size: '16bit', value: 0xa54 }
+}
+
+export let papayaHeld: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x2f8 }, rvalue: { type: 'Mem', size: '16bit', value: 0x2f8 }
+}
+
+export let papayaNotUnderTree: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x74 }, rvalue: { type: 'Mem', size: '16bit', value: 0x74 }
+}
     
 export let ringCounter: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }, rvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }

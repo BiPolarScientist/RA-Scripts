@@ -11,8 +11,8 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 46,
+      "littleBatteries": 3
     }
   },
   "0x2": {
@@ -25,8 +25,8 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 43,
+      "littleBatteries": 3
     }
   },
   "0x3": {
@@ -251,8 +251,8 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 51,
+      "littleBatteries": 4
     }
   },
   "0x17": {
