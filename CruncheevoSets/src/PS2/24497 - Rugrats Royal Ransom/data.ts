@@ -252,7 +252,7 @@ export function chainFunnyMoneyStacksCollected( levelID: number, difficulty: num
 
     let output: ConditionBuilder = $()
 
-    const levelData = collectablesData!['0x' + levelID.toString(16)][difficulty.toString()]
+    const levelData = collectablesData!['0x' + (+levelID).toString(16)][difficulty.toString()]
 
     let amountOfFunnyMoneyStacks: number = levelData.totalCollectables - levelData.littleBatteries
     let amountOfFunnyMoneyStacksNeeded: number = 0
@@ -333,7 +333,7 @@ export function chainFunnyMoneyStacksCollected( levelID: number, difficulty: num
 export function chainLittleBatteriesCollected(levelID: number, difficulty: number, ifDelta: boolean = false): ConditionBuilder {
     let output: ConditionBuilder = $()
 
-    const levelData = collectablesData!['0x' + levelID.toString(16)][difficulty.toString()]
+    const levelData = collectablesData!['0x' + (+levelID).toString(16)][difficulty.toString()]
 
     let amountOfFunnyMoneyStacks: number = levelData.totalCollectables - levelData.littleBatteries
 

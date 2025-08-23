@@ -181,8 +181,8 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 43, 
+      "littleBatteries": 2
     }
   },
   "0x10": {
@@ -195,8 +195,8 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 42,
+      "littleBatteries": 2
     }
   },
   "0x11": {
@@ -205,8 +205,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": "a",
+      "littleBatteries": "a"
     },
     "2": {
       "totalCollectables": 45,
@@ -265,8 +265,8 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 86,
+      "littleBatteries": 4
     }
   },
   "0x18": {
@@ -279,8 +279,9 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 40,
+      "littleBatteries": 3,
+      "funnyMoneyStacksMissing": 1 // One spawns inside the cheese pile at the start of the level too deep to grab
     }
   },
   "0x19": {
@@ -293,8 +294,8 @@
       "littleBatteries": "A"
     },
     "2": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 42,
+      "littleBatteries": 4
     }
   },
   "0x1a": {
@@ -307,7 +308,7 @@
       "littleBatteries": 0
     },
     "2": {
-      "totalCollectables": 50, // temp for testing
+      "totalCollectables": 76, 
       "littleBatteries": 0
     }
   },

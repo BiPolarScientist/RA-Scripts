@@ -28,8 +28,8 @@ function beatLevelOnToughFirstTime(levelID: number): ConditionBuilder {
     return $(
         comparison(data.difficulty, '=', 2),
         comparison(data.levelIDLoaded, '=', levelID),
-        comparison(data.bigBatteryCollected(levelID), '=', 0, true, false),
-        comparison(data.bigBatteryCollected(levelID), '=', 0)
+        comparison(data.bigBatteryCollected(levelID), '=', 0, true),
+        comparison(data.bigBatteryCollected(levelID), '=', 1, false)
     ) 
 }
 
@@ -188,7 +188,10 @@ export function makeAchievements(set: AchievementSet): void {
                 title: data.levelNamesAchData[i].achTitle,
                 description: 'Collect the big battery in \"' + data.levelNamesAchData[i].title + '\" on Reptar Tough',
                 points: data.levelNamesAchData[i].points,
-                conditions: $( inGame() ,beatLevelOnToughFirstTime(i) )
+                conditions: $(
+                    inGame(),
+                    beatLevelOnToughFirstTime(i)
+                )
             })
         }
     }
@@ -213,7 +216,7 @@ export function makeAchievements(set: AchievementSet): void {
         for (var levelID of data.littleBatteryAchData[worldID].levelArray) {
 
             // Connects all the addsource chains for little batteries in each level
-            let addition: any = connectAddSourceChains(data.chainLittleBatteriesCollected(levelID, 2, true))
+            let addition: any = connectAddSourceChains(data.chainLittleBatteriesCollected(levelID, 2, false))
             totalBatteries = totalBatteries + addition.tally
 
             core = $(
@@ -278,7 +281,7 @@ export function makeAchievements(set: AchievementSet): void {
 
         for (var levelID of data.funnyMoneyAchData[worldID].levelArray) {
 
-            let addition: any = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(levelID, 2, true))
+            let addition: any = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(levelID, 2, false))
             totalStacks = totalStacks + addition.tally
 
             core = $(
@@ -286,7 +289,7 @@ export function makeAchievements(set: AchievementSet): void {
                 addition.chain
             )
 
-            deltaChains.push(data.chainFunnyMoneyStacksCollected(levelID, 2, false))
+            deltaChains.push(data.chainFunnyMoneyStacksCollected(levelID, 2, true))
 
         }
 
@@ -363,9 +366,9 @@ export function makeAchievements(set: AchievementSet): void {
         points: 1,
         conditions: $(
             inGame(),
-            comparison(data.shopItemAvailable(36), '=', 1),
-            comparison(data.shopItemPurchased(36), '=', 0, true, false),
-            comparison(data.shopItemPurchased(36), '=', 1, false, false)
+            comparison(data.shopItemAvailable(36), '=', 1, true),
+            comparison(data.shopItemPurchased(36), '=', 0, true),
+            comparison(data.shopItemPurchased(36), '=', 1, false)
         )
     })
 
@@ -376,8 +379,8 @@ export function makeAchievements(set: AchievementSet): void {
         type: 'win_condition',
         conditions: $(
             comparison(data.levelIDLoaded, '=', 0x1a),
-            comparison(data.gameplayID, '=', 3, true, false),
-            comparison(data.gameplayID, '=', 1, false, false)
+            comparison(data.gameplayID, '=', 3, true),
+            comparison(data.gameplayID, '=', 1, false)
         )
     })
 
@@ -388,8 +391,8 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: $(
             comparison(data.levelIDLoaded, '=', 0x1a),
             comparison(data.difficulty, '=', 2),
-            comparison(data.gameplayID, '=', 3, true, false),
-            comparison(data.gameplayID, '=', 1, false, false)
+            comparison(data.gameplayID, '=', 3, true),
+            comparison(data.gameplayID, '=', 1, false)
         )
     })
 
@@ -421,16 +424,18 @@ export function makeAchievements(set: AchievementSet): void {
         finalAlts.push(comparison(data.bigBatteryCollected(levelID), '=', 0, true, false))
     }
 
-    // Special cases for funny money in final level and little batteries in play palace 3000
+    // Special case for funny money in final level
     addition = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(0x1a, 2, false))
     totalCounter = totalCounter + addition.tally
     finalCore = finalCore.also(addition.chain)
 
+    finalAlts.push(data.chainFunnyMoneyStacksCollected(0x1a, 2, true))
+
+    // Special case for little batteries in play palace 3000
     addition = connectAddSourceChains(data.chainLittleBatteriesCollected(0x1b, 2, false))
     totalCounter = totalCounter + addition.tally
     finalCore = finalCore.also(addition.chain)
 
-    finalAlts.push(data.chainFunnyMoneyStacksCollected(0x1a, 2, true))
     finalAlts.push(data.chainLittleBatteriesCollected(0x1b, 2, true))
 
 
@@ -439,7 +444,8 @@ export function makeAchievements(set: AchievementSet): void {
         core: $(
             inGame(),
             comparison(data.difficulty, '=', 2),
-            finalCore
+            finalCore,
+            comparison(0, '=', totalCounter)
         )
     }
 
@@ -448,8 +454,9 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
 
+
     set.addAchievement({
-        title: 'a',
+        title: 'Time to Find a New Toy',
         description: 'Collect all the batteries and funny money available in the game on Reptar Tough',
         points: 25,
         conditions: finalConditions
@@ -486,16 +493,17 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Baby John Wick',
-        description: 'Complete Snowplace to Hide on Reptar Tough after unlocking the door and without taking damage',
+        description: 'Complete \"Snowplace to Hide\" on Reptar Tough after unlocking the door and without taking damage',
         points: 5,
         conditions: $(
             inGame(),
+            comparison(data.difficulty, '=', 2),
 
             trigger(beatLevel(0x7, 2)),
 
             // Sets a checkpoint hit at the start of the level
-            comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }), 
-            comparison(data.levelIDLoaded, '=', 0x7).withLast({ hits: 1 }),
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }), 
+            comparison(data.levelIDLoaded, '=', 0x7, false).withLast({ hits: 1 }),
 
             // Checks that the door has been unlocked
             data.chainLinkedListData(0, false).withLast({ flag: 'Remember' }). 
@@ -527,7 +535,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Baby Marv Murchins',
-        description: 'Complete Snowplace to Hide without unlocking the door',
+        description: 'Complete \"Snowplace to Hide\" without unlocking the door',
         points: 5,
         conditions: {
             'core': $(
@@ -593,10 +601,11 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'The Baby in the Yellow Hat',
-        description: 'Catch a monkey in \"Monkey Business\" without using a banana',
+        description: 'Catch a monkey in \"Monkey Business\" on Reptar Tough without using a banana',
         points: 1,
         conditions: $(
             inGame(),
+            comparison(data.difficulty, '=', 2),
             comparison(data.levelIDLoaded, '!=', 0xa).withLast({ flag: 'ResetIf' }),
 
             // Create a checkpoint hit whenever the level is loaded or a monkey is put in a box
@@ -604,14 +613,14 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.levelIDLoaded, '=', 0xa, false).withLast({ flag: 'AddHits' }),
             data.chainLinkedListDataRange(0, 100, [
                 checkItemType(0x111328).withLast({flag: 'AndNext'}),
-                comparison(data.itemCounter, '<', data.itemCounter, false, true).withLast({ flag: 'AddHits' })
+                comparison(data.itemTwoCounter, '<', data.itemTwoCounter, false, true).withLast({ flag: 'AddHits' })
             ], true),
             '0=1.1.',
 
             // Reset if you throw a banana
             data.chainLinkedListDataRange(0, 100, [
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
-                comparison(data.itemTwoCounter, '<', data.itemTwoCounter, false, true).withLast({ flag: 'ResetIf' })
+                comparison(data.itemCounter, '<', data.itemCounter, false, true).withLast({ flag: 'ResetIf' })
             ], true),
 
             // Sets a hit for only a frame when you pick up a monkey
@@ -633,15 +642,15 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Baby Dwayne LaFontant',
-        description: 'In Meanie Genie, defeat every scarab without getting injured on Reptar Tough',
+        description: 'In \"Meanie Genie\", defeat every scarab without getting injured on Reptar Tough',
         points: 5,
         conditions: $(
             inGame(),
             comparison(data.difficulty, '=', 2),
 
             // Sets a checkpoint hit at the start of the level
-            comparison(data.levelIDLoaded, '=', 0x2, true, false).withLast({ flag: 'AndNext' }), 
-            comparison(data.levelIDLoaded, '=', 0x2).withLast({ hits: 1 }),
+            comparison(data.levelIDLoaded, '=', 0x2, true).withLast({ flag: 'AndNext' }), 
+            comparison(data.levelIDLoaded, '=', 0x2, false).withLast({ hits: 1 }),
 
             // Sets a hit upon defeat of the 300th scarab
             // an addhits chain used as a higher level ornext chain since having 200 alts without use of recall would reach the ach length limit
@@ -760,8 +769,8 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.difficulty, '=', 2),
 
             // set a checkpoint hit upon entering Cone Caper
-            comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }),
-            comparison(data.levelIDLoaded, '=', 0xb, false, false).withLast({ hits: 1 }),
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0xb, false).withLast({ hits: 1 }),
 
             // reset if not in Cone caper to fix any issues with hits holding over from previous attempts/other level data
             comparison(data.levelIDLoaded, '!=', 0xb).withLast({ flag: 'ResetIf' }),
@@ -772,7 +781,7 @@ export function makeAchievements(set: AchievementSet): void {
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                 comparison(data.itemCounter, '<', data.itemCounter, false, true).withLast({ flag: 'AddHits'})
             ], true),
-            'R=0=1.2.',
+            'R:0=1.2.',
 
 
             // Sets a hit upon completion of the first phase of the boss fight
@@ -795,7 +804,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Baby Nina Sayers',
-        description: 'Complete Acrobatty Dash within 3:40',
+        description: 'Complete \"Acrobatty Dash\" within 3:40',
         points: 5,
         conditions: {
             core: $(
@@ -805,21 +814,21 @@ export function makeAchievements(set: AchievementSet): void {
                 comparison(data.levelIDLoaded, '!=', 0xc).withLast({ flag: 'PauseIf' }),
 
                 // Set a checkpoint hit at the start of the level
-                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }),
-                comparison(data.levelIDLoaded, '=', 0xc, false, false).withLast({ hits: 1 }),
+                comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+                comparison(data.levelIDLoaded, '=', 0xc, false).withLast({ hits: 1 }),
 
                 // Reset the hits timer at the start of the level
-                comparison(data.levelIDLoaded, '=', 0x1b, true, false).withLast({ flag: 'AndNext' }),
-                comparison(data.levelIDLoaded, '=', 0xc, false, false).withLast({ flag: 'ResetNextIf' }),
+                comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+                comparison(data.levelIDLoaded, '=', 0xc, false).withLast({ flag: 'ResetNextIf' }),
 
-                // Hits timer (may count an extra frame at the start of the level, but this is negligable)
+                // Hits timer, counts at 30 fps, have to do it this way instead of with 1=1 hits due to the extra time needed at the end of the level for the alt groups to do their work
                 andNext(
                     // check if data is the timer to be safe
                     data.chainLinkedListData(0, true),
                     checkItemType(0x111328), 
                     // check if the timer has changed this frame, reset if exceeds 3:40 worth of changes
                     data.chainLinkedListData(0, true),
-                    comparison(data.timer, '!=', data.timer, true, false).withLast({ flag: 'ResetIf', hits:13200}) 
+                    comparison(data.timer, '!=', data.timer, true, false).withLast({ flag: 'ResetIf', hits:6601}) 
                 )
             ),
             alt1: trigger(beatLevel(0xc, 0)), // Possible on any difficulty (the difficulties only decrease the time limit for the level, which won't affect this challenge)
@@ -830,7 +839,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Baby Mark Watney',
-        description: 'Complete Moon Buggy Madness on Reptar Tough without using more than X fuel canisters',
+        description: 'Complete \"Moon Buggy Madness\" on Reptar Tough without using more than X fuel canisters',
         points: 5,
         conditions: $(
             inGame(),
@@ -864,20 +873,14 @@ export function makeAchievements(set: AchievementSet): void {
         points: 25,
         conditions: $(
             // Sets a checkpoint hit upon entering a fresh save 
-            //checked by making sure you have all the normal amount of starting resources and none of the first floor levels are unlocked
+            // Checking initial resource values for saftey
             andNext(
                 comparison(data.currentFunnyMoney, '=', 0),
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
-                comparison(data.levelUnlocked(0x4), '=', 0),
-                comparison(data.levelUnlocked(0x5), '=', 0),
-                comparison(data.levelUnlocked(0x7), '=', 0),
-                comparison(data.levelUnlocked(0x8), '=', 0),
-                comparison(data.levelUnlocked(0x9), '=', 0),
-                comparison(data.levelUnlocked(0xa), '=', 0),
-                comparison(data.gameplayID, '=', 2, true, false),
-                comparison(data.gameplayID, '=', 3, false, false).withLast({hits: 1})
+                comparison(data.gameplayID, '=', 4, true),
+                comparison(data.gameplayID, '=', 3, false).withLast({hits: 1}) // 4 Watching intro cutscene -> 3 Playing game
             ),
 
             // Game completion is tested by seeing tha gameplay id go from 3 to 1 during level 0x1a
@@ -889,9 +892,9 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 144000 }),
 
             // End of game completion test
-            comparison(data.levelIDLoaded, '=', 0x1a),
-            comparison(data.gameplayID, '=', 3, true, false),
-            comparison(data.gameplayID, '=', 1, false, false)
+            comparison(data.levelIDLoaded, '=', 0x1a), // Final level loaded
+            comparison(data.gameplayID, '=', 3, true),
+            comparison(data.gameplayID, '=', 1, false) // 3 Playing Game -> 1 Title Screen 
         )
     })
 

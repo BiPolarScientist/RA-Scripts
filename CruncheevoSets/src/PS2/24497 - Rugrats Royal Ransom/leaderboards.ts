@@ -15,24 +15,18 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
-                comparison(data.levelUnlocked(0x4), '=', 0),
-                comparison(data.levelUnlocked(0x5), '=', 0),
-                comparison(data.levelUnlocked(0x7), '=', 0),
-                comparison(data.levelUnlocked(0x8), '=', 0),
-                comparison(data.levelUnlocked(0x9), '=', 0),
-                comparison(data.levelUnlocked(0xa), '=', 0),
                 comparison(data.difficulty, '=', 0),
-                comparison(data.gameplayID, '=', 2, true, false),
-                comparison(data.gameplayID, '=', 3, false, false)
+                comparison(data.gameplayID, '=', 4, true),
+                comparison(data.gameplayID, '=', 3, false)
             ),
             cancel: $(
-                comparison(data.gameplayID, '!=', 3),
-                comparison(data.gameplayID, '!=', 3)
+                comparison(data.gameplayID, '!=', 3, true),
+                comparison(data.gameplayID, '!=', 3, false)
             ),
             submit: $(
                 comparison(data.levelIDLoaded, '=', 0x1a),
-                comparison(data.gameplayID, '=', 3, true, false),
-                comparison(data.gameplayID, '=', 1, false, false)
+                comparison(data.gameplayID, '=', 3, true),
+                comparison(data.gameplayID, '=', 1, false)
             ),
             value: $(
                 'M:1=1'
@@ -51,24 +45,18 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
-                comparison(data.levelUnlocked(0x4), '=', 0),
-                comparison(data.levelUnlocked(0x5), '=', 0),
-                comparison(data.levelUnlocked(0x7), '=', 0),
-                comparison(data.levelUnlocked(0x8), '=', 0),
-                comparison(data.levelUnlocked(0x9), '=', 0),
-                comparison(data.levelUnlocked(0xa), '=', 0),
                 comparison(data.difficulty, '=', 1),
-                comparison(data.gameplayID, '=', 2, true, false),
-                comparison(data.gameplayID, '=', 3, false, false)
+                comparison(data.gameplayID, '=', 4, true),
+                comparison(data.gameplayID, '=', 3, false)
             ),
             cancel: $(
-                comparison(data.gameplayID, '!=', 3),
-                comparison(data.gameplayID, '!=', 3)
+                comparison(data.gameplayID, '!=', 3, true),
+                comparison(data.gameplayID, '!=', 3, false)
             ),
             submit: $(
                 comparison(data.levelIDLoaded, '=', 0x1a),
-                comparison(data.gameplayID, '=', 3, true, false),
-                comparison(data.gameplayID, '=', 1, false, false)
+                comparison(data.gameplayID, '=', 3, true),
+                comparison(data.gameplayID, '=', 1, false)
             ),
             value: $(
                 'M:1=1'
@@ -87,24 +75,18 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.currentCoins, '=', 500),
                 comparison(data.currentBigBatteries, '=', 0),
                 comparison(data.currentLittleBatteries, '=', 0),
-                comparison(data.levelUnlocked(0x4), '=', 0),
-                comparison(data.levelUnlocked(0x5), '=', 0),
-                comparison(data.levelUnlocked(0x7), '=', 0),
-                comparison(data.levelUnlocked(0x8), '=', 0),
-                comparison(data.levelUnlocked(0x9), '=', 0),
-                comparison(data.levelUnlocked(0xa), '=', 0),
                 comparison(data.difficulty, '=', 2),
-                comparison(data.gameplayID, '=', 2, true, false),
-                comparison(data.gameplayID, '=', 3, false, false)
+                comparison(data.gameplayID, '=', 4, true),
+                comparison(data.gameplayID, '=', 3, false)
             ),
             cancel: $(
-                comparison(data.gameplayID, '!=', 3),
-                comparison(data.gameplayID, '!=', 3)
+                comparison(data.gameplayID, '!=', 3, true),
+                comparison(data.gameplayID, '!=', 3, false)
             ),
             submit: $(
                 comparison(data.levelIDLoaded, '=', 0x1a),
-                comparison(data.gameplayID, '=', 3, true, false),
-                comparison(data.gameplayID, '=', 1, false, false)
+                comparison(data.gameplayID, '=', 3, true),
+                comparison(data.gameplayID, '=', 1, false)
             ),
             value: $(
                 'M:1=1'
@@ -128,8 +110,8 @@ export function makeLeaderboards(set: AchievementSet): void {
                 start: $(
                     comparison(data.gameplayID,'=',3),
                     comparison(data.difficulty, '=', 2),
-                    comparison(data.levelIDLoaded, '=', 0x1b, true, false),
-                    comparison(data.levelIDLoaded, '=', +levelID, false, false),
+                    comparison(data.levelIDLoaded, '=', 0x1b, true),
+                    comparison(data.levelIDLoaded, '=', +levelID, false),
                     comparison(data.shopItemPurchased(36),'=',1)
                 ),
                 cancel: $(

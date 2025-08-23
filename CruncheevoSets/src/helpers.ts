@@ -40,7 +40,7 @@ export function connectAddSourceChains(chain: ConditionBuilder): any {
 
     let tally: number = chain.conditions[chain.conditions.length - 1].rvalue.value
     let condOutput = chain
-    condOutput.conditions[chain.conditions.length - 1] = new Condition('B:' + chain.conditions[chain.conditions.length - 1].toString().split('=')[0])
+    condOutput.conditions[chain.conditions.length - 1] = new Condition('A:' + chain.conditions[chain.conditions.length - 1].toString().split('=')[0])
     return {
         chain: condOutput,
         tally: tally
