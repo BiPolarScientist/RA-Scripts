@@ -300,6 +300,10 @@ export function chainFunnyMoneyStacksCollected( levelID: number, difficulty: num
                 )
             }
 
+            if (output.conditions.length == 0) {
+                return $()
+            }
+
             if (!ifDelta) {
                 output = output.withLast({
                     flag: '',
@@ -364,6 +368,10 @@ export function chainLittleBatteriesCollected(levelID: number, difficulty: numbe
         )
 
         j = j + 1
+    }
+
+    if (output.conditions.length == 0) {
+        return $()
     }
 
     if (!ifDelta) {
@@ -489,9 +497,17 @@ export let papayaHeld: Partial<Condition.Data> = {
 export let papayaNotUnderTree: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x74 }, rvalue: { type: 'Mem', size: '16bit', value: 0x74 }
 }
+
+export let helperBallPosition: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0xaf8 }, rvalue: { type: 'Mem', size: '16bit', value: 0xaf8 }
+}
     
 export let ringCounter: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }, rvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }
+}
+
+export let discreteMap: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x208 }, rvalue: { type: 'Mem', size: '16bit', value: 0x208 }
 }
 
 export let timer: Partial<Condition.Data> = {
@@ -500,6 +516,22 @@ export let timer: Partial<Condition.Data> = {
 
 export let bossPhase: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x3fc }, rvalue: { type: 'Mem', size: '16bit', value: 0x3fc }
+}
+
+export let babyFloor: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0x7e8 }, rvalue: { type: 'Mem', size: '16bit', value: 0x7e8 }
+}
+
+export let babyXPos: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0x0 }, rvalue: { type: 'Mem', size: 'Float', value: 0x0 }
+}
+
+export let babyZPos: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0x4 }, rvalue: { type: 'Mem', size: 'Float', value: 0x4 }
+}
+
+export let babyYPos: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0x8 }, rvalue: { type: 'Mem', size: 'Float', value: 0x8 }
 }
 
 
@@ -539,7 +571,9 @@ export const levelOnFloorDict = {
     0x15: 3,
     0x17: 3,
     0x18: 3,
-    0x19: 3
+    0x19: 3,
+    0x1a: 4,
+    0x1b: 0
 }
 
 export const levelNamesAchData = {

@@ -4,11 +4,11 @@ import { comparison, connectAddSourceChains } from '../../helpers.js'
 import * as fs from 'fs'
 
 
-function inGame(): ConditionBuilder {
+export function inGame(): ConditionBuilder {
     return $(comparison(data.gameplayID,'=',3))
 }
 
-function checkItemType(type: number): ConditionBuilder {
+export function checkItemType(type: number): ConditionBuilder {
     return $(
         ['AddAddress', 'Mem', '32bit', 0xd8],
         ['', 'Mem', '32bit', 0xec, '=', 'Value', '', type],
@@ -54,7 +54,7 @@ function didBabyFailLevel(levelID: number, difficulty: number, babyIdentificatio
             comparison(data.baby, '=', data.babyIdentificationDict[babyIdentification]),              //Are you playing as the baby being asked about?
             comparison(data.difficulty, '=', difficulty),                                             //Are you on the right difficulty?
             data.chainLinkedListData(babyIdentification + angelicaPresent, true),                     //Goes to the node in the linked list where the baby in question is asked about
-            comparison(0x7e8, '=', 0)                                                                 //Check if the floor data is 0, i.e. you've been kicked out of the play castle
+            comparison(data.babyFloor, '=', 0)                                                                 //Check if the floor data is 0, i.e. you've been kicked out of the play castle
         )
     }
     else {
@@ -64,7 +64,7 @@ function didBabyFailLevel(levelID: number, difficulty: number, babyIdentificatio
             comparison(data.baby, '=', data.babyIdentificationDict[babyIdentification]),
             comparison(data.difficulty, '=', difficulty),                                          
             data.chainLinkedListData(babyIdentification + angelicaPresent, true),
-            comparison(0x7e8, '=', 0)
+            comparison(data.babyFloor, '=', 0)
         )
     }
 }
@@ -243,7 +243,7 @@ export function makeAchievements(set: AchievementSet): void {
         let conditions: any = {
             core: $(
                 inGame(),
-                comparison(data.difficulty, '=', 2),
+                comparison(data.difficulty, '=', 2).withLast({ flag: 'MeasuredIf' }),
                 core
             )
         }
@@ -251,17 +251,12 @@ export function makeAchievements(set: AchievementSet): void {
         for (let index in deltaChains) {
             conditions['alt' + (+index + 1).toString()] = deltaChains[index]
         }
-
-
-
-        let description: string = 'Collect every small battery in the ' + data.littleBatteryAchData[worldID].title + ' world on Reptar Tough'
-        let title: string = data.littleBatteryAchData[worldID].achTitle
-        let points: number = data.littleBatteryAchData[worldID].points
+ 
 
         set.addAchievement({
-            title: title,
-            description: description,
-            points: points,
+            title: data.littleBatteryAchData[worldID].achTitle,
+            description: 'Collect every small battery in the ' + data.littleBatteryAchData[worldID].title + ' world on Reptar Tough',
+            points: data.littleBatteryAchData[worldID].points,
             conditions: conditions
         }) 
     }
@@ -270,7 +265,7 @@ export function makeAchievements(set: AchievementSet): void {
 
 
 
-    // Collect all the Funny Money in each world, see the above loop in the little batteries achievements for comments, logic is nearly identical
+    // Collect all the Funny Money in each world, see the above loop in the little batteries achievements for comments, logic is identical
     for (var worldID in data.funnyMoneyAchData) {
 
         let core: ConditionBuilder = $()
@@ -303,22 +298,23 @@ export function makeAchievements(set: AchievementSet): void {
         })
 
 
-        // Small change to the desctiption for the final achievement in this series
-        let description: string = 'Collect all the funny money in the ' + data.funnyMoneyAchData[worldID].title + ' world on Reptar Tough'
-        if (+worldID == 0x9) {
-            description = 'Collect all the funny money in \"Stormin\' the Castle\" on Reptar Tough'
-        }
-
         let conditions: any = {
             core: $(
                 inGame(),
-                comparison(data.difficulty, '=', 2),
+                comparison(data.difficulty, '=', 2).withLast({ flag: 'MeasuredIf' }),
                 core
             )
         }
 
         for (let index in deltaChains) {
             conditions['alt' + (+index + 1).toString()] = deltaChains[index]
+        }
+
+
+        // Small change to the desctiption for the final achievement in this series
+        let description: string = 'Collect all the funny money in the ' + data.funnyMoneyAchData[worldID].title + ' world on Reptar Tough'
+        if (+worldID == 0x9) {
+            description = 'Collect all the funny money in \"Stormin\' the Castle\" on Reptar Tough'
         }
 
         set.addAchievement({
@@ -362,10 +358,11 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'a',
-        description: 'Purchase Secret Funny Money from the ATM after unlocking floor 3. This will activate counters for each level on Reptar Tough for how much funny money is left to collect',
+        description: 'Purchase Secret Funny Money from the ATM after unlocking floor 3 on Reptar Tough. This will activate leaderboard counters for each level on Reptar Tough for how many collectables are left to collect',
         points: 1,
         conditions: $(
             inGame(),
+            comparison(data.difficulty, '=', 2),
             comparison(data.shopItemAvailable(36), '=', 1, true),
             comparison(data.shopItemPurchased(36), '=', 0, true),
             comparison(data.shopItemPurchased(36), '=', 1, false)
@@ -561,6 +558,8 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    /* Trashed as not very interesting / difficult, more frustrating. Swapped for the below ach
+    Also as is has an issue determining when you break a papaya by running into a boulder, seems to work for falling in the water or falling
 
     set.addAchievement({
         title: 'Baby Carmen Berzatto',
@@ -598,6 +597,62 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    */
+
+
+    set.addAchievement({
+        title: 'Baby Laura Croft',
+        description: 'In \"Punting Papayas\", starting from the inside of the temple near where you spawn, fall into the temple from the second story within X:XX',
+        points: 10,
+        conditions: $(
+            inGame(),
+
+            // Reset if you are out of the level
+            comparison(data.levelIDLoaded, '!=', 0x9).withLast({ flag: 'ResetIf' }),
+
+            // Reset if you are in a small box inside the temple, before the checkpoint trigger box to allow easy restarts
+            data.chainLinkedListDataRange(0, 50, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                comparison(data.babyXPos, '>=', 32).withLast({ flag: 'AndNext' }),
+                comparison(data.babyXPos, '<', 36).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '>=', 51).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '<=', 53).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '>=', 6).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '<=', 10).withLast({ flag: 'ResetIf' }),
+            ], true),
+
+            // Reset if time is up
+            'R:1=1.10800.',
+
+            // Sets a checkpoint hit upon walking through a small box blocking the start of the temple, addhits as an ornext chain
+            data.chainLinkedListDataRange(0, 50, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }), // Making sure the delta / mem check below reads the acual data we want instead of data from two different nodes. Shouldn't interfere since nothing should spawn while close to the temple
+                comparison(data.babyXPos, '>=', 32, true).withLast({ flag: 'AndNext' }),
+                comparison(data.babyXPos, '<', 32, false).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '>=', 51).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '<=', 53).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '>=', 6).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '<=', 10).withLast({ flag: 'AddHits' }),
+            ], true),
+            '0=1.1.',
+
+            // Finishes the achievement if you walk through a small box at the top of the temple entrance on the second floor, addhits as ornext chain
+            data.chainLinkedListDataRange(0, 50, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                comparison(data.babyXPos, '>=', 40).withLast({ flag: 'AndNext' }),
+                comparison(data.babyXPos, '<=', 41.5).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '>=', 56, true).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '<', 56, false).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '>=', 14).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '<=', 16).withLast({ flag: 'AddHits' }),
+            ], true),
+            'T:0=1.1.'
+
+        )
+    })
 
     set.addAchievement({
         title: 'The Baby in the Yellow Hat',
@@ -678,34 +733,33 @@ export function makeAchievements(set: AchievementSet): void {
         points: 5,
         conditions: $(
             inGame(),
-
-            comparison(data.levelIDLoaded, '=', 0x1),
             comparison(data.difficulty, '=', 2),
 
-            // Tests the moment the gem counter goes from 1 to 0
-            data.chainLinkedListData(0, true).withLast({ flag: 'Remember' }). 
-                also(
-                    'I:{recall}',
-                    ['AddAddress', 'Mem', '32bit', 0xd8],
-                    ['', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328],
-                    'I:{recall}',
-                    ['Trigger', 'Delta', '16bit', 0x8d4, '=', 'Value', '', 1],
-                    'I:{recall}',
-                    ['Trigger', 'Mem', '16bit', 0x8d4, '=', 'Value', '', 0]
-                ),
+            comparison(data.levelIDLoaded, '!=', 0x1).withLast({ flag: 'ResetIf' }),
 
-            // Checks that you haven't started the third lap, with one extra checkpoint for saftey
-            data.chainLinkedListData(1, true).withLast({ flag: 'Remember' }). 
-                also(
-                    'I:{recall}',
-                    ['AddAddress', 'Mem', '32bit', 0xd8],
-                    ['', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x129b38],
-                    'I:{recall}',
-                    ['', 'Mem', '16bit', 0x208, '<=', 'Value', '', 0xe7]
-                )
+            // Checkpoint upon starting the level, mainly just for a trigger icon
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0x1, false).withLast({ hits: 1 }),
+
+            // Tests the moment the gem counter goes from 1 to 0, addhits as an ornext chain
+            data.chainLinkedListDataRange(0, 30, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.itemCounter, '=', 1, true).withLast({ flag: 'AndNext' }),
+                comparison(data.itemCounter, '=', 0, false).withLast({ flag: 'AddHits' })
+            ], true),
+            'T:0=1.1.',
+
+            // Resets once you hit the third lap, with one extra checkpoint for kindness
+            data.chainLinkedListDataRange(1, 31, [
+                checkItemType(0x129b38).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                checkItemType(0x129b38).withLast({ flag: 'AndNext' }),
+                comparison(data.discreteMap, '>', 0xe8).withLast({ flag: 'ResetIf' })
+            ], true)
         )
     })
 
+    /* Impossible to use due to needing to do a delta > mem check on a node while it moves deeper in the linked list
 
     set.addAchievement({
         title: 'Baby Bill Denbrough',
@@ -721,13 +775,13 @@ export function makeAchievements(set: AchievementSet): void {
 
             // Set a checkpoint hit upon hitting the start of the boss battle
             data.chainLinkedListDataRange(0, 50, [
-                checkItemType(0x1e87e8).withLast({ flag: 'AndNext' }),
+                checkItemType(0x1e87e8).withLast({ flag: 'AndNext' }).also(
                 $(
                     'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0x10],
                     ['AddAddress', 'Mem', '32bit', 0x0],
                     checkItemType(0x1e87e8).withLast({ flag: 'AndNext' })
-                ),
+                )), // Testing if this node and the node after are both of type 0x1e87e8, since this node type is not unique, but spawns in a chain of 2 (we want the first)
                 comparison(data.bossPhase, '=', 0, true).withLast({ flag: 'AndNext' }),
                 comparison(data.bossPhase, '=', 1, false).withLast({ flag: 'AddHits' })
             ], false),
@@ -745,13 +799,13 @@ export function makeAchievements(set: AchievementSet): void {
             // set up as a hit with an addhits chain acting a higher level ornext chain
             // if these were all in alt groups, the ach length limit would beceome an issue
             data.chainLinkedListDataRange(0, 50, [
-                checkItemType(0x1e87e8).withLast({ flag: 'AndNext' }),
+                checkItemType(0x1e87e8).withLast({ flag: 'AndNext' }).also(
                 $(
                     'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0x10],
                     ['AddAddress', 'Mem', '32bit', 0x0],
                     checkItemType(0x1e87e8).withLast({ flag: 'AndNext' })
-                ),
+                )), // Testing if this node and the node after are both of type 0x1e87e8, since this node type is not unique, but spawns in a chain of 2 (we want the first)
                 comparison(data.bossPhase, '=', 6, true).withLast({ flag: 'AndNext' }),
                 comparison(data.bossPhase, '=', 7, false).withLast({ flag: 'AddHits' })
             ], false),
@@ -759,6 +813,8 @@ export function makeAchievements(set: AchievementSet): void {
 
         )
     })
+
+    
 
     set.addAchievement({
         title: 'Baby Bob Lee Swagger',
@@ -788,53 +844,101 @@ export function makeAchievements(set: AchievementSet): void {
             // set up as a hit with an addhits chain acting a higher level ornext chain
             // if these were all in alt groups, the ach length limit would beceome an issue
             data.chainLinkedListDataRange(0, 50, [
-                checkItemType(0x1e87e8).withLast({flag: 'AndNext'}),
+                checkItemType(0x1e87e8).withLast({flag: 'AndNext'}).also(
                 $(
                     'I:{recall}',
                     ['AddAddress', 'Mem', '32bit', 0x10],
                     ['AddAddress', 'Mem', '32bit', 0x0],
                     checkItemType(0x1e87e8).withLast({ flag: 'AndNext' })
-                ),
+                )),
                 comparison(data.bossPhase, '=', 2, true).withLast({ flag: 'AndNext' }),
                 comparison(data.bossPhase, '=', 3, false).withLast({ flag: 'AddHits' })
             ], false),
             'T:0=1.1.'
         )
     })
+    */
 
     set.addAchievement({
         title: 'Baby Nina Sayers',
         description: 'Complete \"Acrobatty Dash\" within 3:40',
         points: 5,
-        conditions: {
-            core: $(
-                inGame(),
+        conditions: $(
+            inGame(),
 
-                // Pause the hits timer if you are not in Acrobatty Dash
-                comparison(data.levelIDLoaded, '!=', 0xc).withLast({ flag: 'PauseIf' }),
+            // Set a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0xc, false).withLast({ hits: 1 }),
 
-                // Set a checkpoint hit at the start of the level
-                comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
-                comparison(data.levelIDLoaded, '=', 0xc, false).withLast({ hits: 1 }),
+            // Reset all the hits if we ever leave the level
+            comparison(data.levelIDLoaded, '!=', 0xc).withLast({ flag: 'ResetIf' }),
 
-                // Reset the hits timer at the start of the level
-                comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
-                comparison(data.levelIDLoaded, '=', 0xc, false).withLast({ flag: 'ResetNextIf' }),
+            // Reset the hits timer until we move the helper ball from it's initial placement (after the intro cutscene ends)
+            data.chainLinkedListData(0, true),
+            comparison(data.helperBallPosition, '=', 0).withLast({ flag: 'ResetNextIf' }),
 
-                // Hits timer, counts at 30 fps, have to do it this way instead of with 1=1 hits due to the extra time needed at the end of the level for the alt groups to do their work
-                andNext(
-                    // check if data is the timer to be safe
-                    data.chainLinkedListData(0, true),
-                    checkItemType(0x111328), 
-                    // check if the timer has changed this frame, reset if exceeds 3:40 worth of changes
-                    data.chainLinkedListData(0, true),
-                    comparison(data.timer, '!=', data.timer, true, false).withLast({ flag: 'ResetIf', hits:6601}) 
-                )
-            ),
-            alt1: trigger(beatLevel(0xc, 0)), // Possible on any difficulty (the difficulties only decrease the time limit for the level, which won't affect this challenge)
-            alt2: trigger(beatLevel(0xc, 1)),
-            alt3: trigger(beatLevel(0xc, 2))
-        }
+            // Timer, reset if the frames exceed 3:40 (plus a few frames to compinsate for the level end condition)
+            'R:1=1.13206.',
+
+            // To tell if the level has been won, check if the game timer has stopped while you
+            // 1. Aren't paused
+            // 2. Aren't dead
+            // 3. The timer isn't 0
+            // 4. And while the helper ball is in the final position of 0x28, just in case
+            data.chainLinkedListData(0, true),
+            comparison(data.timer, '!=', data.timer, true, false).withLast({ flag: 'ResetNextIf' }),
+            comparison(data.pauseScreen, '!=', 1).withLast({ flag: 'AndNext' }),
+            data.chainLinkedListDataRange(0, 0, [
+                comparison(data.healthCounter, '>', 0).withLast({ flag: 'AndNext' }),
+                comparison(data.timer, '>', 0).withLast({ flag: 'AndNext' }),
+                comparison(data.helperBallPosition, '=', 0x28).withLast({ flag: 'AndNext' }),
+                comparison(data.timer, '=', data.timer, true, false).withLast({ flag: 'Trigger', hits: 4 }) // Timer changes every other frame, the extra hits are to be safe
+            ], true)
+        )
+    })
+
+
+    set.addAchievement({
+        title: 'Baby Luke Skywalker',
+        description: 'In \"Fly High Egg Hunt\", following the flowing lava river near your spawn, fly to the yellow egg without flying above the canyon and without hitting any walls',
+        points: 3,
+        conditions: $(
+            inGame(),
+
+            // Reset if your health goes down, or your Z coordinate goes positive (out of the chasm)
+            comparison(data.levelIDLoaded, '!=', 0x11).withLast({ flag: 'ResetIf' }),
+            data.chainLinkedListDataRange(0, 60, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '>', 0).withLast({ flag: 'ResetIf' }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                comparison(data.healthCounter, '<', data.healthCounter, false, true).withLast({ flag: 'ResetIf' })
+            ], true),
+
+            // Sets a hit upon entering the canyon at the lava river near spawn, addhits as a ornext chain
+            data.chainLinkedListDataRange(0, 60, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }), // Making sure the delta / mem check below reads the acual data we want instead of data from two different nodes. Shouldn't interfere since nothing should spawn while close to the temple
+                comparison(data.babyXPos, '>=', -80).withLast({ flag: 'AndNext' }),
+                comparison(data.babyXPos, '<=', -50).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '>=', 115).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '<=', 145).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '>=', 0, true).withLast({ flag: 'AndNext' }),
+                comparison(data.babyZPos, '<', 0, false).withLast({ flag: 'AddHits' }),
+            ], true),
+            '0=1.1.',
+
+            // Complete the challenge if you fly to the end of the canyon, addhits as a ornext chain
+            data.chainLinkedListDataRange(0, 60, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }), // Making sure the delta / mem check below reads the acual data we want instead of data from two different nodes. Shouldn't interfere since nothing should spawn while close to the temple
+                comparison(data.babyXPos, '>=', -20).withLast({ flag: 'AndNext' }),
+                comparison(data.babyXPos, '<=', 0).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '<=', -140, true).withLast({ flag: 'AndNext' }),
+                comparison(data.babyYPos, '>', -140, false).withLast({ flag: 'AddHits' })
+            ], true),
+            '0=1.1.',
+        )
     })
 
     set.addAchievement({

@@ -2,16 +2,16 @@
 
 import { makeAchievements } from './achievements.js'
 import {makeLeaderboards} from './leaderboards.js'
-//import {makeRp} from './rp.js'
+//import {makeRP} from './rp.js'
 
-const set = new AchievementSet({
+const sett = new AchievementSet({
     gameId: 24497,
     title: 'Rugrats: Royal Ransom'
 })
 
 
-makeAchievements(set)
-makeLeaderboards(set)
-//export const rich = makeRp()
+makeAchievements(sett)
+makeLeaderboards(sett)
+//export const rich = makeRP()
 
-export default set 
+export const set = sett

@@ -1,5 +1,6 @@
 ﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, Leaderboard } from '@cruncheevos/core'
 import * as data from './data.js'
+import { checkItemType, inGame } from './achievements.js'
 import { comparison, connectAddSourceChains } from '../../helpers.js'
 
 export function makeLeaderboards(set: AchievementSet): void {
@@ -94,16 +95,135 @@ export function makeLeaderboards(set: AchievementSet): void {
         }
     })
 
+    set.addLeaderboard({
+        title: 'Acrobatty - Speedrun - RTA',
+        description: 'Beat \"Acrobatty\" as fast as possible on any difficulty',
+        type: 'FRAMES',
+        lowerIsBetter: true,
+        conditions: {
+            start: $(
+                comparison(data.gameplayID, '=', 3),
+                comparison(data.levelIDLoaded, '=', 0x1b, true),
+                comparison(data.levelIDLoaded, '=', 0xc, false)
+            ),
+            cancel: $(
+                comparison(data.levelIDLoaded, '!=', 0xc)
+            ),
+            submit: $(
+                data.chainLinkedListData(0, true),
+                comparison(data.timer, '!=', data.timer, true, false).withLast({ flag: 'ResetNextIf' }),
+                comparison(data.pauseScreen, '!=', 1).withLast({ flag: 'AndNext' }),
+                data.chainLinkedListDataRange(0, 0, [
+                    comparison(data.healthCounter, '>', 0).withLast({ flag: 'AndNext' }),
+                    comparison(data.timer, '>', 0).withLast({ flag: 'AndNext' }),
+                    comparison(data.helperBallPosition, '=', 0x28).withLast({ flag: 'AndNext' }),
+                    comparison(data.timer, '=', data.timer, true, false).withLast({ flag: 'Trigger', hits: 4 }) // Timer changes every other frame, the extra hits are to be safe
+                ], true)
+            ),
+            value: $(
+                data.chainLinkedListData(0, true),
+                comparison(data.helperBallPosition, '=', 0).withLast({ flag: 'ResetNextIf' }),
+
+                'M:1=1',
+            )
+        }
+    })
+
+    set.addLeaderboard({
+        title: 'Temple Run - Speedrun - RTA',
+        description: 'In \"Punting Papayas\", starting from the inside of the temple where you spawn, fall into the temple from the second story as fast as possible. Touch the Cycas plant by spawn to cancel your attempt',
+        type: 'FRAMES',
+        lowerIsBetter: true,
+        conditions: {
+            start: $(
+                inGame(),
+                comparison(data.levelIDLoaded, '=', 0x9),
+
+                // Start the attempt if you walk through a small box in the entryway of the temple, an addhits chain used as a higher level ornext chain
+                data.chainLinkedListDataRange(0, 50, [
+                    checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                    checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }), // Making sure the delta / mem check below reads the acual data we want instead of data from two different nodes. Shouldn't interfere since nothing should spawn while close to the temple
+                    comparison(data.babyXPos, '>=', 32, true).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyXPos, '<', 32, false).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyYPos, '>=', 51).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyYPos, '<=', 53).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyZPos, '>=', 6).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyZPos, '<=', 10).withLast({ flag: 'AddHits' }),
+                ], true),
+                '0=1.1.',
+
+                // Reset if you leave the level or walk far enough away from the start line, ideally wouldn't need these resets, but since we need to use hits to approximate an ornext chain above, it's nessesary
+                comparison(data.levelIDLoaded, '!=', 0x9).withLast({ flag: 'ResetIf' }),
+                data.chainLinkedListDataRange(0, 50, [
+                    checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                    checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                    comparison(data.babyXPos, '<', 31, true).withLast({ flag: 'ResetIf' }),
+                ], true),
+            ),
+            cancel: {
+                core: $('1=1'),
+                alt1: comparison(data.levelIDLoaded, '!=', 0x9),
+                alt2: $(
+                    // Resets every other frame to reset the hit so you can cancel every attempt, not just the first one
+                    'Z:1=1.2.',
+
+                    // Cancels if you walk near the Cycas plant, addhits as ornext chain
+                    data.chainLinkedListDataRange(0, 50, [
+                        checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                        checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                        comparison(data.babyXPos, '>=', 28.5).withLast({ flag: 'AndNext' }),
+                        comparison(data.babyXPos, '<=', 30).withLast({ flag: 'AndNext' }),
+                        comparison(data.babyYPos, '>=', 57).withLast({ flag: 'AndNext' }),
+                        comparison(data.babyYPos, '<=', 58.5).withLast({ flag: 'AndNext' }),
+                        comparison(data.babyZPos, '>=', 4.5).withLast({ flag: 'AndNext' }),
+                        comparison(data.babyZPos, '<=', 5).withLast({ flag: 'AddHits' }),
+                    ], true),
+                    '0=1.1.'
+                )
+            },
+            submit: $(
+
+                // Reset if you are below a certain Z value, this is to make sure you don't set the submit flag before starting the attempt
+                data.chainLinkedListDataRange(0, 50, [
+                    checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                    checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                    comparison(data.babyZPos, '<=', 13.5).withLast({ flag: 'ResetIf' }),
+                ], true),
+
+                // Submits if you walk through a small box into the second floor of the temple, addhits as an ornext chain
+                data.chainLinkedListDataRange(0, 50, [
+                    checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                    checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                    comparison(data.babyXPos, '>=', 40).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyXPos, '<=', 41.5).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyYPos, '>=', 56, true).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyYPos, '<', 56, false).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyZPos, '>=', 14).withLast({ flag: 'AndNext' }),
+                    comparison(data.babyZPos, '<=', 16).withLast({ flag: 'AddHits' }),
+                ], true),
+                '0=1.1.'
+            ),
+            value: $(
+                'M:1=1'
+            )
+        }
+    })
+
     // Funny money left to collect hidden leaderboards for Reptar Tough
     for (var levelID in data.levelOnFloorDict) {
 
+        if (+levelID >= 0x1a) {break }
+
         let temp: any = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(+levelID, 2))
-        let totalStacks: number = temp.tally
-        let chain: ConditionBuilder = temp.chain.map((cond, index, array) => cond.with({flag:'SubSource'}))
+        let totalCollectables: number = temp.tally
+        let chainOne: ConditionBuilder = temp.chain.map((cond, index, array) => cond.with({ flag: 'SubSource' }))
+        temp = connectAddSourceChains(data.chainLittleBatteriesCollected(+levelID, 2))
+        totalCollectables = totalCollectables + temp.tally
+        let chainTwo: ConditionBuilder = temp.chain.map((cond, index, array) => cond.with({ flag: 'SubSource' }))
 
         set.addLeaderboard({
-            title: 'Funny Money Detector - ' + data.levelNamesAchData[levelID].title,
-            description: 'Shows how many stacks of funny money are left to collect in the level',
+            title: 'Collectable Detector - ' + data.levelNamesAchData[levelID].title,
+            description: 'Shows how many collectables are left to find in the level',
             type: 'VALUE',
             lowerIsBetter: true,
             conditions: {
@@ -119,11 +239,13 @@ export function makeLeaderboards(set: AchievementSet): void {
                 ),
                 submit: $('0=1'),
                 value: $(
-                    chain,
-                    ['Measured', 'Value', '', totalStacks]
+                    chainOne,
+                    chainTwo,
+                    ['Measured', 'Value', '', totalCollectables]
                 )
             }
         })
     }
+
 
 }

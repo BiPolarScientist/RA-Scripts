@@ -5,8 +5,16 @@ export function comparison(leftobject: Partial<Condition.Data> | number, cmp:str
 
     let output: ConditionBuilder = $('0'+cmp+'0')
 
-    if (typeof leftobject === 'number') {
-        output = output.withLast({ lvalue: { type: 'Value', value: leftobject } })
+    if (typeof rightobject == 'string') {
+        output = output.withLast({ lvalue: { type: 'Recall' } })
+    }
+    else if (typeof leftobject === 'number') {
+        if (leftobject % 1 == 0) {
+            output = output.withLast({ lvalue: { type: 'Value', value: leftobject } })
+        }
+        else {
+            output = output.withLast({ lvalue: { type: 'Float', value: leftobject } })
+        }
     }
     else {
         output = output.withLast({ lvalue: leftobject.lvalue })
@@ -15,11 +23,17 @@ export function comparison(leftobject: Partial<Condition.Data> | number, cmp:str
         }
     }
 
+
     if (typeof rightobject == 'string') {
         output = output.withLast({ rvalue: { type: 'Recall' } })
     }
     else if (typeof rightobject === 'number') {
-        output = output.withLast({ rvalue: { type: 'Value', value: rightobject } })
+        if (rightobject % 1 == 0) {
+            output = output.withLast({ rvalue: { type: 'Value', value: rightobject } })
+        }
+        else {
+            output = output.withLast({ rvalue: { type: 'Float', value: rightobject } })
+        }
     }
     else {
         output = output.withLast({ rvalue: rightobject.rvalue })
@@ -38,6 +52,13 @@ export function comparison(leftobject: Partial<Condition.Data> | number, cmp:str
  */
 export function connectAddSourceChains(chain: ConditionBuilder): any {
 
+    if (chain.conditions.length == 0) {
+        return {
+            chain: $(),
+            tally: 0
+        }
+    }
+
     let tally: number = chain.conditions[chain.conditions.length - 1].rvalue.value
     let condOutput = chain
     condOutput.conditions[chain.conditions.length - 1] = new Condition('A:' + chain.conditions[chain.conditions.length - 1].toString().split('=')[0])
@@ -46,3 +67,7 @@ export function connectAddSourceChains(chain: ConditionBuilder): any {
         tally: tally
     }
 }
+
+export function conditionRP(stuff: Partial<Condition.Data>): Condition{
+        return new Condition('').with({ lvalue: stuff.lvalue })
+ }
