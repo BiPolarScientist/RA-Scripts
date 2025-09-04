@@ -7,7 +7,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Baby Easy - Speedrun - RTA',
-        description: 'Beat the game from a fresh save file on Baby Easy as fast as possible',
+        description: 'Beat the game from a fresh save file on Baby Easy as fast as possible, timer offset by 10 seconds at the start to match RTA timing',
         type: 'FRAMES',
         lowerIsBetter: true,
         conditions: {
@@ -30,6 +30,7 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.gameplayID, '=', 1, false)
             ),
             value: $(
+                'D:1=1.600.',
                 'M:1=1'
             )  
         }
@@ -37,7 +38,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Rugrat Normal - Speedrun - RTA',
-        description: 'Beat the game from a fresh save file on Rugrat Normal as fast as possible',
+        description: 'Beat the game from a fresh save file on Rugrat Normal as fast as possible, timer offset by 10 seconds at the start to match RTA timing',
         type: 'FRAMES',
         lowerIsBetter: true,
         conditions: {
@@ -60,6 +61,7 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.gameplayID, '=', 1, false)
             ),
             value: $(
+                'D:1=1.600.',
                 'M:1=1'
             )
         }
@@ -67,7 +69,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Reptar Tough - Speedrun - RTA',
-        description: 'Beat the game from a fresh save file on Reptar Tough as fast as possible',
+        description: 'Beat the game from a fresh save file on Reptar Tough as fast as possible, timer offset by 10 seconds at the start to match RTA timing',
         type: 'FRAMES',
         lowerIsBetter: true,
         conditions: {
@@ -90,14 +92,16 @@ export function makeLeaderboards(set: AchievementSet): void {
                 comparison(data.gameplayID, '=', 1, false)
             ),
             value: $(
+                'D:1=1.600.',
                 'M:1=1'
             )
         }
     })
 
     set.addLeaderboard({
-        title: 'Acrobatty - Speedrun - RTA',
-        description: 'Beat \"Acrobatty\" as fast as possible on any difficulty',
+        title: 'Acrobatty Dash - Speedrun - RTA',
+        id: 138563,
+        description: 'Beat \"Acrobatty Dash\" as fast as possible on any difficulty',
         type: 'FRAMES',
         lowerIsBetter: true,
         conditions: {
@@ -117,7 +121,7 @@ export function makeLeaderboards(set: AchievementSet): void {
                     comparison(data.healthCounter, '>', 0).withLast({ flag: 'AndNext' }),
                     comparison(data.timer, '>', 0).withLast({ flag: 'AndNext' }),
                     comparison(data.helperBallPosition, '=', 0x28).withLast({ flag: 'AndNext' }),
-                    comparison(data.timer, '=', data.timer, true, false).withLast({ flag: 'Trigger', hits: 4 }) // Timer changes every other frame, the extra hits are to be safe
+                    comparison(data.timer, '=', data.timer, true, false).withLast({ hits: 4 }) // Timer changes every other frame, the extra hits are to be safe
                 ], true)
             ),
             value: $(
@@ -131,24 +135,24 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Temple Run - Speedrun - RTA',
+        id: 138564,
         description: 'In \"Punting Papayas\", starting from the inside of the temple where you spawn, fall into the temple from the second story as fast as possible. Touch the Cycas plant by spawn to cancel your attempt',
         type: 'FRAMES',
         lowerIsBetter: true,
         conditions: {
             start: $(
                 inGame(),
-                comparison(data.levelIDLoaded, '=', 0x9),
 
                 // Start the attempt if you walk through a small box in the entryway of the temple, an addhits chain used as a higher level ornext chain
                 data.chainLinkedListDataRange(0, 50, [
                     checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                     checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }), // Making sure the delta / mem check below reads the acual data we want instead of data from two different nodes. Shouldn't interfere since nothing should spawn while close to the temple
-                    comparison(data.babyXPos, '>=', 32, true).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyXPos, '<', 32, false).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyYPos, '>=', 51).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyYPos, '<=', 53).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyZPos, '>=', 6).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyZPos, '<=', 10).withLast({ flag: 'AddHits' }),
+                    comparison(data.XPos, '>=', 32, true).withLast({ flag: 'AndNext' }),
+                    comparison(data.XPos, '<', 32, false).withLast({ flag: 'AndNext' }),
+                    comparison(data.YPos, '>=', 51).withLast({ flag: 'AndNext' }),
+                    comparison(data.YPos, '<=', 53).withLast({ flag: 'AndNext' }),
+                    comparison(data.ZPos, '>=', 6).withLast({ flag: 'AndNext' }),
+                    comparison(data.ZPos, '<=', 10).withLast({ flag: 'AddHits' }),
                 ], true),
                 '0=1.1.',
 
@@ -157,7 +161,7 @@ export function makeLeaderboards(set: AchievementSet): void {
                 data.chainLinkedListDataRange(0, 50, [
                     checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                     checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
-                    comparison(data.babyXPos, '<', 31, true).withLast({ flag: 'ResetIf' }),
+                    comparison(data.XPos, '<', 31, true).withLast({ flag: 'ResetIf' }),
                 ], true),
             ),
             cancel: {
@@ -165,18 +169,18 @@ export function makeLeaderboards(set: AchievementSet): void {
                 alt1: comparison(data.levelIDLoaded, '!=', 0x9),
                 alt2: $(
                     // Resets every other frame to reset the hit so you can cancel every attempt, not just the first one
-                    'Z:1=1.2.',
+                    'R:1=1.2.',
 
                     // Cancels if you walk near the Cycas plant, addhits as ornext chain
                     data.chainLinkedListDataRange(0, 50, [
                         checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                         checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
-                        comparison(data.babyXPos, '>=', 28.5).withLast({ flag: 'AndNext' }),
-                        comparison(data.babyXPos, '<=', 30).withLast({ flag: 'AndNext' }),
-                        comparison(data.babyYPos, '>=', 57).withLast({ flag: 'AndNext' }),
-                        comparison(data.babyYPos, '<=', 58.5).withLast({ flag: 'AndNext' }),
-                        comparison(data.babyZPos, '>=', 4.5).withLast({ flag: 'AndNext' }),
-                        comparison(data.babyZPos, '<=', 5).withLast({ flag: 'AddHits' }),
+                        comparison(data.XPos, '>=', 28.5).withLast({ flag: 'AndNext' }),
+                        comparison(data.XPos, '<=', 30).withLast({ flag: 'AndNext' }),
+                        comparison(data.YPos, '>=', 57).withLast({ flag: 'AndNext' }),
+                        comparison(data.YPos, '<=', 58.5).withLast({ flag: 'AndNext' }),
+                        comparison(data.ZPos, '>=', 4.5).withLast({ flag: 'AndNext' }),
+                        comparison(data.ZPos, '<=', 5).withLast({ flag: 'AddHits' }),
                     ], true),
                     '0=1.1.'
                 )
@@ -187,19 +191,19 @@ export function makeLeaderboards(set: AchievementSet): void {
                 data.chainLinkedListDataRange(0, 50, [
                     checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                     checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
-                    comparison(data.babyZPos, '<=', 13.5).withLast({ flag: 'ResetIf' }),
+                    comparison(data.ZPos, '<=', 13.5).withLast({ flag: 'ResetIf' }),
                 ], true),
 
                 // Submits if you walk through a small box into the second floor of the temple, addhits as an ornext chain
                 data.chainLinkedListDataRange(0, 50, [
                     checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                     checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
-                    comparison(data.babyXPos, '>=', 40).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyXPos, '<=', 41.5).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyYPos, '>=', 56, true).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyYPos, '<', 56, false).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyZPos, '>=', 14).withLast({ flag: 'AndNext' }),
-                    comparison(data.babyZPos, '<=', 16).withLast({ flag: 'AddHits' }),
+                    comparison(data.XPos, '>=', 40).withLast({ flag: 'AndNext' }),
+                    comparison(data.XPos, '<=', 41.5).withLast({ flag: 'AndNext' }),
+                    comparison(data.YPos, '>=', 56, true).withLast({ flag: 'AndNext' }),
+                    comparison(data.YPos, '<', 56, false).withLast({ flag: 'AndNext' }),
+                    comparison(data.ZPos, '>=', 14).withLast({ flag: 'AndNext' }),
+                    comparison(data.ZPos, '<=', 16).withLast({ flag: 'AddHits' }),
                 ], true),
                 '0=1.1.'
             ),
@@ -209,7 +213,7 @@ export function makeLeaderboards(set: AchievementSet): void {
         }
     })
 
-    // Funny money left to collect hidden leaderboards for Reptar Tough
+    // Collectables left to collect hidden leaderboards for Reptar Tough
     for (var levelID in data.levelOnFloorDict) {
 
         if (+levelID >= 0x1a) {break }
@@ -217,6 +221,7 @@ export function makeLeaderboards(set: AchievementSet): void {
         let temp: any = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(+levelID, 2))
         let totalCollectables: number = temp.tally
         let chainOne: ConditionBuilder = temp.chain.map((cond, index, array) => cond.with({ flag: 'SubSource' }))
+
         temp = connectAddSourceChains(data.chainLittleBatteriesCollected(+levelID, 2))
         totalCollectables = totalCollectables + temp.tally
         let chainTwo: ConditionBuilder = temp.chain.map((cond, index, array) => cond.with({ flag: 'SubSource' }))

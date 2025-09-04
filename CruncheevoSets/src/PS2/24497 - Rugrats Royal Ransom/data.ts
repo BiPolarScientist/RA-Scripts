@@ -341,6 +341,14 @@ export function chainLittleBatteriesCollected(levelID: number, difficulty: numbe
 
     let amountOfFunnyMoneyStacks: number = levelData.totalCollectables - levelData.littleBatteries
 
+    let totalBatteries: number = 0
+    if ('littleBatteriesMissing' in levelData) {
+        totalBatteries = levelData.littleBatteries - levelData.littleBatteriesMissing
+    }
+    else {
+        totalBatteries = levelData.littleBatteries
+    }
+
     let i: number = Math.floor(amountOfFunnyMoneyStacks / 8)
     let j: number = amountOfFunnyMoneyStacks % 8
 
@@ -380,7 +388,7 @@ export function chainLittleBatteriesCollected(levelID: number, difficulty: numbe
             cmp: '=',
             rvalue: {
                 type: 'Value',
-                value: levelData.littleBatteries
+                value: totalBatteries
             }
         })
     }
@@ -390,7 +398,7 @@ export function chainLittleBatteriesCollected(levelID: number, difficulty: numbe
             cmp: '=',
             rvalue: {
                 type: 'Value',
-                value: levelData.littleBatteries - 1
+                value: totalBatteries - 1
             }
         })
     }
@@ -506,8 +514,16 @@ export let ringCounter: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }, rvalue: { type: 'Mem', size: '16bit', value: 0x1f4 }
 }
 
+export let ringTimer: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0x9b0 }, rvalue: { type: 'Mem', size: 'Float', value: 0x9b0 }
+}
+
 export let discreteMap: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x208 }, rvalue: { type: 'Mem', size: '16bit', value: 0x208 }
+}
+
+export let continuousMap: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0xcc8 }, rvalue: { type: 'Mem', size: 'Float', value: 0xcc8 }
 }
 
 export let timer: Partial<Condition.Data> = {
@@ -522,16 +538,24 @@ export let babyFloor: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0x7e8 }, rvalue: { type: 'Mem', size: '16bit', value: 0x7e8 }
 }
 
-export let babyXPos: Partial<Condition.Data> = {
+export let XPos: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: 'Float', value: 0x0 }, rvalue: { type: 'Mem', size: 'Float', value: 0x0 }
 }
 
-export let babyZPos: Partial<Condition.Data> = {
+export let ZPos: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: 'Float', value: 0x4 }, rvalue: { type: 'Mem', size: 'Float', value: 0x4 }
 }
 
-export let babyYPos: Partial<Condition.Data> = {
+export let YPos: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: 'Float', value: 0x8 }, rvalue: { type: 'Mem', size: 'Float', value: 0x8 }
+}
+
+export let rotationPos: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0xc }, rvalue: { type: 'Mem', size: 'Float', value: 0xc }
+}
+
+export let notWideScreen: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '8bit', value: 0x26c }, rvalue: { type: 'Mem', size: '8bit', value: 0x26c }
 }
 
 
@@ -577,51 +601,51 @@ export const levelOnFloorDict = {
 }
 
 export const levelNamesAchData = {
-    0x01: { title: 'Rugrat Rug Race', achTitle: 'Way to Burn Rugger!', points: 3 },
-    0x02: { title: 'Meanie Genie', achTitle: 'You\'re a Real Lamp Champ', points: 4 },
-    0x03: { title: 'Temple of the Lamp', achTitle: 'Not as Good as Mr. Fluffles', points: 2 },
-    0x04: { title: 'Mr. Snowtato Head', achTitle: 'Let\'s Make a Snowbaby', points: 1 },
-    0x05: { title: 'Ready, Set, Snow', achTitle: 'You\'re a Snow Pro!', points: 3 },
-    0x07: { title: 'Snowplace to Hide', achTitle: 'a', points: 1 },
-    0x08: { title: 'River Fun Run', achTitle: 'Race to the Jungle Beaver Medicine', points: 10 },
-    0x09: { title: 'Punting Papayas', achTitle: 'You Should Be a Papaya Crate-r!', points: 3 },
-    0x0a: { title: 'Monkey Business', achTitle: 'I Went on a Jungle Gym Once', points: 3 },
-    0x0b: { title: 'Cone Caper', achTitle: 'Under This Freak Show, I\'m a Regular Guy', points: 4 },
-    0x0c: { title: 'Acrobatty Dash', achTitle: 'Astrobats Flying Through the Air', points: 3 },
-    0x0d: { title: 'Cream Pie Flyer', achTitle: 'The Ring Monster\'s Trial', points: 10 },
-    0x0e: { title: 'Sub-a-Dub-Dub', achTitle: 'Scrubmarine to the Rescue!', points: 2 },
-    0x10: { title: 'Hot Cod Racer', achTitle: 'That\'s Them, the Sea Monies', points: 3 },
-    0x11: { title: 'Fly High Egg Hunt', achTitle: 'How Many Is a Gross of Eggs?', points: 5 },
-    0x12: { title: 'Rex Riding', achTitle: 'Where\'s Reptar?', points: 5 },
-    0x14: { title: 'Bow and Apple', achTitle: 'The Days of Shovelry', points: 4 },
-    0x15: { title: 'The Holey Pail', achTitle: 'The Knightses of the Sand Table', points: 10 },
-    0x17: { title: 'Moon Buggy Madness', achTitle: 'Driving with Less Grabity', points: 3 },
-    0x18: { title: 'Cheesy Chase', achTitle: 'Moon Cheese Comes from Moon Graters', points: 3 },
-    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'Lonely Space Vixens', points: 4 }
+    0x01: { title: 'Rugrat Rug Race', achTitle: 'Way to Burn Rugger!', points: 3 , id: 541538 },
+    0x02: { title: 'Meanie Genie', achTitle: 'You\'re a Real Lamp Champ', points: 4, id: 541539 },
+    0x03: { title: 'Temple of the Lamp', achTitle: 'Not as Good as Mr. Fluffles', points: 2, id: 541540 },
+    0x04: { title: 'Mr. Snowtato Head', achTitle: 'Let\'s Make a Snowbaby', points: 1, id: 541541 },
+    0x05: { title: 'Ready, Set, Snow', achTitle: 'You\'re a Snow Pro!', points: 3, id: 541542 },
+    0x07: { title: 'Snowplace to Hide', achTitle: 'If Only I Had My Screwdriver...', points: 1, id: 541543 },
+    0x08: { title: 'River Fun Run', achTitle: 'Race to the Jungle Beaver Medicine', points: 10, id: 541544 },
+    0x09: { title: 'Punting Papayas', achTitle: 'You Should Be a Papaya Crate-r!', points: 3, id: 541545 },
+    0x0a: { title: 'Monkey Business', achTitle: 'I Went on a Jungle Gym Once', points: 3, id: 541546 },
+    0x0b: { title: 'Cone Caper', achTitle: 'Under This Freak Show, I\'m a Regular Guy', points: 4, id: 541547 },
+    0x0c: { title: 'Acrobatty Dash', achTitle: 'Astrobats Flying Through the Air', points: 3, id: 541548 },
+    0x0d: { title: 'Cream Pie Flyer', achTitle: 'The Ring Monster\'s Trial', points: 10, id: 541549 },
+    0x0e: { title: 'Sub-a-Dub-Dub', achTitle: 'Scrubmarine to the Rescue!', points: 2, id: 541550 },
+    0x10: { title: 'Hot Cod Racer', achTitle: 'That\'s Them, the Sea Monies', points: 3, id: 541551 },
+    0x11: { title: 'Fly High Egg Hunt', achTitle: 'How Many Is a Gross of Eggs?', points: 5, id: 541552 },
+    0x12: { title: 'Rex Riding', achTitle: 'Where\'s Reptar?', points: 5, id: 541553 },
+    0x14: { title: 'Bow and Apple', achTitle: 'The Days of Shovelry', points: 4, id: 541554 },
+    0x15: { title: 'The Holey Pail', achTitle: 'The Knightses of the Sand Table', points: 10, id: 541555 },
+    0x17: { title: 'Moon Buggy Madness', achTitle: 'Driving with Less Grabity', points: 3, id: 541556 },
+    0x18: { title: 'Cheesy Chase', achTitle: 'Moon Cheese Comes from Moon Graters', points: 3, id: 541557 },
+    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'Lonely Space Vixens', points: 4, id: 541558 }
 
 }
 
 export const littleBatteryAchData = {
-    0x01: { title: 'snow', achTitle: 'Cold Fusion', points: 5, levelArray: [0x4, 0x5, 0x7] },
-    0x02: { title: 'jungle', achTitle: 'Photosynthetic Energy', points: 5, levelArray: [0x8, 0x9, 0xa] },
-    0x03: { title: 'undersea', achTitle: 'Hydropower Energy', points: 5, levelArray: [0xe, 0x10] },
-    0x04: { title: 'Arabian', achTitle: 'Solar Energy', points: 5, levelArray: [0x1, 0x2, 0x3] },
-    0x05: { title: 'circus', achTitle: 'Scream Energy', points: 5, levelArray: [0xb, 0xc, 0xd] },
-    0x06: { title: 'dino', achTitle: 'Fossil Fuels', points: 5, levelArray: [0x11, 0x12] },
-    0x07: { title: 'Moon', achTitle: 'Lunar Energy', points: 5, levelArray: [0x17, 0x18, 0x19] },
-    0x08: { title: 'Medieval', achTitle: 'Were These Even Invented Yet?', points: 5, levelArray: [0x14, 0x15] }
+    0x01: { title: 'snow', achTitle: 'Cold Fusion', points: 5, levelArray: [0x4, 0x5, 0x7], id: 541559 },
+    0x02: { title: 'jungle', achTitle: 'Photosynthetic Energy', points: 5, levelArray: [0x8, 0x9, 0xa], id: 541560 },
+    0x03: { title: 'undersea', achTitle: 'Hydropower Energy', points: 5, levelArray: [0xe, 0x10], id: 541561 },
+    0x04: { title: 'Arabian', achTitle: 'Solar Energy', points: 5, levelArray: [0x1, 0x2, 0x3], id: 541562 },
+    0x05: { title: 'circus', achTitle: 'Scream Energy', points: 5, levelArray: [0xb, 0xc, 0xd], id: 541563 },
+    0x06: { title: 'dino', achTitle: 'Fossil Fuels', points: 5, levelArray: [0x11, 0x12], id: 541564 },
+    0x07: { title: 'Moon', achTitle: 'Lunar Energy', points: 5, levelArray: [0x17, 0x18, 0x19], id: 541565 },
+    0x08: { title: 'Medieval', achTitle: 'Were These Even Invented Yet?', points: 5, levelArray: [0x14, 0x15], id: 541566 }
 }
 
 export const funnyMoneyAchData = {
-    0x01: { title: 'snow', achTitle: 'Frozen Assets', points: 10, levelArray: [0x4, 0x5, 0x7]},
-    0x02: { title: 'jungle', achTitle: 'Your Papaya Paycheck', points: 10, levelArray: [0x8, 0x9, 0xa] },
-    0x03: { title: 'undersea', achTitle: 'Jackpot at the Seahorse Track', points: 10, levelArray: [0xe, 0x10]},
-    0x04: { title: 'Arabian', achTitle: 'Accessing Your Offshore Account', points: 10, levelArray: [0x1, 0x2, 0x3] },
-    0x05: { title: 'circus', achTitle: 'Avoiding Clowngrades', points: 10, levelArray: [0xb, 0xc, 0xd] },
-    0x06: { title: 'dino', achTitle: 'Their Bones Are Their Money', points: 10, levelArray: [0x11, 0x12] },
-    0x07: { title: 'Moon', achTitle: 'The Moon Might Not Be Made of Cheese, but It Does Have a Lot of Cheddar', points: 10, levelArray: [0x17, 0x18, 0x19] },
-    0x08: { title: 'Medieval', achTitle: 'Investing Early', points: 10, levelArray: [0x14, 0x15] },
-    0x09: { title: 'Stomin\' the Castle', achTitle: 'Your Treasury Bond Has Matured', points: 10, levelArray: [0x1a] }
+    0x01: { title: 'snow', achTitle: 'Frozen Assets', points: 10, levelArray: [0x4, 0x5, 0x7], id: 541567 },
+    0x02: { title: 'jungle', achTitle: 'Your Papaya Paycheck', points: 10, levelArray: [0x8, 0x9, 0xa], id: 541568 },
+    0x03: { title: 'undersea', achTitle: 'Jackpot at the Seahorse Track', points: 10, levelArray: [0xe, 0x10], id: 541569 },
+    0x04: { title: 'Arabian', achTitle: 'Accessing Your Offshore Account', points: 10, levelArray: [0x1, 0x2, 0x3], id: 541570 },
+    0x05: { title: 'circus', achTitle: 'Avoiding Clowngrades', points: 10, levelArray: [0xb, 0xc, 0xd], id: 541571 },
+    0x06: { title: 'dino', achTitle: 'Their Bones Are Their Money', points: 10, levelArray: [0x11, 0x12], id: 541572 },
+    0x07: { title: 'Moon', achTitle: 'The Moon Might Not Be Made of Cheese, but It Does Have a Lot of Cheddar', points: 10, levelArray: [0x17, 0x18, 0x19], id: 541573 },
+    0x08: { title: 'Medieval', achTitle: 'Investing Early', points: 10, levelArray: [0x14, 0x15], id: 541574 },
+    0x09: { title: 'Stomin\' the Castle', achTitle: 'Your Treasury Bond Has Matured', points: 10, levelArray: [0x1a], id: 541575 }
 }
 
 
