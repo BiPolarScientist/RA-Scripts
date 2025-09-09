@@ -1,11 +1,72 @@
 ﻿import { define as $, ConditionBuilder, Condition } from '@cruncheevos/core'
 
 
-export function comparison(leftobject: Partial<Condition.Data> | number, cmp:string, rightobject: Partial<Condition.Data> | number | string, leftdelta:boolean = false, rightdelta:boolean=false): ConditionBuilder {
+/**
+ * Returns a flagless condition taht compares the left to the right objects. Objects can be either Memory data, a value, a float (has to have a nonzero decimal), or a string to stand in as Recall.
+ * You can make the left or right sides of the comparison delta with extra booleans.
+ * @param leftobject
+ * @param cmp
+ * @param rightobject
+ * @param leftdelta
+ * @param rightdelta
+ * @returns
+ */
+export function comparison(leftobject: Partial<Condition.Data> | number | string, cmp:string, rightobject: Partial<Condition.Data> | number | string, leftdelta:boolean = false, rightdelta:boolean=false): ConditionBuilder {
 
     let output: ConditionBuilder = $('0'+cmp+'0')
 
+    if (typeof leftobject == 'string') {
+        output = output.withLast({ lvalue: { type: 'Recall' } })
+    }
+    else if (typeof leftobject === 'number') {
+        if (leftobject % 1 == 0) {
+            output = output.withLast({ lvalue: { type: 'Value', value: leftobject } })
+        }
+        else {
+            output = output.withLast({ lvalue: { type: 'Float', value: leftobject } })
+        }
+    }
+    else {
+        output = output.withLast({ lvalue: leftobject.lvalue })
+        if (leftdelta) {
+            output = output.withLast({ lvalue: { type: 'Delta' } })
+        }
+    }
+
+
     if (typeof rightobject == 'string') {
+        output = output.withLast({ rvalue: { type: 'Recall' } })
+    }
+    else if (typeof rightobject === 'number') {
+        if (rightobject % 1 == 0) {
+            output = output.withLast({ rvalue: { type: 'Value', value: rightobject } })
+        }
+        else {
+            output = output.withLast({ rvalue: { type: 'Float', value: rightobject } })
+        }
+    }
+    else {
+        output = output.withLast({ rvalue: rightobject.rvalue })
+        if (rightdelta) {
+            output = output.withLast({ rvalue: { type: 'Delta' } })
+        }
+    }
+
+    return output
+}
+
+export function calculation(isAddSource: boolean, leftobject: Partial<Condition.Data> | number | string, cmp: string, rightobject: Partial<Condition.Data> | number | string, leftdelta: boolean = false, rightdelta: boolean = false): ConditionBuilder {
+
+    let output: ConditionBuilder
+    if (isAddSource) {
+        output = $('A:0' + cmp + '0')
+    }
+    else {
+        output = $('B:0' + cmp + '0')
+    }
+    
+
+    if (typeof leftobject == 'string') {
         output = output.withLast({ lvalue: { type: 'Recall' } })
     }
     else if (typeof leftobject === 'number') {
@@ -68,6 +129,11 @@ export function connectAddSourceChains(chain: ConditionBuilder): any {
     }
 }
 
+/**
+ * RP script stuff is weird, it doesn't like certain characters in the middle of lookups so we have to use a helper function.
+ * @param stuff
+ * @returns
+ */
 export function conditionRP(stuff: Partial<Condition.Data>): Condition{
         return new Condition('').with({ lvalue: stuff.lvalue })
  }

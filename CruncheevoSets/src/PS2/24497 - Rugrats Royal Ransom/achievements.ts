@@ -1,9 +1,12 @@
 ﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger } from '@cruncheevos/core'
 import * as data from './data.js'
-import { comparison, connectAddSourceChains } from '../../helpers.js'
+import { comparison, connectAddSourceChains, calculation } from '../../helpers.js'
 import * as fs from 'fs'
 
-
+/**
+ * Returns a condition asking if the gameplay ID is 3
+ * @returns 
+ */
 export function inGame(): ConditionBuilder {
     return $(comparison(data.gameplayID,'=',3))
 }
@@ -17,11 +20,11 @@ export function checkItemType(type: number): ConditionBuilder {
 }
 
 /**
- * 
+ * Tests if you've just gathered the big battery of the level
  * @param levelID 
  * @returns 
  * 
- * Tests if you've just gathered the big battery of the level
+ * 
  * 
  */
 function beatLevelOnToughFirstTime(levelID: number): ConditionBuilder {
@@ -34,7 +37,12 @@ function beatLevelOnToughFirstTime(levelID: number): ConditionBuilder {
 }
 
 
-
+/**
+ * Tests if you have just gathered enough big batteries to active the hovervator to the floor given at the given difficulty
+ * @param floorUnlocked
+ * @param difficulty
+ * @returns
+ */
 function activatedHoverVator(floorUnlocked: number, difficulty: number): ConditionBuilder {
     return $(
         comparison(data.currentBigBatteries, '=', data.floorUnlockedDicts[floorUnlocked][difficulty] - 1, true, false),
@@ -109,34 +117,59 @@ function beatLevel(levelID: number, difficulty: number): ConditionBuilder {
 }
 
 
-// An alternative to the above just for snowehere to hide, still not a great way to measure ending the level, but the final chest memory is elusive, so this is the best I've found
-// Instead of waiting to see if the baby gets booted out of the play palace, the only ways to exit this level are quitting out via menu, dying, and winning.
-function beatSnowwhereToHide(): ConditionBuilder {
+// The only ways to exit this level are quitting out via menu, dying, and winning.
+
+/** An alternative to beatLevel() just for levels where the only exits are available through the menu, dying, or winning
+ * Always use with a ResetIf LevelIDLoaded != level
+ */
+function beatLevelV2(levelID: number, nodesToCheck: number = 100, extraConditionsOnPlayerData: Array<ConditionBuilder> = []): ConditionBuilder {
     return $(
-        data.chainLinkedListDataRange(0, 80, [
-            checkItemType(0x111328).withLast({ lvalue: { type: 'Delta' }, flag: 'AndNext' }),
-            checkItemType(0x111328).withLast({ flag: 'AndNext' }), // Make sure we have the character node in the same place for two frames, needed to check a delta later. Nothing will spawn while at the mountain peek so it should be fine
-
-            comparison(data.healthCounter, '!=', 0).withLast({ flag: 'AndNext' }), // Make sure you aren't exiting the level via death
-
-            comparison(data.ZPos, '>', -20.1).withLast({ flag: 'AndNext' }),
-            comparison(data.ZPos, '<', -9.9).withLast({ flag: 'AndNext' }), // Make sure you're nearby the final chest, to avoid triggering when at the spawn (~ -26), or by the key (~ 0)
-
-            comparison(data.notWideScreen, '=', 0, true).withLast({ flag: 'AndNext' }),
-            comparison(data.notWideScreen, '=', 1).withLast({ flag: 'AddHits' }) // Checks that we exit from widescreen (cutscene mode). Happens at spawn, at death, grabbing the key, and winning
-
+        data.chainLinkedListDataRange(0, nodesToCheck, [
+            checkItemType(0x111328).withLast({ flag: 'AndNext' }), // Character info node
+            ...extraConditionsOnPlayerData.map(x => x.withLast({ flag: 'AndNext' })), // Any additional checks you'd like to make for saftey
+            $(
+                comparison(data.healthCounter, '!=', 0).withLast({ flag: 'AndNext' }), // Make sure you aren't dead
+                comparison(data.levelIDInstant, '=', 0x1b, false).withLast({ flag: 'AddHits' }) // Static, so lumping with the previous line so it doesn't get AddAddressed. Tests for going back into the hub level.
+            )
         ], true),
-        '0=1.1.'
+        '0=1.1.',
+        comparison(data.levelIDInstant, '=', levelID, true), // Along with the static check above, this checks that we are heading into the hub world, but the previous level info is still loaded, will only be true for the single frame the above hit has to accumulate
+        comparison(data.pauseScreen, '!=', 1) // Make sure the pause screen wasn't up, so we didn't quit out of the level
     )
     
 }
 
 
 
+function isBabyLookingAtTak(node: number): ConditionBuilder {
+    return $(
+        // Makes sure you're in the hub world 
+        comparison(data.levelIDLoaded, '=', 0x1b).withLast({ flag: 'AndNext' }),
 
+        data.chainLinkedListDataRange(node, node, [
+            // Make sure you are outside of the play palace and are in first person
+            comparison(data.babyFloor, '=', 0x0).withLast({ flag: 'AndNext' }),
+            comparison(data.inThirdPerson, '=', 0x0).withLast({ flag: 'AndNext' }),
 
+            // Checks you are in a medium sized box around the photos
+            comparison(data.XPos, '>=', -8.05).withLast({ flag: 'AndNext' }),
+            comparison(data.XPos, '<=', -2.95).withLast({ flag: 'AndNext' }),
+            comparison(data.YPos, '>=', 16.95).withLast({ flag: 'AndNext' }),
+            comparison(data.YPos, '<=', 21.05).withLast({ flag: 'AndNext' }),
 
+            // Make sure you point the camera down
+            comparison(data.ZFirstCameraAngle, '<=', -.01).withLast({ flag: 'AndNext' }),
 
+            // Calculates the dot product of your camera angle vector and the vector pointing at the pictures of Tak, makes sure it's positive (the camera is pointing towards tak (or at least 90 degrees either way))
+            // I wanted to get more specific than this but without sqrt's the distance to the pictures and the fact that the camera is in spherical rather than cylindrical coordinates gets in the way of calculations sadly
+            calculation(true, -5.3, '*', data.XFirstCameraAngle),
+            calculation(false, data.XPos, '*', data.XFirstCameraAngle),
+            calculation(true, 19.05, '*', data.YFirstCameraAngle),
+            calculation(false, data.YPos, '*', data.YFirstCameraAngle)
+        ], true),
+        'f0.0>f0.0.1.' // Stores a hit when true
+    )
+}
 
 
 
@@ -388,7 +421,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'Youy Have to Spend Money to Make Money',
+        title: 'You Have to Spend Money to Make Money',
         id: 541578,
         description: 'Purchase Secret Funny Money from the ATM after unlocking floor 3 on Reptar Tough. This will activate leaderboard counters for each level on Reptar Tough for how many collectables are left to collect',
         points: 1,
@@ -439,7 +472,7 @@ export function makeAchievements(set: AchievementSet): void {
    
     for (var levelID in data.levelOnFloorDict) {
 
-        // Connects addsource chains of each level's funny money, little batteries, and big battery
+        // Connects addsource chains of each level's funny money, little batteries, and big battery for the core group
         for (var addSourceChain of [
             data.chainFunnyMoneyStacksCollected(levelID, 2, false),
             data.chainLittleBatteriesCollected(levelID, 2, false),
@@ -450,6 +483,7 @@ export function makeAchievements(set: AchievementSet): void {
             finalCore = finalCore.also(addition.chain)
         }
 
+        // Places delta chains for each of the above in their own alt groups
         finalAlts.push(data.chainFunnyMoneyStacksCollected(levelID, 2, true))
         finalAlts.push(data.chainLittleBatteriesCollected(levelID, 2, true))
         finalAlts.push(comparison(data.bigBatteryCollected(levelID), '=', 0, true, false))
@@ -502,21 +536,44 @@ export function makeAchievements(set: AchievementSet): void {
 
     //Challenges and the rest
 
+
     set.addAchievement({
         title: 'Snowboarding with the Power of Juju',
         id: 541582,
-        description: 'Find Tak!',
+        badge: 617024,
+        description: 'Look at a picture of Tak in first person mode before finding him in person!',
         points: 1,
-        conditions: $(
-            inGame(),
-            comparison(data.levelIDLoaded, '=', 0x5),
-            data.chainLinkedListDataRange(0, 0, [
-                checkItemType(0x111328).withLast({ lvalue: { type: 'Delta' } }),
-                checkItemType(0x111328),
-                comparison(data.continuousMap, '<', 0.625),
-                comparison(data.continuousMap, '>=', .0625)
-            ], true)
-        )
+        conditions: {
+            core: $(
+                // Reset if you exit to the main menu
+                comparison(data.gameplayID, '!=', 0x3).withLast({ flag: 'ResetIf' }),
+
+                // Tests when you find Tak in person
+                // Should trigger when on the section of the track right before Tak appears to give the player time to look around and see him
+                // Delta check set up as a range since the node has the possibility of moving right around when Tak appears, due to particle effects from you or snowmen running into icicles
+                data.chainLinkedListDataRange(0, 20, [
+                    checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                    checkItemType(0x111328).withLast({ flag: 'AndNext' }),
+                    comparison(data.continuousMap, '<', 0.64, true).withLast({ flag: 'AndNext' }),
+                    comparison(data.continuousMap, '>=', 0.61, false).withLast({ flag: 'AddHits' })
+                ], true),
+                'T:0=1.1.',
+
+                // Resets the hits if you leave the level tak is in (to make sure you have to find the photo first)
+                // This does leave an opening for you to find the photo, priming the achievement, enter this level, quit/lose before reaching him, thus reseting the other alts
+                // There's not much that can be done about this issue, given we need the hits to act as an ornext chain for either this or the alts if we switch which is core and which are alts
+                comparison(data.levelIDLoaded, '=', 0x5, true).withLast({ flag: 'AndNext' }),
+                comparison(data.levelIDLoaded, '=', 0x1b, false).withLast({ flag: 'ResetIf' })
+            ),
+
+            alt1: isBabyLookingAtTak(0),
+            alt2: isBabyLookingAtTak(1),
+            alt3: isBabyLookingAtTak(2),
+            alt4: isBabyLookingAtTak(3),
+            alt5: isBabyLookingAtTak(4),
+            alt6: isBabyLookingAtTak(5)
+        }
+            
     })
 
     set.addAchievement({
@@ -549,7 +606,7 @@ export function makeAchievements(set: AchievementSet): void {
             ], true),
 
             // contains an addhits chain as an ornext chain popping when you beat the level
-            trigger(beatSnowwhereToHide())
+            trigger(beatLevelV2(0x7, 80))
         )
     })
 
@@ -577,7 +634,7 @@ export function makeAchievements(set: AchievementSet): void {
             ], false),
 
             // contains an addhits chain as an ornext chain popping when you beat the level
-            trigger(beatSnowwhereToHide())
+            trigger(beatLevelV2(0x7, 80))
         )
     })
 
@@ -647,7 +704,7 @@ export function makeAchievements(set: AchievementSet): void {
             ], true),
 
             // Reset if time is up
-            'R:1=1.9000.',
+            'R:1=1.9001.',
 
             // Sets a checkpoint hit upon walking through a small box blocking the start of the temple, addhits as an ornext chain
             data.chainLinkedListDataRange(0, 50, [
@@ -793,7 +850,7 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
-    /* Impossible to use due to needing to do a delta > mem check on a node while it moves deeper in the linked list
+    /* Impossible to use due to needing to do a delta > mem check on a node while it moves deeper in the linked list, either that or requiring the entire level without taking damamge and that isn't the vibe I want
 
     set.addAchievement({
         title: 'Baby Bill Denbrough',
@@ -848,11 +905,12 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
-    
+    */
 
     set.addAchievement({
         title: 'Baby Bob Lee Swagger',
-        description: 'Make it through the circus and first phase of the clown boss in \"Cone Caper\" on Reptar Tough by only throwing a single snowcone',
+        id: 539457,
+        description: 'Make it through the circus and first phase of the clown boss in \"Cone Caper\" on Reptar Tough by only throwing a single snowcone and not picking up any more',
         points: 5,
         conditions: $(
             inGame(),
@@ -866,12 +924,13 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.levelIDLoaded, '!=', 0xb).withLast({ flag: 'ResetIf' }),
 
 
-            // Reset if your snowcone count goes down twice
+            // Reset if your snowcone count is anything other than 9 or 10 (you can only reload in multiples of 5)
             data.chainLinkedListDataRange(0, 100, [
-                checkItemType(0x111328).withLast({ flag: 'AndNext' }),
-                comparison(data.itemCounter, '<', data.itemCounter, false, true).withLast({ flag: 'AddHits'})
+                comparison(data.itemCounter, '<', 9).withLast({ flag: 'OrNext' }),
+                comparison(data.itemCounter, '>', 10).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'ResetIf' })
+                
             ], true),
-            'R:0=1.2.',
 
 
             // Sets a hit upon completion of the first phase of the boss fight
@@ -879,19 +938,20 @@ export function makeAchievements(set: AchievementSet): void {
             // if these were all in alt groups, the ach length limit would beceome an issue
             data.chainLinkedListDataRange(0, 50, [
                 checkItemType(0x1e87e8).withLast({flag: 'AndNext'}).also(
-                $(
-                    'I:{recall}',
-                    ['AddAddress', 'Mem', '32bit', 0x10],
-                    ['AddAddress', 'Mem', '32bit', 0x0],
-                    checkItemType(0x1e87e8).withLast({ flag: 'AndNext' })
-                )),
+                    $(
+                        'I:{recall}',
+                        ['AddAddress', 'Mem', '32bit', 0x10],
+                        ['AddAddress', 'Mem', '32bit', 0x0],
+                        checkItemType(0x1e87e8).withLast({ flag: 'AndNext' }) // The way to tell if we have the right node is looking for two nodes of the same type right after each other
+                    )
+                ),
                 comparison(data.bossPhase, '=', 2, true).withLast({ flag: 'AndNext' }),
                 comparison(data.bossPhase, '=', 3, false).withLast({ flag: 'AddHits' })
             ], false),
             'T:0=1.1.'
         )
     })
-    */
+    
 
     set.addAchievement({
         title: 'Baby Nina Sayers',
@@ -936,7 +996,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Luke Skywalker',
         id: 541587,
-        description: 'In \"Fly High Egg Hunt\", following the flowing lava river near your spawn, fly to the yellow egg without flying above the canyon and without hitting any walls',
+        description: 'In \"Fly High Egg Hunt\", following the flowing lava river near your spawn, fly to the yellow egg without flying above the canyon or hitting any walls',
         points: 3,
         conditions: $(
             inGame(),
@@ -1009,9 +1069,43 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
+        title: 'Baby Mashle',
+        id: 542275,
+        description: 'Complete \"Holy Pail\" on Reptar Tough without using more than 2 magic spells',
+        points: 5,
+        conditions: $(
+            inGame(),
+
+            // Set a checkpoint hit at the start of the level
+            comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
+            comparison(data.levelIDLoaded, '=', 0x15, false).withLast({ hits: 1 }),
+
+            // Reset all hits when not in the level
+            comparison(data.levelIDLoaded, '!=', 0x15).withLast({ flag: 'ResetIf' }),
+
+            // Reset upon grabbing your 3rd magic spell (set up without deltas as it's possible for the node to move the frame you grab one)
+            // Each line will add 4 hits when you grab that specific power up, reset on 11 hits to allow some wiggle room just in case
+            data.chainLinkedListDataRange(0, 50, [
+                comparison(data.shoesPowerUp, '>', 2.9, false).withLast({ flag: 'OrNext' }),
+                comparison(data.shieldPowerUp, '>', 19.9, false).withLast({ flag: 'OrNext' }),
+                comparison(data.potionPowerUp, '>', 19.9, false).withLast({ flag: 'AndNext' }),
+                checkItemType(0x111328).withLast({ flag: 'AddHits' }),
+
+            ], true),
+            'R:0=1.11.',
+
+            trigger(
+                beatLevelV2(0x15, 60, [
+                    comparison(data.helperBallPosition, '=', 0x21)
+                ])
+            )
+        )
+    })
+
+    set.addAchievement({
         title: 'Baby Paulie Bleeker',
         id: 541589,
-        description: 'Complete the game in under 40 minutes in one sitting',
+        description: 'Complete the game in under 40 minutes in one sitting, follows the leaderboard timer',
         points: 25,
         conditions: $(
             // Sets a checkpoint hit upon entering a fresh save 
@@ -1030,8 +1124,8 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.gameplayID, '!=', 3, true).withLast({ flag: 'AndNext' }),
             comparison(data.gameplayID, '!=', 3, false).withLast({ flag: 'ResetIf'}),
 
-            // Gameplay timer, reset if it gets too high
-            comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 144000 }),
+            // Gameplay timer, reset if it gets too high, extra 10 seconds added to match the RTA timing of the leaderboards
+            comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 144601 }),
 
             // End of game completion test
             comparison(data.levelIDLoaded, '=', 0x1a), // Final level loaded
