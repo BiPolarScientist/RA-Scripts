@@ -196,4 +196,13 @@ export function conditionRP(stuff: Partial<Condition.Data>): string {
     }
 
     return output + stuff.lvalue?.value.toString(16)
- }
+}
+
+/**
+ * Gets rid of any additional white space in RP clause, e.g. takes '  a   \n  b ' into 'a b'
+ * @param clause
+ * @returns
+ */
+export function trimRP(clause: string): string {
+    return clause.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
+}

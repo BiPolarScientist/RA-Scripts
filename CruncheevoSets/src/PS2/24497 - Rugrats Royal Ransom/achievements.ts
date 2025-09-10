@@ -474,41 +474,36 @@ export function makeAchievements(set: AchievementSet): void {
 
     let finalCore: ConditionBuilder = $()
     let finalAlts: Array<ConditionBuilder> = []
-
-    let totalCounter: number = 0
-    let addition: any
    
     for (var levelID in data.levelOnFloorDict) {
+        if (levelID < 0x1a) {
+            // Places a mem check for every level, checking if you have (more than enough) funny money, (more than enough) little batteries, and the big battery
+            // Places a delta check each in their own alt group for the above as well
+            // (More than enough in case they were able to get a collectable that I thought impossible just in case)
+            let boolIntCast: any = { true: 0, false: 1 }
 
-        // Connects addsource chains of each level's funny money, little batteries, and big battery for the core group
-        for (var addSourceChain of [
-            data.chainFunnyMoneyStacksCollected(levelID, 2, false),
-            data.chainLittleBatteriesCollected(levelID, 2, false),
-            comparison(data.bigBatteryCollected(levelID), '=', 1)
-        ]) {
-            addition = connectAddSourceChains(addSourceChain)
-            totalCounter = totalCounter + addition.tally
-            finalCore = finalCore.also(addition.chain)
+            for (const func of [
+                (level, isDelta) => data.chainFunnyMoneyStacksCollected(level, 2, isDelta),
+                (level, isDelta) => data.chainLittleBatteriesCollected(level, 2, isDelta),
+                (level, isDelta) => comparison(data.bigBatteryCollected(level), '=', boolIntCast[isDelta], isDelta)
+            ]) {
+                finalCore = finalCore.also(
+                    func(levelID, false).withLast({ cmp: '>=' })
+                )
+                finalAlts.push(func(levelID, true))
+            }
         }
-
-        // Places delta chains for each of the above in their own alt groups
-        finalAlts.push(data.chainFunnyMoneyStacksCollected(levelID, 2, true))
-        finalAlts.push(data.chainLittleBatteriesCollected(levelID, 2, true))
-        finalAlts.push(comparison(data.bigBatteryCollected(levelID), '=', 0, true, false))
     }
 
-    // Special case for funny money in final level
-    addition = connectAddSourceChains(data.chainFunnyMoneyStacksCollected(0x1a, 2, false))
-    totalCounter = totalCounter + addition.tally
-    finalCore = finalCore.also(addition.chain)
+    // Special cases for levels 0x1a and 0x1b which only have money and little batteries respectively
+
+    finalCore = $(
+        finalCore,
+        data.chainFunnyMoneyStacksCollected(0x1a, 2, false).withLast({ cmp: '>=' }),
+        data.chainLittleBatteriesCollected(0x1b, 2, false).withLast({ cmp: '>=' })
+    )
 
     finalAlts.push(data.chainFunnyMoneyStacksCollected(0x1a, 2, true))
-
-    // Special case for little batteries in play palace 3000
-    addition = connectAddSourceChains(data.chainLittleBatteriesCollected(0x1b, 2, false))
-    totalCounter = totalCounter + addition.tally
-    finalCore = finalCore.also(addition.chain)
-
     finalAlts.push(data.chainLittleBatteriesCollected(0x1b, 2, true))
 
 
@@ -517,8 +512,7 @@ export function makeAchievements(set: AchievementSet): void {
         core: $(
             inGame(),
             comparison(data.difficulty, '=', 2),
-            finalCore,
-            comparison(0, '=', totalCounter)
+            finalCore
         )
     }
 
@@ -1104,6 +1098,7 @@ export function makeAchievements(set: AchievementSet): void {
 
             // Reset upon grabbing your 3rd magic spell (set up without deltas as it's possible for the node to move the frame you grab one)
             // Each line will add 4 hits when you grab that specific power up, reset on 11 hits to allow some wiggle room just in case
+            // No two power ups can be grabbed within the same 4 frames, so measuring them all at once is fine
             data.chainLinkedListDataRange(0, 50, [
                 comparison(data.shoesPowerUp, '>', 2.9, false).withLast({ flag: 'OrNext' }),
                 comparison(data.shieldPowerUp, '>', 19.9, false).withLast({ flag: 'OrNext' }),
@@ -1125,7 +1120,7 @@ export function makeAchievements(set: AchievementSet): void {
         title: 'Baby Paulie Bleeker',
         id: 541589,
         badge: 617354,
-        description: 'Complete the game in under 45 minutes in one sitting, follows the leaderboard timer',
+        description: 'Complete the game in under 40 minutes in one sitting, follows the leaderboard timer',
         points: 25,
         conditions: $(
             // Sets a checkpoint hit upon entering a fresh save 
@@ -1145,7 +1140,7 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.gameplayID, '!=', 3, false).withLast({ flag: 'ResetIf'}),
 
             // Gameplay timer, reset if it gets too high, extra 10 seconds added to match the RTA timing of the leaderboards
-            comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 162601 }),
+            comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 144601 }),
 
             // End of game completion test
             comparison(data.levelIDLoaded, '=', 0x1a), // Final level loaded

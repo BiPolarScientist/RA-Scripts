@@ -1,5 +1,5 @@
 ﻿import { define as $, Condition, ConditionBuilder, RichPresence } from '@cruncheevos/core'
-import { comparison, conditionRP, connectAddSourceChains } from '../../helpers.js'
+import { comparison, conditionRP, connectAddSourceChains, trimRP } from '../../helpers.js'
 import * as data from './data.js'
 import * as fs from 'fs'
 import * as commentjson from 'comment-json'
@@ -47,6 +47,9 @@ for (let i: number = 0; i <= 2; i++) {
 export function makeRP(): any {
     return RichPresence({
         lookupDefaultParameters: { keyFormat: 'dec', compressRanges: true },
+        format: {
+            Timer: 'FRAMES'
+        },
         lookup: {
             baby: {
                 values: {
@@ -168,6 +171,196 @@ export function makeRP(): any {
             }
         },
         displays: ({ lookup, format, macro, tag }) => [
+
+            //
+            // Fresh file on Baby Easy, speedrunning specific
+            //
+
+            // This first one is while the speedrun is still active, has the same triggers as the clause below it, but with a less stringent reset
+            [
+                $(
+                    comparison(data.gameplayID, '=', 4, true).withLast({ flag: 'AndNext' }),
+                    comparison(data.gameplayID, '=', 3, false).withLast({ hits: 1 }), // Started a fresh file
+                    comparison(data.difficulty, '=', 0), // on Easy
+                    comparison(data.levelIDLoaded, '<=', 0x1b), // Double check you're not in minigame mode
+                    comparison(data.gameplayID, '!=', 3).withLast({ flag: 'ResetIf' }) // Reset once you've exited the game
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    speedrunning on
+                    ${lookup.difficulty.at(conditionRP(data.difficulty))} 
+                    ● 
+                    Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/13] 
+                    ●
+                    ⏱️ ${format.Timer.at(
+                        'D:1=1.600.' +
+                        '_M:1=1' +
+                        '_R:' + conditionRP(data.gameplayID) + '!=3' +
+                        '_N:' + conditionRP(data.gameplayID) + '=1' +
+                        '_P:' + conditionRP(data.levelIDLoaded) + '=26'
+                        )
+                    } 
+                `)
+            ],
+
+            // Adds more to the reset so it will stay active during the final cutscene
+            [
+                $(
+                    comparison(data.gameplayID, '=', 4, true).withLast({ flag: 'AndNext' }),
+                    comparison(data.gameplayID, '=', 3, false).withLast({ hits: 1 }),
+                    comparison(data.difficulty, '=', 0),
+                    comparison(data.levelIDLoaded, '<=', 0x1b),
+                    comparison(data.gameplayID, '!=', 3).withLast({ flag: 'AndNext' }),
+                    comparison(data.levelIDLoaded, '!=', 0x1a).withLast({ flag: 'ResetIf' })
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    defeated Angelica on 
+                    ${lookup.difficulty.at(conditionRP(data.difficulty))} 
+                    in 
+                    ⏱️ ${format.Timer.at(
+                        'D:1=1.600.' +
+                        '_M:1=1' +
+                        '_R:' + conditionRP(data.gameplayID) + '!=3' +
+                        '_N:' + conditionRP(data.gameplayID) + '=1' +
+                        '_P:' + conditionRP(data.levelIDLoaded) + '=26'
+                    )
+                    }! 
+                `)
+            ],
+
+
+            //
+            // Generic beat final boss for any difficulty clause
+            //
+
+
+            [
+                $(
+                    comparison(data.gameplayID, '=', 1),
+                    comparison(data.levelIDLoaded, '=', 0x1a)
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    defeated Angelica on 
+                    ${lookup.difficulty.at(conditionRP(data.difficulty))}!
+                `)
+            ],
+
+
+            //
+            // Regular gameplay clauses
+            //
+
+
+            // Baby Easy
+            [
+                $(
+                    comparison(data.gameplayID, '=', 3),
+                    comparison(data.difficulty, '=', 0),
+                    comparison(data.levelIDLoaded , '<=', 0x1b)
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
+                    ● 
+                    Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
+                    ● 
+                    Little 🔋 [${macro.Unsigned.at(littleBattsCollected[0])}/${littleBattsTotal[0].toString()}] 
+                    ● 
+                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[0])}/${funnyMoneyTotal[0].toString()}]
+                `)
+            ],
+
+            // Rugrat Normal
+            [
+                $(
+                    comparison(data.gameplayID, '=', 3),
+                    comparison(data.difficulty, '=', 1),
+                    comparison(data.levelIDLoaded, '<=', 0x1b)
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
+                    ● 
+                    Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
+                    ● 
+                    Little 🔋 [${macro.Unsigned.at(littleBattsCollected[1])}/${littleBattsTotal[1].toString()}] 
+                    ● 
+                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[1])}/${funnyMoneyTotal[1].toString()}]
+                `)
+            ],
+
+            // Reptar Tough
+            [
+                $(
+                    comparison(data.gameplayID, '=', 3),
+                    comparison(data.difficulty, '=', 2),
+                    comparison(data.levelIDLoaded, '<=', 0x1b)
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
+                    ● 
+                    Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
+                    ● 
+                    Little 🔋 [${macro.Unsigned.at(littleBattsCollected[2])}/${littleBattsTotal[2].toString()}] 
+                    ● 
+                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[2])}/${funnyMoneyTotal[2].toString()}]
+                `)
+            ],
+
+
+            //
+            // Minigame Clauses
+            //
+
+            // One player
+            [
+                $(
+                    comparison(data.gameplayID, '=', 3),
+                    comparison(data.levelIDLoaded, '>=', 0x1e),
+                    comparison(data.currentNumberOfPlayers, '=', 1)
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                `)
+            ],
+
+            // Two players
+            [
+                $(
+                    comparison(data.gameplayID, '=', 3),
+                    comparison(data.levelIDLoaded, '>=', 0x1e),
+                    comparison(data.currentNumberOfPlayers, '=', 2)
+                ),
+                trimRP(tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    and
+                    ${lookup.baby.at(conditionRP(data.babyTwo))} 
+                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                `)
+            ],
+
+
+            //
+            // Generic Gamemodes
+            //
+
             [
                 $(
                     comparison(data.gameplayID, '=', 0).withLast({ flag: 'OrNext' }),
@@ -183,103 +376,10 @@ export function makeRP(): any {
                 comparison(data.gameplayID, '=', 4), tag`Starting a new save file on ${lookup.difficulty.at(conditionRP(data.difficulty))}`,
             ],
 
-            [
-                $(
-                    comparison(data.gameplayID, '=', 3),
-                    comparison(data.difficulty, '=', 0),
-                    comparison(data.levelIDLoaded , '<=', 0x1b)
-                ),
-                tag`
-                    ${lookup.baby.at(conditionRP(data.baby))} 
-                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
-                    ● 
-                    Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
-                    ● 
-                    Little 🔋 [${macro.Unsigned.at(littleBattsCollected[0])}/~${littleBattsTotal[0].toString()}] 
-                    ● 
-                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[0])}/~${funnyMoneyTotal[0].toString()}]
-                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
-            ],
 
-            [
-                $(
-                    comparison(data.gameplayID, '=', 3),
-                    comparison(data.difficulty, '=', 1),
-                    comparison(data.levelIDLoaded, '<=', 0x1b)
-                ),
-                tag`
-                    ${lookup.baby.at(conditionRP(data.baby))} 
-                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
-                    ● 
-                    Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
-                    ● 
-                    Little 🔋 [${macro.Unsigned.at(littleBattsCollected[1])}/~${littleBattsTotal[1].toString()}] 
-                    ● 
-                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[1])}/~${funnyMoneyTotal[1].toString()}]
-                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm,' ').trim()
-            ],
-
-            [
-                $(
-                    comparison(data.gameplayID, '=', 3),
-                    comparison(data.difficulty, '=', 2),
-                    comparison(data.levelIDLoaded, '<=', 0x1b)
-                ),
-                tag`
-                    ${lookup.baby.at(conditionRP(data.baby))} 
-                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
-                    ● 
-                    Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
-                    ● 
-                    Little 🔋 [${macro.Unsigned.at(littleBattsCollected[2])}/${littleBattsTotal[2].toString()}] 
-                    ● 
-                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[2])}/${funnyMoneyTotal[2].toString()}]
-                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
-            ],
-
-            [
-                $(
-                    comparison(data.gameplayID, '=', 3),
-                    comparison(data.levelIDLoaded, '>=', 0x1e),
-                    comparison(data.currentNumberOfPlayers, '=', 1)
-                ),
-                tag`
-                    ${lookup.baby.at(conditionRP(data.baby))} 
-                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))}
-                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
-            ],
-
-            [
-                $(
-                    comparison(data.gameplayID, '=', 3),
-                    comparison(data.levelIDLoaded, '>=', 0x1e),
-                    comparison(data.currentNumberOfPlayers, '=', 2)
-                ),
-                tag`
-                    ${lookup.baby.at(conditionRP(data.baby))} 
-                    and
-                    ${lookup.baby.at(conditionRP(data.babyTwo))} 
-                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
-                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))}
-                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
-            ],
+            //
+            // Catch all, will be active on game start up
+            //
 
             'Just being babies'
         ]
