@@ -1,14 +1,14 @@
 // LevelID > Difficulty > Collectable Bitfield Data
 
-{ // I'm unsure about the amounts of funny money on baby easy and rugrat normal, that is the number listed is the amount of bits allowed for funny money on that level, but there may be some that are missing/unatainable, I've only searched through reptar tough for this set
+{ // I'm unsure about the amounts of funny money on baby easy and rugrat normal, that is the number listed is the amount of bits allowed for funny money on that level, but there may be some that are missing/unatainable, I've only searched through reptar tough throughly for this set
   "0x1": {
     "0": {
       "totalCollectables": 39,
       "littleBatteries": 3
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 47,
+      "littleBatteries": 3
     },
     "2": {
       "totalCollectables": 46,
@@ -21,8 +21,9 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 47,
+      "littleBatteries": 4,
+      "littleBatteriesMissing": 1 // First little battery spawn doesn't seem to appear on the PS2 version of the game, see a gamecube speedrun for location (at the start of the lava cave)
     },
     "2": {
       "totalCollectables": 43,
@@ -36,8 +37,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 47,
+      "littleBatteries": 3
     },
     "2": {
       "totalCollectables": 43,
@@ -51,8 +52,8 @@
       "littleBatteries": 3
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 41,
+      "littleBatteries": 2
     },
     "2": {
       "totalCollectables": 45,
@@ -65,8 +66,8 @@
       "littleBatteries": 3
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 42,
+      "littleBatteries": 3
     },
     "2": {
       "totalCollectables": 46,
@@ -94,8 +95,8 @@
       "littleBatteries": 2
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 42,
+      "littleBatteries": 2
     },
     "2": {
       "totalCollectables": 47,
@@ -108,8 +109,8 @@
       "littleBatteries": 3
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 63,
+      "littleBatteries": 2
     },
     "2": {
       "totalCollectables": 63,
@@ -122,8 +123,8 @@
       "littleBatteries": 3
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 47,
+      "littleBatteries": 2
     },
     "2": {
       "totalCollectables": 47,
@@ -136,8 +137,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 48,
+      "littleBatteries": 4
     },
     "2": {
       "totalCollectables": 46,
@@ -150,8 +151,8 @@
       "littleBatteries": 3
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 48,
+      "littleBatteries": 4
     },
     "2": {
       "totalCollectables": 44,
@@ -164,8 +165,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 49,
+      "littleBatteries": 3
     },
     "2": {
       "totalCollectables": 46,
@@ -178,8 +179,8 @@
       "littleBatteries": 3
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 46,
+      "littleBatteries": 2
     },
     "2": {
       "totalCollectables": 43, 
@@ -192,8 +193,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 46,
+      "littleBatteries": 2
     },
     "2": {
       "totalCollectables": 42,
@@ -206,8 +207,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "a",
-      "littleBatteries": "a"
+      "totalCollectables": 36,
+      "littleBatteries": 4
     },
     "2": {
       "totalCollectables": 45,
@@ -220,8 +221,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 35,
+      "littleBatteries": 3
     },
     "2": {
       "totalCollectables": 45,
@@ -234,8 +235,8 @@
       "littleBatteries": 5
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 36,
+      "littleBatteries": 4
     },
     "2": {
       "totalCollectables": 49,
@@ -248,8 +249,8 @@
       "littleBatteries": 5
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 43,
+      "littleBatteries": 4
     },
     "2": {
       "totalCollectables": 51,
@@ -262,8 +263,8 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 72,
+      "littleBatteries": 4
     },
     "2": {
       "totalCollectables": 86,
@@ -276,8 +277,9 @@
       "littleBatteries": 4
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 33,
+      "littleBatteries": 3,
+      "funnyMoneyStacksMissing": 1 // One spawns inside the cheese pile at the start of the level too deep to grab
     },
     "2": {
       "totalCollectables": 40,
@@ -291,8 +293,8 @@
       "littleBatteries": 6
     },
     "1": {
-      "totalCollectables": "A",
-      "littleBatteries": "A"
+      "totalCollectables": 41,
+      "littleBatteries": 4
     },
     "2": {
       "totalCollectables": 42,
@@ -301,11 +303,11 @@
   },
   "0x1a": {
     "0": {
-      "totalCollectables": "A",
+      "totalCollectables": 58,
       "littleBatteries": 0
     },
     "1": {
-      "totalCollectables": "A",
+      "totalCollectables": 62,
       "littleBatteries": 0
     },
     "2": {

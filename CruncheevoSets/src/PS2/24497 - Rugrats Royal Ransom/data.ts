@@ -63,7 +63,7 @@ export let levelIDLoaded: Partial<Condition.Data> = {
 }
 
 /** $3F64E4: [8-bit] Which baby are you controlling / player 1 in minigames
-
+ * 
           0x0 = Chuckie
           0x1 = Lil
           0x2 = Phil

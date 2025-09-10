@@ -176,6 +176,24 @@ export function measureLB(leftobject: Partial<Condition.Data> | number | string)
  * @param stuff
  * @returns
  */
-export function conditionRP(stuff: Partial<Condition.Data>): Condition{
-        return new Condition('').with({ lvalue: stuff.lvalue })
+export function conditionRP(stuff: Partial<Condition.Data>): string {
+    let output: string = '0x'
+    if (stuff.lvalue?.type == 'Delta') {
+        output = 'd' + output
+    }
+
+    if (stuff.lvalue?.size == '8bit') {
+        output = output + 'H'
+    }
+    else if (stuff.lvalue?.size == '32bit') {
+        output = output + 'X'
+    }
+    else if (stuff.lvalue?.size == 'Lower4') {
+        output = output + 'L'
+    }
+    else if (stuff.lvalue?.size == 'Upper4') {
+        output = output + 'U'
+    }
+
+    return output + stuff.lvalue?.value.toString(16)
  }

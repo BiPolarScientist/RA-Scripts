@@ -125,6 +125,46 @@ export function makeRP(): any {
                     0x1: 'Rugrat Normal',
                     0x2: 'Reptar Tough'
                 }
+            },
+            emotes: {
+                values: {
+                    '*': '👶',
+                    0x1: '💎',
+                    0x2: '💎',
+                    0x3: '💎',
+                    0x4: '⛄',
+                    0x5: '⛄',
+                    0x7: '⛄',
+                    0x8: '🌳',
+                    0x9: '🌳',
+                    0xa: '🌳',
+                    0xb: '🎪',
+                    0xc: '🎪',
+                    0xd: '🎪',
+                    0xe: '🌊',
+                    0x10: '🌊',
+                    0x11: '🍖',
+                    0x12: '🍖',
+                    0x14: '🏰',
+                    0x15: '🏰',
+                    0x17: '🌕',
+                    0x18: '🌕',
+                    0x19: '🌕',
+                    0x1a: '👑',
+                    0x1e: '🥕',
+                    0x20: '⭕',
+                    0x24: '🎯',
+                    0x25: '⛄',
+                    0x26: '⛄',
+                    0x28: '🌊',
+                    0x29: '🌊',
+                    0x2b: '🛩️',
+                    0x2d: '🛩️',
+                    0x2c: '🌕',
+                    0x2e: '🎯',
+                    0x2f: '🎯',
+                    0x30: '🎪'
+                }
             }
         },
         displays: ({ lookup, format, macro, tag }) => [
@@ -152,15 +192,17 @@ export function makeRP(): any {
                 tag`
                     ${lookup.baby.at(conditionRP(data.baby))} 
                     ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
                     ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
                     on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
                     ● 
                     Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
-                    ●
+                    ● 
                     Little 🔋 [${macro.Unsigned.at(littleBattsCollected[0])}/~${littleBattsTotal[0].toString()}] 
-                    ●
+                    ● 
                     Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[0])}/~${funnyMoneyTotal[0].toString()}]
-                `
+                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
             ],
 
             [
@@ -172,15 +214,17 @@ export function makeRP(): any {
                 tag`
                     ${lookup.baby.at(conditionRP(data.baby))} 
                     ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
                     ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
                     on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
                     ● 
                     Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
-                    ●
+                    ● 
                     Little 🔋 [${macro.Unsigned.at(littleBattsCollected[1])}/~${littleBattsTotal[1].toString()}] 
-                    ●
+                    ● 
                     Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[1])}/~${funnyMoneyTotal[1].toString()}]
-                `
+                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm,' ').trim()
             ],
 
             [
@@ -192,15 +236,49 @@ export function makeRP(): any {
                 tag`
                     ${lookup.baby.at(conditionRP(data.baby))} 
                     ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
                     ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
                     on ${lookup.difficulty.at(conditionRP(data.difficulty))} 
                     ● 
                     Big 🔋 [${macro.Unsigned.at(conditionRP(data.currentBigBatteries))}/21] 
-                    ●
+                    ● 
                     Little 🔋 [${macro.Unsigned.at(littleBattsCollected[2])}/${littleBattsTotal[2].toString()}] 
-                    ●
+                    ● 
                     Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[2])}/${funnyMoneyTotal[2].toString()}]
-                `
+                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
+            ],
+
+            [
+                $(
+                    comparison(data.gameplayID, '=', 3),
+                    comparison(data.levelIDLoaded, '>=', 0x1e),
+                    comparison(data.currentNumberOfPlayers, '=', 1)
+                ),
+                tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))}
+                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
+            ],
+
+            [
+                $(
+                    comparison(data.gameplayID, '=', 3),
+                    comparison(data.levelIDLoaded, '>=', 0x1e),
+                    comparison(data.currentNumberOfPlayers, '=', 2)
+                ),
+                tag`
+                    ${lookup.baby.at(conditionRP(data.baby))} 
+                    and
+                    ${lookup.baby.at(conditionRP(data.babyTwo))} 
+                    ${lookup.verb.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.level.at(conditionRP(data.levelIDLoaded))} 
+                    ${lookup.emotes.at(conditionRP(data.levelIDLoaded))}
+                `.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
             ],
 
             'Just being babies'
