@@ -122,7 +122,7 @@ function beatLevel(levelID: number, difficulty: number): ConditionBuilder {
 /** An alternative to beatLevel() just for levels where the only exits are available through the menu, dying, or winning
  * Always use with a ResetIf LevelIDLoaded != level
  */
-function beatLevelV2(levelID: number, nodesToCheck: number = 100, extraConditionsOnPlayerData: Array<ConditionBuilder> = []): ConditionBuilder {
+export function beatLevelV2(levelID: number, nodesToCheck: number = 100, extraConditionsOnPlayerData: Array<ConditionBuilder> = []): ConditionBuilder {
     return $(
         data.chainLinkedListDataRange(0, nodesToCheck, [
             checkItemType(0x111328).withLast({ flag: 'AndNext' }), // Character info node
@@ -178,6 +178,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'No Rugrat Left Behind',
         id: 540562,
+        badge: 616892,
         description: 'Have all five controllable rugrats in the Play Palace 3000 at once',
         points: 1,
         conditions: {
@@ -316,6 +317,7 @@ export function makeAchievements(set: AchievementSet): void {
         set.addAchievement({
             title: data.littleBatteryAchData[worldID].achTitle,
             id: data.littleBatteryAchData[worldID].id,
+            badge: data.littleBatteryAchData[worldID].badge,
             description: 'Collect every small battery in the ' + data.littleBatteryAchData[worldID].title + ' world on Reptar Tough',
             points: data.littleBatteryAchData[worldID].points,
             conditions: conditions
@@ -380,6 +382,7 @@ export function makeAchievements(set: AchievementSet): void {
 
         set.addAchievement({
             title: data.funnyMoneyAchData[worldID].achTitle,
+            badge: data.funnyMoneyAchData[worldID].badge,
             id: data.funnyMoneyAchData[worldID].id,
             description: description,
             points: data.funnyMoneyAchData[worldID].points,
@@ -395,6 +398,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'The Tower of Pizza',
         id: 541576,
+        badge: 615859,
         description: 'Activate the Hover-vator to the second floor of the Play Palace 3000',
         points: 10,
         type: 'progression',
@@ -409,6 +413,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'The Tower of Baby Babble',
         id: 541577,
+        badge: 615860,
         description: 'Activate the Hover-vator to the third floor of the Play Palace 3000',
         points: 10,
         type: 'progression',
@@ -423,6 +428,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'You Have to Spend Money to Make Money',
         id: 541578,
+        badge: 615861,
         description: 'Purchase Secret Funny Money from the ATM after unlocking floor 3 on Reptar Tough. This will activate leaderboard counters for each level on Reptar Tough for how many collectables are left to collect',
         points: 1,
         conditions: $(
@@ -437,6 +443,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'The Cootie Tah Worked!',
         id: 541579,
+        badge: 615880,
         description: 'Defeat Angela in \"Stormin\' the Castle\"',
         points: 25,
         type: 'win_condition',
@@ -450,6 +457,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Punishment for Elastic Perjury',
         id: 541580,
+        badge: 615881,
         description: 'Defeat Angela in \"Stormin\' the Castle\" on Reptar Tough',
         points: 5,
         conditions: $(
@@ -523,6 +531,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Time to Find a New Toy',
         id: 541581,
+        badge: 617355,
         description: 'Collect all the batteries and funny money available in the game on Reptar Tough',
         points: 25,
         conditions: finalConditions
@@ -579,6 +588,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby John Wick',
         id: 540563,
+        badge: 617344,
         description: 'Complete \"Snowplace to Hide\" on Reptar Tough after unlocking the door and without taking damage',
         points: 5,
         conditions: $(
@@ -615,6 +625,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Marv Murchins',
         id: 541583,
+        badge: 616089,
         description: 'Complete \"Snowplace to Hide\" without unlocking the door',
         points: 2,
         conditions: $(
@@ -683,6 +694,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Laura Croft',
         id: 541584,
+        badge: 617345,
         description: 'In \"Punting Papayas\", starting from the inside of the temple near where you spawn, fall into the temple from the second story within 2:30',
         points: 10,
         conditions: $(
@@ -783,6 +795,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Dwayne LaFontant',
         id: 540565,
+        badge: 617362,
         description: 'In \"Meanie Genie\", defeat every scarab without losing more than half your health on \"Reptar Tough\"',
         points: 5,
         conditions: $(
@@ -819,6 +832,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Smaug',
         id: 541585,
+        badge: 617346,
         description: 'Complete \"Rugrat Rug Race\" on Reptar Tough before entering the treasure cave on the final lap',
         points: 10, // Very tough, might want to make this 25 
         conditions: $(
@@ -910,6 +924,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Bob Lee Swagger',
         id: 539457,
+        badge: 617347,
         description: 'Make it through the circus and first phase of the clown boss in \"Cone Caper\" on Reptar Tough by only throwing a single snowcone and not picking up any more',
         points: 5,
         conditions: $(
@@ -956,6 +971,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Nina Sayers',
         id: 541586,
+        badge: 617348,
         description: 'Complete \"Acrobatty Dash\" within 3:40',
         points: 5,
         conditions: $(
@@ -996,6 +1012,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Luke Skywalker',
         id: 541587,
+        badge: 616746,
         description: 'In \"Fly High Egg Hunt\", following the flowing lava river near your spawn, fly to the yellow egg without flying above the canyon or hitting any walls',
         points: 3,
         conditions: $(
@@ -1040,6 +1057,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Mark Watney',
         id: 541588,
+        badge: 617350,
         description: 'Complete \"Moon Buggy Madness\" on Reptar Tough without using more than 2 fuel canisters',
         points: 5, // Might change to 10 points with only 1 fuel canister after play test
         conditions: $(
@@ -1071,7 +1089,8 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Mashle',
         id: 542275,
-        description: 'Complete \"Holy Pail\" on Reptar Tough without using more than 2 magic spells',
+        badge: 617349,
+        description: 'Complete \"The Holy Pail\" on Reptar Tough without using more than 2 magic spells',
         points: 5,
         conditions: $(
             inGame(),
@@ -1105,7 +1124,8 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Baby Paulie Bleeker',
         id: 541589,
-        description: 'Complete the game in under 40 minutes in one sitting, follows the leaderboard timer',
+        badge: 617354,
+        description: 'Complete the game in under 45 minutes in one sitting, follows the leaderboard timer',
         points: 25,
         conditions: $(
             // Sets a checkpoint hit upon entering a fresh save 
@@ -1125,7 +1145,7 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.gameplayID, '!=', 3, false).withLast({ flag: 'ResetIf'}),
 
             // Gameplay timer, reset if it gets too high, extra 10 seconds added to match the RTA timing of the leaderboards
-            comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 144601 }),
+            comparison(1, '=', 1).withLast({ flag: 'ResetIf', hits: 162601 }),
 
             // End of game completion test
             comparison(data.levelIDLoaded, '=', 0x1a), // Final level loaded
@@ -1137,21 +1157,22 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'You Ate Vegetables?!?',
         id: 541590,
+        badge: 617351,
         description: 'Grab more than 100 carrots in \"Carrot Catchin\'\"',
         points: 5,
         conditions: $(
-            inGame(),
 
-            // Don't allow the hit to count if you aren't in the right level
-            comparison(data.levelIDLoaded, '!=', 0x1e).withLast({ flag: 'PauseIf' }),
+            // Doing this check instead of beatLevelV2 for the minigames to include the option to quit of a level early,
+            // Also V2 seems to not work on the minigames? the timing is off by a frame I think
+            //
+            // Quasi delta check, this resetif will only be off for a few frames at the end of the minigame or while quiting the minigame
+            comparison(data.gameplayID, '!=', 0x2).withLast({ flag: 'OrNext' }),
+            comparison(data.levelIDLoaded, '!=', 0x1e).withLast({ flag: 'ResetIf' }),
 
-            // Check for when the amount of carrots is 100
-            // set up as a hit with an addhits chain acting a higher level ornext chain
-            // if these were all in alt groups, the ach length limit would beceome an issue
+            // Sets a hit when your carrot count is higher than 100, can't implement a delta here as you can gather the last carrot while the node shifts if you're unlucky
             data.chainLinkedListDataRange(0, 100, [
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
-                comparison(data.itemCounter, '=', 99, true).withLast({ flag: 'AndNext' }), 
-                comparison(data.itemCounter, '=', 100, false).withLast({ flag: 'AddHits' }) 
+                comparison(data.itemCounter, '>=', 100).withLast({ flag: 'AddHits' })
             ], true),
             '0=1.1.'
         )
@@ -1160,14 +1181,18 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Collecting the Rings of the Sunbeam',
         id: 541594,
+        badge: 617352,
         description: 'Complete \"Ring Roller Coaster\" with more than 45 seconds remaining',
         points: 5,
         conditions: $(
+
+            // Adding a pause screen check for this one, as you can't quit out early to get the achievement, you must finish the course
             comparison(data.gameplayID, '!=', 0x2).withLast({ flag: 'OrNext' }),
+            comparison(data.pauseScreen, '=', 1).withLast({ flag: 'OrNext' }),
             comparison(data.levelIDLoaded, '!=', 0x20).withLast({ flag: 'ResetIf' }),
 
-            // Resets the pauselock when you reach 18 rings collected
-            // Set up as a hit with an addhits chain acting a higher level ornext chain
+            // Checks to make sure the final ring has spawned as an extra saftey check
+            // If you lose before hitting the final ring, the next timer check cannot activate as you'll have 0 seconds left
             data.chainLinkedListDataRange(0, 100, [
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                 comparison(data.ringCounter, '=', 0x12).withLast({ flag: 'AddHits' })
@@ -1180,8 +1205,8 @@ export function makeAchievements(set: AchievementSet): void {
             data.chainLinkedListDataRange(1, 101, [
                 checkItemType(0x24c990).withLast({ flag: 'AndNext' }),
                 $(
-                    'B:fF9b0',
-                    comparison(60.1, '>=', 45.01).withLast({ flag: 'AddHits' })
+                    calculation(false, data.ringTimer),
+                    comparison(60.1, '>=', 44.95).withLast({ flag: 'AddHits' })
                 )
             ]),
             '0=1.1.'
@@ -1191,18 +1216,16 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Reptar Rampage',
         id: 541591,
+        badge: 617353,
         description: 'Smash more than 42 targets in \"Target Bash\"',
         points: 5,
         conditions: $(
-            inGame(),
+            // See Carrot catchin' achievement 2 up for notes, exact same logic
+            comparison(data.gameplayID, '!=', 0x2).withLast({ flag: 'OrNext' }),
+            comparison(data.levelIDLoaded, '!=', 0x24).withLast({ flag: 'ResetIf' }),
 
-            // Don't allow the hit to count if you aren't in the right level
-            comparison(data.levelIDLoaded, '!=', 0x24).withLast({ flag: 'PauseIf' }),
-
-            // Check for when the amount of bashes is 42
-            // set up as a hit with an addhits chain acting a higher level ornext chain
-            // if these were all in alt groups, the ach length limit would beceome an issue
             data.chainLinkedListDataRange(0, 100, [
+                checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                 comparison(data.itemCounter, '>=', 42, false).withLast({ flag: 'AddHits' }) 
             ], true),

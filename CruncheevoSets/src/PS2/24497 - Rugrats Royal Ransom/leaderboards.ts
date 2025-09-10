@@ -1,7 +1,7 @@
 ﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, Leaderboard } from '@cruncheevos/core'
 import * as data from './data.js'
-import { checkItemType, inGame } from './achievements.js'
-import { comparison, connectAddSourceChains } from '../../helpers.js'
+import { checkItemType, inGame, beatLevelV2 } from './achievements.js'
+import { calculation, comparison, connectAddSourceChains, measureLB } from '../../helpers.js'
 
 export function makeLeaderboards(set: AchievementSet): void {
 
@@ -210,6 +210,125 @@ export function makeLeaderboards(set: AchievementSet): void {
             value: $(
                 'M:1=1'
             )
+        }
+    })
+
+    let CCandTBvalue: any = {}
+    for (let i: number = 0; i < 20; i++) {
+        let addition: any = $(
+            data.chainLinkedListDataRange(i, i, [
+                checkItemType(0x111328).withLast({ flag: 'MeasuredIf' }),
+                measureLB(data.itemCounter)
+            ], true)
+        )
+        if (i == 0) {
+            CCandTBvalue['core'] = addition
+        }
+        else {
+            CCandTBvalue['alt' + i.toString()] = addition
+        }
+    }
+
+
+    set.addLeaderboard({
+        title: 'Carrot Catchin\' - High Score',
+        description: 'Collect the most carrots in \"Carrot Catchin\'\"',
+        type: 'VALUE',
+        lowerIsBetter: false,
+        conditions: {
+            start: $(
+                comparison(data.levelIDInstant, '=', 0x1e, true),
+                comparison(data.levelIDInstant, '=', 0x1b, false)
+            ),
+            cancel: $(
+                '0=1'
+            ),
+            submit: $(
+                '1=1'
+            ),
+            value: CCandTBvalue
+        }
+    })
+
+
+
+/* Leaderboard needs a way to find out if you've broken a target without looking at the RingTimer delta/mem as debris spawns that same frame. Also needs editing to fix negaitve values always taking over
+    let RRCvalue: any = {}
+    for (let i: number = 1; i < 19; i++) {
+        if (i > 1) {
+            RRCvalue['alt' + (i - 1).toString()] = $(
+                data.chainLinkedListDataRange(0, 20, [
+                    checkItemType(0x24c990).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                    checkItemType(0x24c990).withLast({ flag: 'AndNext' }),
+                    comparison(data.ringTimer, '>', data.ringTimer, true, false).withLast({ flag: 'AddHits' })
+                ]),
+                $('Z:0=1').withLast({ hits: i }),
+                comparison(data.loadedTimer, '<', 0.5).withLast({flag: 'MeasuredIf', hits: 1 }),
+                calculation(true, data.loadedTimer, '*', 100),
+                calculation(false, 500, '*', i - 1),
+                'M:0'
+            )
+        }
+        else {
+            RRCvalue['core'] = $(
+                data.chainLinkedListDataRange(0, 20, [
+                    checkItemType(0x24c990).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
+                    checkItemType(0x24c990).withLast({ flag: 'AndNext' }),
+                    comparison(data.ringTimer, '>', data.ringTimer, true, false).withLast({ flag: 'AddHits' })
+                ]),
+                $('Z:0=1').withLast({ hits: i }),
+                comparison(data.loadedTimer, '<', 0.5).withLast({ flag: 'MeasuredIf', hits: 1 }),
+                calculation(true, data.loadedTimer, '*', 100),
+                calculation(false, 500, '*', i - 1),
+                'M:0'
+            )
+        }
+        
+    }
+
+    set.addLeaderboard({
+        title: 'Ring Roller Coaster - Scored Speedrun',
+        description: 'Beat \"Ring Roller Coaster\" as fast as possible, each target broken subtracts 5 seconds from your final time',
+        type: 'FIXED2',
+        lowerIsBetter: true,
+        conditions: {
+            start: $(
+                inGame(),
+                comparison(data.levelIDLoaded, '=', 0x1b, true),
+                comparison(data.levelIDLoaded, '=', 0x20, false)
+            ),
+            cancel: $(
+                comparison(data.levelIDLoaded, '!=', 0x20)
+            ),
+            submit: $(
+                beatLevelV2(0x20, 20, [
+                    $(comparison(data.ringCounter, '=', 0x12)),
+                    $(comparison(data.ringTimer, '!=', 0.0))
+                ])
+            ),
+            value: RRCvalue
+        }
+    })
+    */
+
+
+    set.addLeaderboard({
+        title: 'Target Bash - High Score',
+        description: 'Bash the most targets in \"Target Bash\"',
+        type: 'VALUE',
+        lowerIsBetter: false,
+        conditions: {
+            start: $(
+                comparison(data.levelIDInstant, '=', 0x24, true),
+                comparison(data.levelIDInstant, '=', 0x1b, false)
+            ),
+            cancel: $(
+                '0=1'
+            ),
+            submit: $(
+                '1=1'
+            ),
+            value: CCandTBvalue
         }
     })
 

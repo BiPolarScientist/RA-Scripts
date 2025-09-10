@@ -55,52 +55,81 @@ export function comparison(leftobject: Partial<Condition.Data> | number | string
     return output
 }
 
-export function calculation(isAddSource: boolean, leftobject: Partial<Condition.Data> | number | string, cmp: string, rightobject: Partial<Condition.Data> | number | string, leftdelta: boolean = false, rightdelta: boolean = false): ConditionBuilder {
+export function calculation(isAddSource: boolean, leftobject: Partial<Condition.Data> | number | string, cmp: string = 'none', rightobject: Partial<Condition.Data> | number | string = 0, leftdelta: boolean = false, rightdelta: boolean = false): ConditionBuilder {
 
     let output: ConditionBuilder
-    if (isAddSource) {
-        output = $('A:0' + cmp + '0')
-    }
-    else {
-        output = $('B:0' + cmp + '0')
-    }
-    
 
-    if (typeof leftobject == 'string') {
-        output = output.withLast({ lvalue: { type: 'Recall' } })
-    }
-    else if (typeof leftobject === 'number') {
-        if (leftobject % 1 == 0) {
-            output = output.withLast({ lvalue: { type: 'Value', value: leftobject } })
+    if (cmp == 'none') {
+        if (typeof leftobject == 'string') {
+            output = $('B:{recall}')
+        }
+        else if (typeof leftobject == 'number') {
+            output = $('B:' + leftobject.toString())
         }
         else {
-            output = output.withLast({ lvalue: { type: 'Float', value: leftobject } })
+            output = $('B:0').withLast({ lvalue: leftobject.lvalue })
+        } 
+
+
+        if (isAddSource) {
+            output = output.withLast({ flag: 'AddSource' })
         }
+
+
     }
+
     else {
-        output = output.withLast({ lvalue: leftobject.lvalue })
-        if (leftdelta) {
-            output = output.withLast({ lvalue: { type: 'Delta' } })
-        }
-    }
 
-
-    if (typeof rightobject == 'string') {
-        output = output.withLast({ rvalue: { type: 'Recall' } })
-    }
-    else if (typeof rightobject === 'number') {
-        if (rightobject % 1 == 0) {
-            output = output.withLast({ rvalue: { type: 'Value', value: rightobject } })
+        if (isAddSource) {
+            output = $('A:0' + cmp + '0')
         }
         else {
-            output = output.withLast({ rvalue: { type: 'Float', value: rightobject } })
+            output = $('B:0' + cmp + '0')
         }
-    }
-    else {
-        output = output.withLast({ rvalue: rightobject.rvalue })
-        if (rightdelta) {
-            output = output.withLast({ rvalue: { type: 'Delta' } })
+
+
+
+
+        if (typeof leftobject == 'string') {
+            output = output.withLast({ lvalue: { type: 'Recall' } })
         }
+        else if (typeof leftobject === 'number') {
+            if (leftobject % 1 == 0) {
+                output = output.withLast({ lvalue: { type: 'Value', value: leftobject } })
+            }
+            else {
+                output = output.withLast({ lvalue: { type: 'Float', value: leftobject } })
+            }
+        }
+        else {
+            output = output.withLast({ lvalue: leftobject.lvalue })
+            if (leftdelta) {
+                output = output.withLast({ lvalue: { type: 'Delta' } })
+            }
+        }
+
+
+
+
+        if (typeof rightobject == 'string') {
+            output = output.withLast({ rvalue: { type: 'Recall' } })
+        }
+        else if (typeof rightobject === 'number') {
+            if (rightobject % 1 == 0) {
+                output = output.withLast({ rvalue: { type: 'Value', value: rightobject } })
+            }
+            else {
+                output = output.withLast({ rvalue: { type: 'Float', value: rightobject } })
+            }
+        }
+        else {
+            output = output.withLast({ rvalue: rightobject.rvalue })
+            if (rightdelta) {
+                output = output.withLast({ rvalue: { type: 'Delta' } })
+            }
+        }
+
+
     }
 
     return output
@@ -127,6 +156,19 @@ export function connectAddSourceChains(chain: ConditionBuilder): any {
         chain: condOutput,
         tally: tally
     }
+}
+
+/** Putting in a measured line with only a left side for leaderboards */
+export function measureLB(leftobject: Partial<Condition.Data> | number | string): ConditionBuilder {
+    if (typeof leftobject == 'string') {
+        return $('M:{recall}')
+    }
+    else if (typeof leftobject == 'number') {
+        return $('M:' + leftobject.toString())
+    }
+    else {
+        return $('M:0').withLast({ lvalue: leftobject.lvalue })
+    } 
 }
 
 /**

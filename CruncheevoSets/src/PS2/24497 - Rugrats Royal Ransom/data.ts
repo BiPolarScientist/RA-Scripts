@@ -137,6 +137,13 @@ export let collectedLittleBatteriesOnThePlayCenter3000: Partial<Condition.Data> 
     lvalue: { type: 'Mem', size: '8bit', value: 0x3F82C0 }, rvalue: { type: 'Mem', size: '8bit', value: 0x3F82C0 }
 }
 
+/** $419e24: [Float] Seconds elapsed since last loading time, doesn't accumulate while paused
+ * 
+ */
+export let loadedTimer: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: 'Float', value: 0x419e24 }, rvalue: { type: 'Mem', size: 'Float', value: 0x419e24 }
+}
+
 /** $41b10c: [8-bit] Paused menu open
           0x00 - No
           0x01 - Yes, and some other niche times like flashing in a loading screen */
@@ -204,6 +211,7 @@ export function shopItemPurchased(itemID: number): Partial<Condition.Data> {
         lvalue: { type: 'Mem', size: '32bit', value: 0x3F672C + 4 * (itemID - 1) }, rvalue: { type: 'Mem', size: '32bit', value: 0x3F672C + 4 * (itemID - 1) }
     }
 }
+
  
 /** [16-bit][Array of 54 bytes] Little batteries shown as left to collect in level on level select screen, indexed by level id starting at 1, see list of id's in 0x3d277c
 
@@ -689,7 +697,7 @@ export const levelOnFloorDict = {
 }
 
 export const levelNamesAchData = {
-    0x01: { title: 'Rugrat Rug Race', achTitle: 'Way to Burn Rugger!', points: 3 , id: 541538, badge: 616321 },
+    0x01: { title: 'Rugrat Rug Race', achTitle: 'Way to Burn Rugger!', points: 3 , id: 541538, badge: 616742 },
     0x02: { title: 'Meanie Genie', achTitle: 'You\'re a Real Lamp Champ', points: 4, id: 541539, badge: 616320 },
     0x03: { title: 'Temple of the Lamp', achTitle: 'Not as Good as Mr. Fluffles', points: 2, id: 541540, badge: 616322 },
     0x04: { title: 'Mr. Snowtato Head', achTitle: 'Let\'s Make a Snowbaby', points: 1, id: 541541, badge: 615871 },
@@ -699,17 +707,17 @@ export const levelNamesAchData = {
     0x09: { title: 'Punting Papayas', achTitle: 'You Should Be a Papaya Crate-r!', points: 3, id: 541545, badge: 615878 },
     0x0a: { title: 'Monkey Business', achTitle: 'I Went on a Jungle Gym Once', points: 3, id: 541546, badge: 615879 },
     0x0b: { title: 'Cone Caper', achTitle: 'Under This Freak Show, I\'m a Regular Guy', points: 4, id: 541547, badge: 616406 },
-    0x0c: { title: 'Acrobatty Dash', achTitle: 'Astrobats Flying Through the Air', points: 3, id: 541548, badge: 616407 },
-    0x0d: { title: 'Cream Pie Flyer', achTitle: 'The Ring Monster\'s Trial', points: 10, id: 541549, badge: 616408 },
+    0x0c: { title: 'Acrobatty Dash', achTitle: 'Astrobats Flying Through the Air', points: 3, id: 541548, badge: 616743 },
+    0x0d: { title: 'Cream Pie Flyer', achTitle: 'The Ring Monster\'s Trial', points: 10, id: 541549, badge: 616744 },
     0x0e: { title: 'Sub-a-Dub-Dub', achTitle: 'Scrubmarine to the Rescue!', points: 2, id: 541550, badge: 616217 },
     0x10: { title: 'Hot Cod Racer', achTitle: 'That\'s Them, the Sea Monies', points: 3, id: 541551, badge: 616218 },
-    0x11: { title: 'Fly High Egg Hunt', achTitle: 'How Many Is a Gross of Eggs?', points: 5, id: 541552, badge: 0},
-    0x12: { title: 'Rex Riding', achTitle: 'Where\'s Reptar?', points: 5, id: 541553, badge: 0},
-    0x14: { title: 'Bow and Apple', achTitle: 'The Days of Shovelry', points: 10, id: 541554, badge:0 },
-    0x15: { title: 'The Holey Pail', achTitle: 'The Knightses of the Sand Table', points: 4, id: 541555, badge:0 },
-    0x17: { title: 'Moon Buggy Madness', achTitle: 'Driving with Less Grabity', points: 3, id: 541556, badge: 0},
-    0x18: { title: 'Cheesy Chase', achTitle: 'Moon Cheese Comes from Moon Graters', points: 3, id: 541557, badge: 0},
-    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'Lonely Space Vixens', points: 4, id: 541558, badge: 0}
+    0x11: { title: 'Fly High Egg Hunt', achTitle: 'How Many Is a Gross of Eggs?', points: 5, id: 541552, badge: 616745},
+    0x12: { title: 'Rex Riding', achTitle: 'Where\'s Reptar?', points: 5, id: 541553, badge: 616747},
+    0x14: { title: 'Bow and Apple', achTitle: 'The Days of Shovelry', points: 10, id: 541554, badge: 616655 },
+    0x15: { title: 'The Holey Pail', achTitle: 'The Knightses of the Sand Table', points: 4, id: 541555, badge: 616656 },
+    0x17: { title: 'Moon Buggy Madness', achTitle: 'Driving with Less Grabity', points: 3, id: 541556, badge: 616666},
+    0x18: { title: 'Cheesy Chase', achTitle: 'Moon Cheese Comes from Moon Graters', points: 3, id: 541557, badge: 616667},
+    0x19: { title: 'Rise of the Anjellyuns', achTitle: 'Lonely Space Vixens', points: 4, id: 541558, badge: 616668}
 
 }
 
@@ -719,9 +727,9 @@ export const littleBatteryAchData = {
     0x03: { title: 'undersea', achTitle: 'Hydropower Energy', points: 5, levelArray: [0xe, 0x10], id: 541561, badge: 615844 },
     0x04: { title: 'Arabian', achTitle: 'Solar Energy', points: 5, levelArray: [0x1, 0x2, 0x3], id: 541562, badge: 616030 },
     0x05: { title: 'circus', achTitle: 'Scream Energy', points: 5, levelArray: [0xb, 0xc, 0xd], id: 541563, badge: 615846 },
-    0x06: { title: 'dino', achTitle: 'Fossil Fuels', points: 5, levelArray: [0x11, 0x12], id: 541564, badge:0 },
-    0x07: { title: 'Moon', achTitle: 'Lunar Energy', points: 5, levelArray: [0x17, 0x18, 0x19], id: 541565, badge: 0},
-    0x08: { title: 'Medieval', achTitle: 'Were These Even Invented Yet?', points: 5, levelArray: [0x14, 0x15], id: 541566, badge: 0}
+    0x06: { title: 'dino', achTitle: 'Fossil Fuels', points: 5, levelArray: [0x11, 0x12], id: 541564, badge: 615847 },
+    0x07: { title: 'Moon', achTitle: 'Lunar Energy', points: 5, levelArray: [0x17, 0x18, 0x19], id: 541565, badge: 615848},
+    0x08: { title: 'Medieval', achTitle: 'Were These Even Invented Yet?', points: 5, levelArray: [0x14, 0x15], id: 541566, badge: 615849}
 }
 
 export const funnyMoneyAchData = {
@@ -730,10 +738,10 @@ export const funnyMoneyAchData = {
     0x03: { title: 'undersea', achTitle: 'Jackpot at the Seahorse Track', points: 10, levelArray: [0xe, 0x10], id: 541569, badge: 615852 },
     0x04: { title: 'Arabian', achTitle: 'Accessing Your Offshore Account', points: 10, levelArray: [0x1, 0x2, 0x3], id: 541570, badge: 615853 },
     0x05: { title: 'circus', achTitle: 'Avoiding Clowngrades', points: 10, levelArray: [0xb, 0xc, 0xd], id: 541571, badge: 615854 },
-    0x06: { title: 'dino', achTitle: 'Their Bones Are Their Money', points: 10, levelArray: [0x11, 0x12], id: 541572, badge: 0},
-    0x07: { title: 'Moon', achTitle: 'The Moon Might Not Be Made of Cheese, but It Does Have a Lot of Cheddar', points: 10, levelArray: [0x17, 0x18, 0x19], id: 541573, badge:0 },
-    0x08: { title: 'Medieval', achTitle: 'Investing Early', points: 10, levelArray: [0x14, 0x15], id: 541574, badge: 0},
-    0x09: { title: 'Stomin\' the Castle', achTitle: 'Your Treasury Bond Has Matured', points: 10, levelArray: [0x1a], id: 541575, badge: 0}
+    0x06: { title: 'dino', achTitle: 'Their Bones Are Their Money', points: 10, levelArray: [0x11, 0x12], id: 541572, badge: 615855},
+    0x07: { title: 'Moon', achTitle: 'The Moon Might Not Be Made of Cheese, but It Does Have a Lot of Cheddar', points: 10, levelArray: [0x17, 0x18, 0x19], id: 541573, badge:615856 },
+    0x08: { title: 'Medieval', achTitle: '3 Years Old with a Century of Financial Experience', points: 10, levelArray: [0x14, 0x15], id: 541574, badge: 615857},
+    0x09: { title: 'Stomin\' the Castle', achTitle: 'Your Treasury Bond Has Matured', points: 10, levelArray: [0x1a], id: 541575, badge: 615858}
 }
 
 
