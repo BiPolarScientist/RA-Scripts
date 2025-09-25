@@ -7,6 +7,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Baby Easy - Speedrun - RTA',
+        id: 138599,
         description: 'Beat the game from a fresh save file on Baby Easy as fast as possible, timer offset by 10 seconds at the start to match RTA timing',
         type: 'FRAMES',
         lowerIsBetter: true,
@@ -38,6 +39,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Rugrat Normal - Speedrun - RTA',
+        id: 138600,
         description: 'Beat the game from a fresh save file on Rugrat Normal as fast as possible, timer offset by 10 seconds at the start to match RTA timing',
         type: 'FRAMES',
         lowerIsBetter: true,
@@ -69,6 +71,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Reptar Tough - Speedrun - RTA',
+        id: 138601,
         description: 'Beat the game from a fresh save file on Reptar Tough as fast as possible, timer offset by 10 seconds at the start to match RTA timing',
         type: 'FRAMES',
         lowerIsBetter: true,
@@ -136,7 +139,7 @@ export function makeLeaderboards(set: AchievementSet): void {
     set.addLeaderboard({
         title: 'Temple Run - Speedrun - RTA',
         id: 138564,
-        description: 'In \"Punting Papayas\", starting from the inside of the temple where you spawn, fall into the temple from the second story as fast as possible. Touch the Cycas plant by spawn to cancel your attempt',
+        description: 'In \"Punting Papayas\", starting from the inside of the temple where you spawn before hitting a checkpoint, fall into the temple from the second story as fast as possible. Touch the Cycas plant by spawn to cancel your attempt',
         type: 'FRAMES',
         lowerIsBetter: true,
         conditions: {
@@ -147,6 +150,7 @@ export function makeLeaderboards(set: AchievementSet): void {
                 data.chainLinkedListDataRange(0, 50, [
                     checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                     checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }), // Making sure the delta / mem check below reads the acual data we want instead of data from two different nodes. Shouldn't interfere since nothing should spawn while close to the temple
+                    comparison(data.treeCheckpoints, '=', 0).withLast({ flag: 'AndNext' }), // Checks that your checkpoint is set at the start of the level
                     comparison(data.XPos, '>=', 32, true).withLast({ flag: 'AndNext' }),
                     comparison(data.XPos, '<', 32, false).withLast({ flag: 'AndNext' }),
                     comparison(data.YPos, '>=', 51).withLast({ flag: 'AndNext' }),
@@ -232,6 +236,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Carrot Catchin\' - High Score',
+        id: 139202,
         description: 'Collect the most carrots in \"Carrot Catchin\'\"',
         type: 'VALUE',
         lowerIsBetter: false,
@@ -314,6 +319,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Target Bash - High Score',
+        id: 139203,
         description: 'Bash the most targets in \"Target Bash\"',
         type: 'VALUE',
         lowerIsBetter: false,
@@ -333,6 +339,7 @@ export function makeLeaderboards(set: AchievementSet): void {
     })
 
     // Collectables left to collect hidden leaderboards for Reptar Tough
+    let idCounter:number = 138602
     for (var levelID in data.levelOnFloorDict) {
 
         if (+levelID >= 0x1a) {break }
@@ -347,6 +354,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
         set.addLeaderboard({
             title: 'Collectable Detector - ' + data.levelNamesAchData[levelID].title,
+            id: idCounter,
             description: 'Shows how many collectables are left to find in the level',
             type: 'VALUE',
             lowerIsBetter: true,
@@ -369,7 +377,78 @@ export function makeLeaderboards(set: AchievementSet): void {
                 )
             }
         })
+        idCounter = idCounter + 1
     }
 
+
+
+    const sizeDict = {
+        0: 'Bit0',
+        1: 'Bit1',
+        2: 'Bit2',
+        3: 'Bit3',
+        4: 'Bit4',
+        5: 'Bit5',
+        6: 'Bit6',
+        7: 'Bit7'
+    }
+
+    // Hidden Leaderboards for each of the missing collectables when they are grabbed in game
+    for (var levelID in data.levelOnFloorDict) {
+        for (var missingCollectable of (data.collectablesData!['0x' + (+levelID).toString(16)]['2'].missingArray ?? [])) {
+            set.addLeaderboard({
+                title: 'Impossible Collectable Gathered',
+                description: 'Collectable ' + missingCollectable.toString() + ' in level ' + levelID,
+                type: 'VALUE',
+                lowerIsBetter: false,
+                conditions: {
+                    start: $(
+                        inGame().withLast({ lvalue: { type: 'Delta' } }),
+                        comparison(data.difficulty, '=', 2),
+                        ['', 'Delta', sizeDict[missingCollectable % 8], 0x3f68c0 + 0x100 * (+levelID - 1) + Math.floor(missingCollectable / 8), '=', 'Value', '', 0],
+                        ['', 'Mem', sizeDict[missingCollectable % 8], 0x3f68c0 + 0x100 * (+levelID - 1) + Math.floor(missingCollectable / 8), '=', 'Value', '', 1]
+                    ),
+                    cancel: $('0=1'),
+                    submit: $('1=1'),
+                    value: $('M:1')
+                }
+            })
+        }
+    }
+
+
+    /* Hidden leaderboard for all the missing collectables in one upon loading a game, abandoned as it would be super annoying if someone got one legit to have this pop up every time they loaded
+    let missingBitSum: ConditionBuilder = $()
+    let powerCounter: number = 0
+    for (var levelID in data.levelOnFloorDict) {
+        for (var missingCollectable of (data.collectablesData!['0x' + (+levelID).toString(16)]['2'].missingArray ?? [])) {
+            missingBitSum = missingBitSum.also(
+                $(['AddSource', 'Mem', sizeDict[missingCollectable % 8], 0x3f68c0 + 0x100 * (+levelID - 1) + Math.floor(missingCollectable / 8), '*', 'Value', '', 2**powerCounter])
+            )
+            powerCounter = powerCounter + 1
+        }
+    }
+
+    set.addLeaderboard({
+        title: 'Impossible Collectables Loaded',
+        description: 'Loaded into a Tough game with missing collectables already gathered',
+        type: 'VALUE',
+        lowerIsBetter: false,
+        conditions: {
+            start: $(
+                comparison(data.gameplayID, '=', 2, true),
+                comparison(data.gameplayID, '=', 3, false),
+                comparison(data.difficulty, '=', 2),
+                missingBitSum,
+                '0>1'
+            ),
+            cancel: $('0=1'),
+            submit: $('1=1'),
+            value: missingBitSum.withLast({ flag: 'Measured' })
+        }
+    })
+    */
+
+    
 
 }

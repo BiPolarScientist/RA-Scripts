@@ -1,7 +1,7 @@
 ﻿import { define as $, Condition, ConditionBuilder } from '@cruncheevos/core'
 import * as fs from 'fs'
 import * as commentjson from 'comment-json'
-const collectablesData = commentjson.parse(fs.readFileSync('./src/PS2/24497 - Rugrats Royal Ransom/collectables.json', 'utf8'))
+export const collectablesData = commentjson.parse(fs.readFileSync('./src/PS2/24497 - Rugrats Royal Ransom/collectables.json', 'utf8'))
 
 /*
 
@@ -169,10 +169,11 @@ Arrays
 
 /** $3F6514: [32-bit][Array of 104 bytes] Level unlocked, indexed by level id starting at index 1, see list of id's in 0x3d277c
           0x00 - No
-          0x01 - Yes */
+          0x01 - Yes 
+          Accessed as Bit0 for invert to work */
 export function levelUnlocked(levelID: number): Partial<Condition.Data> {
     return {
-        lvalue: { type: 'Mem', size: '32bit', value: 0x3F6514 + 4 * (levelID - 1) }, rvalue: { type: 'Mem', size: '32bit', value: 0x3F6514 + 4 * (levelID - 1) }
+        lvalue: { type: 'Mem', size: 'Bit0', value: 0x3F6514 + 4 * (levelID - 1) }, rvalue: { type: 'Mem', size: 'Bit0', value: 0x3F6514 + 4 * (levelID - 1) }
     }
 }
 
@@ -265,16 +266,16 @@ export function chainFunnyMoneyStacksCollected( levelID: number, difficulty: num
     const levelData = collectablesData!['0x' + (+levelID).toString(16)][difficulty.toString()]
 
     let amountOfFunnyMoneyStacks: number = levelData.totalCollectables - levelData.littleBatteries
-    let amountOfFunnyMoneyStacksNeeded: number = 0
 
-    if ('funnyMoneyStacksMissing' in levelData) {
+    let amountOfFunnyMoneyStacksNeeded: number = amountOfFunnyMoneyStacks - (levelData.funnyMoneyStacksMissing??0)
+    /*if ('funnyMoneyStacksMissing' in levelData) {
         amountOfFunnyMoneyStacksNeeded = amountOfFunnyMoneyStacks - levelData.funnyMoneyStacksMissing
     }
     else {
         amountOfFunnyMoneyStacksNeeded = amountOfFunnyMoneyStacks
-    }
+    }*/
     
-
+    // Counter for what bit is currently being read
     let i: number = 0
 
     const sizeDict = {
@@ -288,59 +289,75 @@ export function chainFunnyMoneyStacksCollected( levelID: number, difficulty: num
         7: 'Bit7'
     }
 
-    while (true) {
+    while (i < amountOfFunnyMoneyStacks) {
 
-        if (amountOfFunnyMoneyStacks >= 8) {
+        // If the whole byte is gatherable money, add in a whole bitcount
+        if (
+            amountOfFunnyMoneyStacks - i >= 8 &&
+            !(levelData.missingArray ?? []).some(x => (x >= i && x < i + 8))
+        ){
             output = $(
                 output,
-                !ifDelta && ['AddSource', 'Mem', 'BitCount', 0x3f68c0 + 0x100 * (levelID - 1) + i],
-                ifDelta && ['AddSource', 'Delta', 'BitCount', 0x3f68c0 + 0x100 * (levelID - 1) + i]
+                !ifDelta && ['AddSource', 'Mem', 'BitCount', 0x3f68c0 + 0x100 * (levelID - 1) + Math.floor(i / 8)],
+                ifDelta && ['AddSource', 'Delta', 'BitCount', 0x3f68c0 + 0x100 * (levelID - 1) + Math.floor(i / 8)]
             )
-            i = i + 1
-            amountOfFunnyMoneyStacks = amountOfFunnyMoneyStacks - 8
+            i = i + 8
         }
 
-        if (amountOfFunnyMoneyStacks < 8) {
+        // If only part of this byte should be read
+        else {
 
-            for (let j = 0; j < amountOfFunnyMoneyStacks; j++) {
-                output = $(
-                    output,
-                    !ifDelta && ['AddSource', 'Mem', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + i],
-                    ifDelta && ['AddSource', 'Delta', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + i]
-                )
+            for (let j = 0; j < 8; j++) {
+                if (!(levelData.missingArray ?? []).includes(i)) {
+                    output = $(
+                        output,
+                        !ifDelta && ['AddSource', 'Mem', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + Math.floor(i / 8)],
+                        ifDelta && ['AddSource', 'Delta', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + Math.floor(i / 8)]
+                    )
+                }
+
+                i = i + 1
+
+                // Finish this loop if you reach the end of the money collectables before it's done
+                if (i >= amountOfFunnyMoneyStacks) {
+                    break
+                }
             }
 
-            if (output.conditions.length == 0) {
-                return $()
-            }
-
-            if (!ifDelta) {
-                output = output.withLast({
-                    flag: '',
-                    cmp: '=',
-                    rvalue: {
-                        type: 'Value',
-                        value: amountOfFunnyMoneyStacksNeeded
-                    }
-                })
-            }
-            else {
-                output = output.withLast({
-                    flag: '',
-                    cmp: '=',
-                    rvalue: {
-                        type: 'Value',
-                        value: amountOfFunnyMoneyStacksNeeded - 1
-                    }
-                })
-            }
-            
-
-            break
         }
     }
 
-    return output 
+    // If there is no money to collect in this level, return nothing
+    if (output.conditions.length == 0) {
+        return output
+    }
+    // Otherwise, take off the last addsource, and = to either to total/mem, or the total-1/delta
+    else {
+        if (!ifDelta) {
+            output = output.withLast({
+                flag: '',
+                cmp: '=',
+                rvalue: {
+                    type: 'Value',
+                    value: amountOfFunnyMoneyStacksNeeded
+                }
+            })
+        }
+        else {
+            output = output.withLast({
+                flag: '',
+                cmp: '=',
+                rvalue: {
+                    type: 'Value',
+                    value: amountOfFunnyMoneyStacksNeeded - 1
+                }
+            })
+        }
+
+        return output
+    }
+
+     
     
 }
 
@@ -361,13 +378,13 @@ export function chainLittleBatteriesCollected(levelID: number, difficulty: numbe
 
     let amountOfFunnyMoneyStacks: number = levelData.totalCollectables - levelData.littleBatteries
 
-    let totalBatteries: number = 0
-    if ('littleBatteriesMissing' in levelData) {
+    let totalBatteries: number = levelData.littleBatteries - (levelData.littleBatteriesMissing??0)
+    /*if ('littleBatteriesMissing' in levelData) {
         totalBatteries = levelData.littleBatteries - levelData.littleBatteriesMissing
     }
     else {
         totalBatteries = levelData.littleBatteries
-    }
+    }*/
 
     let i: number = Math.floor(amountOfFunnyMoneyStacks / 8)
     let j: number = amountOfFunnyMoneyStacks % 8
@@ -389,11 +406,13 @@ export function chainLittleBatteriesCollected(levelID: number, difficulty: numbe
             i = i + 1 
         }
 
-        output = $(
-            output,
-            !ifDelta && ['AddSource', 'Mem', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + i],
-            ifDelta && ['AddSource', 'Delta', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + i]
-        )
+        if (!(levelData.missingArray ?? []).includes(8*i + j)) {
+            output = $(
+                output,
+                !ifDelta && ['AddSource', 'Mem', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + i],
+                ifDelta && ['AddSource', 'Delta', sizeDict[j], 0x3f68c0 + 0x100 * (levelID - 1) + i]
+            )
+        }
 
         j = j + 1
     }
@@ -537,6 +556,11 @@ export let papayaNotUnderTree: Partial<Condition.Data> = {
 /** Used in Acrobatty Dash and Holey Pail, final locations are 0x28 and 0x21 respectively */
 export let helperBallPosition: Partial<Condition.Data> = {
     lvalue: { type: 'Mem', size: '16bit', value: 0xaf8 }, rvalue: { type: 'Mem', size: '16bit', value: 0xaf8 }
+}
+
+/** Used in Papaya Punting, marks what tree to respawn you at upon losing a papaya, starts at 0 */
+export let treeCheckpoints: Partial<Condition.Data> = {
+    lvalue: { type: 'Mem', size: '16bit', value: 0xaf4 }, rvalue: { type: 'Mem', size: '16bit', value: 0xaf4 }
 }
 
 /** 16-bit, Used in Ring Roller Coaster, final ring is 0x12 */
@@ -739,7 +763,7 @@ export const funnyMoneyAchData = {
     0x04: { title: 'Arabian', achTitle: 'Accessing Your Offshore Account', points: 10, levelArray: [0x1, 0x2, 0x3], id: 541570, badge: 615853 },
     0x05: { title: 'circus', achTitle: 'Avoiding Clowngrades', points: 10, levelArray: [0xb, 0xc, 0xd], id: 541571, badge: 615854 },
     0x06: { title: 'dino', achTitle: 'Their Bones Are Their Money', points: 10, levelArray: [0x11, 0x12], id: 541572, badge: 615855},
-    0x07: { title: 'Moon', achTitle: 'The Moon Might Not Be Made of Cheese, but It Does Have a Lot of Cheddar', points: 10, levelArray: [0x17, 0x18, 0x19], id: 541573, badge:615856 },
+    0x07: { title: 'Moon', achTitle: 'The Moon Isn\'t Made of Cheese, but It Does Have a Lot of Cheddar', points: 10, levelArray: [0x17, 0x18, 0x19], id: 541573, badge:615856 },
     0x08: { title: 'Medieval', achTitle: '3 Years Old with a Century of Financial Experience', points: 10, levelArray: [0x14, 0x15], id: 541574, badge: 615857},
     0x09: { title: 'Stomin\' the Castle', achTitle: 'Your Treasury Bond Has Matured', points: 10, levelArray: [0x1a], id: 541575, badge: 615858}
 }

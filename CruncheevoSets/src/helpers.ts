@@ -2,7 +2,7 @@
 
 
 /**
- * Returns a flagless condition taht compares the left to the right objects. Objects can be either Memory data, a value, a float (has to have a nonzero decimal), or a string to stand in as Recall.
+ * Returns a flagless condition that compares the left to the right objects. Objects can be either Memory data, a value, a float (has to have a nonzero decimal), or a string to stand in as Recall.
  * You can make the left or right sides of the comparison delta with extra booleans.
  * @param leftobject
  * @param cmp
@@ -55,6 +55,16 @@ export function comparison(leftobject: Partial<Condition.Data> | number | string
     return output
 }
 
+/**
+ * Returns an AddSource (if true) or SubSource (if false) line, add/subtracting off either a memory location, value, float, or Recall (if you imput a string)
+ * @param isAddSource
+ * @param leftobject
+ * @param cmp
+ * @param rightobject
+ * @param leftdelta
+ * @param rightdelta
+ * @returns
+ */
 export function calculation(isAddSource: boolean, leftobject: Partial<Condition.Data> | number | string, cmp: string = 'none', rightobject: Partial<Condition.Data> | number | string = 0, leftdelta: boolean = false, rightdelta: boolean = false): ConditionBuilder {
 
     let output: ConditionBuilder

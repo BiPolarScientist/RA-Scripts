@@ -68,7 +68,7 @@ export function makeRP(): any {
             level: {
                 values: {
                     0x01: 'Rugrat Rug Race',
-                    0x02 : 'Meanie Genie',
+                    0x02: 'Meanie Genie',
                     0x03: 'Temple of the Lamp',
                     0x04: 'Mr.Snowtato Head',
                     0x05: 'Ready, Set, Snow',
@@ -79,7 +79,7 @@ export function makeRP(): any {
                     0x0b: 'Cone Caper',
                     0x0c: 'Acrobatty Dash',
                     0x0d: 'Cream Pie Flyer',
-                    0x0e: 'Sub - a - Dub - Dub',
+                    0x0e: 'Sub-a-Dub-Dub',
                     0x10: 'Hot Cod Racer',
                     0x11: 'Fly High Egg Hunt',
                     0x12: 'Rex Riding',
@@ -94,7 +94,7 @@ export function makeRP(): any {
                     0x20: 'Ring Roller Coaster',
                     0x24: 'Target Bash',
                     0x25: 'Get the Sled Out',
-                    0x26: 'Snow - K Corral',
+                    0x26: 'Snow-K Corral',
                     0x28: 'River Race',
                     0x29: 'Double Subble Trouble',
                     0x2b: 'Loopy Hoop Race',

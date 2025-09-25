@@ -190,48 +190,28 @@ export function makeAchievements(set: AchievementSet): void {
             alt1: $( // Alt checking the case where Angelica isn't present
 
                 data.chainLinkedListDataRange(0, 4, [
-                    $(['OrNext', 'Delta', '16bit', 0x7e8, '=', 'Value', '', 0]) // Was at least one of the babies on the ground floor last frame?
+                    comparison(data.babyFloor, '=', 0, true).withLast({ flag: 'OrNext' }) // Was at least one of the babies on the ground floor last frame?
                 ]).withLast({ flag: '' }),
 
                 data.chainLinkedListDataRange(0, 4, [
-                    $(
-                        ['AddAddress', 'Mem', '32bit', 0xd8],
-                        ['AndNext', 'Delta', '32bit', 0xec, '=', 'Value', '', 0x111328]
-                    ),
-                    $(
-                        ['AddAddress', 'Mem', '32bit', 0xd8],
-                        ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328] // Is the baby data loaded both this frame and last
-                    ),
-                    $(
-                        ['AndNext', 'Mem', '16bit', 0x7e8, '>=', 'Value', '', 1]
-                    ),
-                    $(
-                        ['', 'Mem', '16bit', 0x7e8, '<=', 'Value', '', 3] // Are all the babies on floors 1-3? Avoiding floor 4 to avoid the case where Angelica can be considered one of the babies
-                    )
+                    checkItemType(0x111328).withLast({ lvalue: { type: 'Delta' } }),
+                    checkItemType(0x111328), // Is the baby data loaded both this frame and last
+                    comparison(data.babyFloor, '>=', 1),
+                    comparison(data.babyFloor, '<=', 3) // Are all the babies on floors 1-3? Avoiding floor 4 to avoid the case where Angelica can be considered one of the babies
                 ], true)         
             ),
 
             alt2: $( // Alt checking the case where Angelica is present
 
                 data.chainLinkedListDataRange(1, 5, [
-                    $(['OrNext', 'Delta', '16bit', 0x7e8, '=', 'Value', '', 0]) // Was at least one of the babies on the ground floor last frame?
+                    comparison(data.babyFloor, '=', 0, true).withLast({ flag: 'OrNext' }) // Was at least one of the babies on the ground floor last frame?
                 ]).withLast({ flag: '' }),
 
                 data.chainLinkedListDataRange(1, 5, [ 
-                    $(
-                        ['AddAddress', 'Mem', '32bit', 0xd8],
-                        ['AndNext', 'Delta', '32bit', 0xec, '=', 'Value', '', 0x111328]
-                    ),
-                    $(
-                        ['AddAddress', 'Mem', '32bit', 0xd8],
-                        ['AndNext', 'Mem', '32bit', 0xec, '=', 'Value', '', 0x111328] // Is the baby data loaded both this frame and last
-                    ),
-                    $(
-                        ['AndNext', 'Mem', '16bit', 0x7e8, '>=', 'Value', '', 1] 
-                    ),
-                    $(
-                        ['', 'Mem', '16bit', 0x7e8, '<=', 'Value', '', 3] // Are all the babies on floors 1-3?
-                    )
+                    checkItemType(0x111328).withLast({ lvalue: { type: 'Delta' } }),
+                    checkItemType(0x111328), // Is the baby data loaded both this frame and last
+                    comparison(data.babyFloor, '>=', 1),
+                    comparison(data.babyFloor, '<=', 3) // Are all the babies on floors 1-3? Avoiding floor 4 to avoid the case where Angelica can be considered one of the babies
                 ], true)
             )
         }
@@ -246,6 +226,7 @@ export function makeAchievements(set: AchievementSet): void {
         if (data.levelNamesAchData.hasOwnProperty(i)) {
             set.addAchievement({
                 title: data.levelNamesAchData[i].achTitle,
+                badge: data.levelNamesAchData[i].badge,
                 id: data.levelNamesAchData[i].id,
                 description: 'Collect the big battery in \"' + data.levelNamesAchData[i].title + '\" on Reptar Tough',
                 points: data.levelNamesAchData[i].points,
@@ -444,7 +425,7 @@ export function makeAchievements(set: AchievementSet): void {
         title: 'The Cootie Tah Worked!',
         id: 541579,
         badge: 615880,
-        description: 'Defeat Angela in \"Stormin\' the Castle\"',
+        description: 'Defeat Angelica in \"Stormin\' the Castle\"',
         points: 25,
         type: 'win_condition',
         conditions: $(
@@ -458,7 +439,7 @@ export function makeAchievements(set: AchievementSet): void {
         title: 'Punishment for Elastic Perjury',
         id: 541580,
         badge: 615881,
-        description: 'Defeat Angela in \"Stormin\' the Castle\" on Reptar Tough',
+        description: 'Defeat Angelica in \"Stormin\' the Castle\" on Reptar Tough',
         points: 5,
         conditions: $(
             comparison(data.levelIDLoaded, '=', 0x1a),
@@ -488,7 +469,7 @@ export function makeAchievements(set: AchievementSet): void {
                 (level, isDelta) => comparison(data.bigBatteryCollected(level), '=', boolIntCast[isDelta], isDelta)
             ]) {
                 finalCore = finalCore.also(
-                    func(levelID, false).withLast({ cmp: '>=' })
+                    func(levelID, false)
                 )
                 finalAlts.push(func(levelID, true))
             }
@@ -499,8 +480,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     finalCore = $(
         finalCore,
-        data.chainFunnyMoneyStacksCollected(0x1a, 2, false).withLast({ cmp: '>=' }),
-        data.chainLittleBatteriesCollected(0x1b, 2, false).withLast({ cmp: '>=' })
+        data.chainFunnyMoneyStacksCollected(0x1a, 2, false),
+        data.chainLittleBatteriesCollected(0x1b, 2, false)
     )
 
     finalAlts.push(data.chainFunnyMoneyStacksCollected(0x1a, 2, true))
@@ -686,10 +667,10 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     set.addAchievement({
-        title: 'Baby Laura Croft',
+        title: 'Baby Lara Croft',
         id: 541584,
         badge: 617345,
-        description: 'In \"Punting Papayas\", starting from the inside of the temple near where you spawn, fall into the temple from the second story within 2:30',
+        description: 'In \"Punting Papayas\", starting from the inside of the temple near where you spawn before hitting a checkpoint, fall into the temple from the second story within 2:30',
         points: 10,
         conditions: $(
             inGame(),
@@ -697,7 +678,7 @@ export function makeAchievements(set: AchievementSet): void {
             // Reset if you are out of the level
             comparison(data.levelIDLoaded, '!=', 0x9).withLast({ flag: 'ResetIf' }),
 
-            // Reset if you are in a small box inside the temple, before the checkpoint trigger box to allow easy restarts
+            // Reset if you are in a small box inside the temple, before the checkpoint trigger box to allow easy restarts, resets both the reset timer, and the finish line checkpoint if you tried to set that flag before starting
             data.chainLinkedListDataRange(0, 50, [
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                 checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }),
@@ -712,10 +693,11 @@ export function makeAchievements(set: AchievementSet): void {
             // Reset if time is up
             'R:1=1.9001.',
 
-            // Sets a checkpoint hit upon walking through a small box blocking the start of the temple, addhits as an ornext chain
+            // Sets a checkpoint hit upon walking through a small box blocking the start of the temple as long as you don't have a tree checkpoint set further in the level, addhits as an ornext chain
             data.chainLinkedListDataRange(0, 50, [
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
                 checkItemType(0x111328).withLast({ flag: 'AndNext', lvalue: { type: 'Delta' } }), // Making sure the delta / mem check below reads the acual data we want instead of data from two different nodes. Shouldn't interfere since nothing should spawn while close to the temple
+                comparison(data.treeCheckpoints, '=', 0).withLast({ flag: 'AndNext' }), // Checks that your checkpoint is set at the start of the level
                 comparison(data.XPos, '>=', 32, true).withLast({ flag: 'AndNext' }),
                 comparison(data.XPos, '<', 32, false).withLast({ flag: 'AndNext' }),
                 comparison(data.YPos, '>=', 51).withLast({ flag: 'AndNext' }),
@@ -945,6 +927,7 @@ export function makeAchievements(set: AchievementSet): void {
             // Sets a hit upon completion of the first phase of the boss fight
             // set up as a hit with an addhits chain acting a higher level ornext chain
             // if these were all in alt groups, the ach length limit would beceome an issue
+            // We are going backwards through the list at the very end, so delta checks should work fine (not much changes at the end of the list)
             data.chainLinkedListDataRange(0, 50, [
                 checkItemType(0x1e87e8).withLast({flag: 'AndNext'}).also(
                     $(
@@ -1052,10 +1035,11 @@ export function makeAchievements(set: AchievementSet): void {
         title: 'Baby Mark Watney',
         id: 541588,
         badge: 617350,
-        description: 'Complete \"Moon Buggy Madness\" on Reptar Tough without using more than 2 fuel canisters',
-        points: 5, // Might change to 10 points with only 1 fuel canister after play test
+        description: 'Complete \"Moon Buggy Madness\" on Reptar Tough without using more than 1 fuel canister',
+        points: 10, 
         conditions: $(
             inGame(),
+            comparison(data.difficulty, '=', 2),
 
             // Set a checkpoint hit at the start of the level
             comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
@@ -1069,7 +1053,7 @@ export function makeAchievements(set: AchievementSet): void {
 
                 // Reset upon increasing fuel gauge X times
                 checkItemType(0x111328).withLast({ flag: 'AndNext' }),
-                comparison(data.healthCounter, '<', data.healthCounter, true, false).withLast({ flag: 'ResetIf', hits: 3 }), 
+                comparison(data.healthCounter, '<', data.healthCounter, true, false).withLast({ flag: 'ResetIf', hits: 2 }), 
 
                 // Check for the moment you reach 0 cheese left to collect
                 checkItemType(0x111328).withLast({ flag: 'Trigger' }),
@@ -1084,10 +1068,11 @@ export function makeAchievements(set: AchievementSet): void {
         title: 'Baby Mashle',
         id: 542275,
         badge: 617349,
-        description: 'Complete \"The Holy Pail\" on Reptar Tough without using more than 2 magic spells',
+        description: 'Complete \"The Holey Pail\" on Reptar Tough without using more than 2 magic spells',
         points: 5,
         conditions: $(
             inGame(),
+            comparison(data.difficulty, '=', 2),
 
             // Set a checkpoint hit at the start of the level
             comparison(data.levelIDLoaded, '=', 0x1b, true).withLast({ flag: 'AndNext' }),
@@ -1134,7 +1119,7 @@ export function makeAchievements(set: AchievementSet): void {
                 comparison(data.gameplayID, '=', 3, false).withLast({hits: 1}) // 4 Watching intro cutscene -> 3 Playing game
             ),
 
-            // Game completion is tested by seeing tha gameplay id go from 3 to 1 during level 0x1a
+            // Game completion is tested by seeing the gameplay id go from 3 to 1 during level 0x1a
             // so we only want to reset the timer if the gameplay ID isn't 3 for two frames in a row
             comparison(data.gameplayID, '!=', 3, true).withLast({ flag: 'AndNext' }),
             comparison(data.gameplayID, '!=', 3, false).withLast({ flag: 'ResetIf'}),
@@ -1157,8 +1142,9 @@ export function makeAchievements(set: AchievementSet): void {
         points: 5,
         conditions: $(
 
-            // Doing this check instead of beatLevelV2 for the minigames to include the option to quit of a level early,
-            // Also V2 seems to not work on the minigames? the timing is off by a frame I think
+            // Doing this check instead of beatLevelV2 for the minigames to include the option to quit out of a level early
+            // Could use an edited version for minigames 1 and 3, however for ring roller coaster we need to measure success when we hit the final ring, which is before the instant levelid switches over, and the timer still runs during that time
+            // Keeping all three minigames using the same "end level" check for consistency and to be able to better measure if there is a problem with this check. 
             //
             // Quasi delta check, this resetif will only be off for a few frames at the end of the minigame or while quiting the minigame
             comparison(data.gameplayID, '!=', 0x2).withLast({ flag: 'OrNext' }),
@@ -1194,7 +1180,7 @@ export function makeAchievements(set: AchievementSet): void {
             ], true),
             '0=1.1.',
 
-            // Sets a hit to award the achievement if you have more than XX seconds left
+            // Sets a hit to award the achievement if you have more than 45 seconds left
             // Both sides of that comparison have an additional .1 in order to force comparison to use floats instead of values
             // A bit of wiggle room since the timer moves a little bit right before the gameplayid changes to 2, but after you finished the level
             data.chainLinkedListDataRange(1, 101, [

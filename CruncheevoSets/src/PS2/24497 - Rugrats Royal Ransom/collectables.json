@@ -28,7 +28,8 @@
     "2": {
       "totalCollectables": 43,
       "littleBatteries": 3,
-      "littleBatteriesMissing": 1 // First little battery spawn doesn't seem to appear on the PS2 version of the game, see a gamecube speedrun for location (at the start of the lava cave)
+      "littleBatteriesMissing": 1, // First little battery spawn doesn't seem to appear on the PS2 version of the game, see a gamecube speedrun for location (at the start of the lava cave)
+      "missingArray":  [40]
     }
   },
   "0x3": {
@@ -43,7 +44,8 @@
     "2": {
       "totalCollectables": 43,
       "littleBatteries": 2,
-      "funnyMoneyStacksMissing": 6 // stacks of money are underwater, at a depth I couldn't reach by jumping in
+      "funnyMoneyStacksMissing": 6, // stacks of money are underwater, at a depth I couldn't reach by jumping in
+      "missingArray": [ 8, 9, 10, 12, 13, 14 ]
     }
   },
   "0x4": {
@@ -72,7 +74,8 @@
     "2": {
       "totalCollectables": 46,
       "littleBatteries": 2,
-      "funnyMoneyStacksMissing": 0 // Some may be impossible to grab due to physics, needs more testers
+      "funnyMoneyStacksMissing": 6, // Some may be impossible to grab due to physics, needs more testers
+      "missingArray": [ 18, 21, 26, 29, 30, 32 ]
     }
   },
   "0x7": {
@@ -198,7 +201,9 @@
     },
     "2": {
       "totalCollectables": 42,
-      "littleBatteries": 2
+      "littleBatteries": 2,
+      "funnyMoneyStacksMissing": 2, // One trapped in a wall, the other way above the water's surface
+      "missingArray": [ 26, 38 ]
     }
   },
   "0x11": {
@@ -240,7 +245,9 @@
     },
     "2": {
       "totalCollectables": 49,
-      "littleBatteries": 5
+      "littleBatteries": 5,
+      "funnyMoneyStacksMissing": 1, // Up on the castle wall, in an invisible wall
+      "missingArray": [ 9 ]
     }
   },
   "0x15": {
@@ -254,7 +261,9 @@
     },
     "2": {
       "totalCollectables": 51,
-      "littleBatteries": 4
+      "littleBatteries": 4,
+      "funnyMoneyStacksMissing": 1, // Doesn't seem to load into the level
+      "missingArray": [ 42 ]
     }
   },
   "0x17": {
@@ -284,7 +293,8 @@
     "2": {
       "totalCollectables": 40,
       "littleBatteries": 3,
-      "funnyMoneyStacksMissing": 1 // One spawns inside the cheese pile at the start of the level too deep to grab
+      "funnyMoneyStacksMissing": 1, // One spawns inside the cheese pile at the start of the level too deep to grab
+      "missingArray": [ 8 ]
     }
   },
   "0x19": {
