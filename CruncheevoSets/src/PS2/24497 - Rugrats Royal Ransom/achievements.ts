@@ -53,6 +53,7 @@ function activatedHoverVator(floorUnlocked: number, difficulty: number): Conditi
 
 
 // This function is mostly used as a helper for beatLevel() in order to reset hits if the baby you are playing failed the level
+// As beatLevel() is no longer being used, this is no longer neccesary
 function didBabyFailLevel(levelID: number, difficulty: number, babyIdentification, angelicaPresent: number = 0): ConditionBuilder {
 
     if (angelicaPresent) {
@@ -140,7 +141,11 @@ export function beatLevelV2(levelID: number, nodesToCheck: number = 100, extraCo
 }
 
 
-
+/**
+ * Stores a hit if the baby at the specified node has looked at the pictures of tak in first person mode
+ * @param node
+ * @returns
+ */
 function isBabyLookingAtTak(node: number): ConditionBuilder {
     return $(
         // Makes sure you're in the hub world 
@@ -197,7 +202,7 @@ export function makeAchievements(set: AchievementSet): void {
                     checkItemType(0x111328).withLast({ lvalue: { type: 'Delta' } }),
                     checkItemType(0x111328), // Is the baby data loaded both this frame and last
                     comparison(data.babyFloor, '>=', 1),
-                    comparison(data.babyFloor, '<=', 3) // Are all the babies on floors 1-3? Avoiding floor 4 to avoid the case where Angelica can be considered one of the babies
+                    comparison(data.babyFloor, '<=', 3) // Are all the babies on floors 1-3? if angelica is present, node 0 will fail this check
                 ], true)         
             ),
 
@@ -209,9 +214,9 @@ export function makeAchievements(set: AchievementSet): void {
 
                 data.chainLinkedListDataRange(1, 5, [ 
                     checkItemType(0x111328).withLast({ lvalue: { type: 'Delta' } }),
-                    checkItemType(0x111328), // Is the baby data loaded both this frame and last
+                    checkItemType(0x111328), // Is the baby data loaded both this frame and last, if angelica isn't present, node 5 will fail this check
                     comparison(data.babyFloor, '>=', 1),
-                    comparison(data.babyFloor, '<=', 3) // Are all the babies on floors 1-3? Avoiding floor 4 to avoid the case where Angelica can be considered one of the babies
+                    comparison(data.babyFloor, '<=', 3) // Are all the babies on floors 1-3? 
                 ], true)
             )
         }
