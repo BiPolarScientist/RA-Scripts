@@ -1032,7 +1032,7 @@ export function makeAchievements(set: AchievementSet): void {
                 comparison(data.YPos, '<=', -140.01, true).withLast({ flag: 'AndNext' }),
                 comparison(data.YPos, '>', -140.01, false).withLast({ flag: 'AddHits' })
             ], true),
-            '0=1.1.',
+            'T:0=1.1.',
         )
     })
 
