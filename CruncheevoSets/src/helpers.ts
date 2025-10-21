@@ -216,3 +216,29 @@ export function conditionRP(stuff: Partial<Condition.Data>): string {
 export function trimRP(clause: string): string {
     return clause.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
 }
+
+/** 
+ * Creates a data object for use in comparison and calculation
+ */
+export function create(size: Condition.Size, address: number): Partial<Condition.Data> {
+    return {
+        lvalue: {
+            type: 'Mem', size: size, value: address
+        },
+        rvalue: {
+            type: 'Mem', size: size, value: address
+        }
+    }
+}
+
+export const sizeDict = {
+    0: 'Bit0',
+    1: 'Bit1',
+    2: 'Bit2',
+    3: 'Bit3',
+    4: 'Bit4',
+    5: 'Bit5',
+    6: 'Bit6',
+    7: 'Bit7'
+}
+
