@@ -195,14 +195,23 @@ export function conditionRP(stuff: Partial<Condition.Data>): string {
     if (stuff.lvalue?.size == '8bit') {
         output = output + 'H'
     }
+    else if (stuff.lvalue?.size == '16bitBE') {
+        output = output + 'I'
+    }
     else if (stuff.lvalue?.size == '32bit') {
         output = output + 'X'
+    }
+    else if (stuff.lvalue?.size == '32bitBE') {
+        output = output + 'G'
     }
     else if (stuff.lvalue?.size == 'Lower4') {
         output = output + 'L'
     }
     else if (stuff.lvalue?.size == 'Upper4') {
         output = output + 'U'
+    }
+    else if (stuff.lvalue?.size == 'Bit0') {
+        output = output + 'M'
     }
 
     return output + stuff.lvalue?.value.toString(16)

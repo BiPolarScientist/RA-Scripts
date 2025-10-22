@@ -13,7 +13,7 @@ let offsets: Array<Array<number>> = [
 ]
 
 
-let jobTitles: any = {
+export let jobTitles: any = {
     0: 'Clerk',
     1: 'Chef',
     2: 'Goalie',
@@ -32,7 +32,7 @@ let jobTitles: any = {
     15: 'Art Restorer',
     16: 'Tailor',
     17: 'Hospital EMT',
-    18: 'Grill cook',
+    18: 'Grill Cook',
     19: 'Sushi Master',
     20: 'Personal Trainer',
     21: 'Pinch Hitter',
@@ -82,6 +82,10 @@ class job {
 
     PALmasterExamQuota: number;
 
+    arrayAccess(offset: number): Partial<Condition.Data> {
+        return create('32bitBE', 0x247074 + offsets[this.version][1] + 0x44 * this.id + offset)
+    }
+
     becamePro(): ConditionBuilder {
         return $(
             comparison(this.level, '=', 0, true),
@@ -125,6 +129,7 @@ class job {
         this.id = id
         this.name = jobTitles[id]
         this.version = version
+         
 
         this.level = create('8bit', 0x247074 + offsets[this.version][1] + 0x44 * this.id + 0x3c )
         this.beatMasterExam = create('8bit', 0x247074 + offsets[this.version][1] + 0x44 * this.id + 0x3d )
@@ -214,6 +219,7 @@ class meteordata {
 }
 class storyData {
     version: number;
+    currentDay: Partial<Condition.Data>
     /** Current money in cents */
     currentMoney: Partial<Condition.Data>
     /** Current points in "cents"*/
@@ -222,6 +228,7 @@ class storyData {
     totalMoney: Partial<Condition.Data>
     /** Save file loaded, 0xffffffff when nothing loaded */
     loadedSave: Partial<Condition.Data>
+    lastJob: Partial<Condition.Data>
     baseTutorialFlags: Partial<Condition.Data>;
     meteor: meteordata
 
@@ -235,6 +242,8 @@ class storyData {
         return create(sizeDict[i % 8], 0x248218 + Math.floor(offsets[this.version][1] + i/8))
     }
     /**
+     * 15 = $1000 antique in possesion
+     * 16 = Free support item, 20 = $3000 antique in possesion, 21 = $30000 antique in possesion
      * 28 = Higgen's Challenge, 41 = Dinewell's Quota, 47 = beat yesterday for double pay
      * @param i
      * @returns
@@ -288,10 +297,12 @@ class storyData {
 
     constructor(version: number) {
         this.version = version
+        this.currentDay = create('32bitBE', 0x245958 + offsets[version][1])
         this.currentMoney = create('32bitBE', 0x24595c + offsets[version][1])
         this.currentPoints = create('32bitBE', 0x245964 + offsets[version][1])
         this.totalMoney = create('32bitBE', 0x245960 + offsets[version][1])
         this.loadedSave = create('32bitBE', 0x2df140 + offsets[version][2])
+        this.lastJob = create('16bitBE', 0x24705e + offsets[version][1])
         this.baseTutorialFlags = create('Lower4', 0x248221 + offsets[version][1])
         this.meteor = new meteordata(version)
     }
@@ -302,6 +313,10 @@ class paycheckCalculations {
     jobCode: Partial<Condition.Data>
     paycheckNoBonus: Partial<Condition.Data>
     paycheckBonus: Partial<Condition.Data>
+    /**0x0 = No stamp
+    0x1 = Goal Reached
+    0x2 = Bonus
+    0x3 = Failed */
     stamp: Partial<Condition.Data>
 
     constructor(version: number) {
@@ -317,6 +332,24 @@ export interface allMemory {
     story: storyData,
     job: Array<job>,
     paycheck: paycheckCalculations,
+    /**
+     * 0x0 = Title screen
+       0x1 = Not in a job in employment office
+        0x2 = Job select/in job in employment office
+        0x3 = Paycheck in employment office
+        0x5 = Reading job instructions
+        0x6 = Save file select screen
+        0xb = Mode select screen
+        0xe = Job battle character select
+        0xf = Job battle menu
+        0x10 = Job battle free for all
+        0x11 = Job battle target cash/total rounds/total wins
+        0x13 = Job battle in job/paycheck screen
+        0x14 = Job fair character select
+        0x15 = Job fair job select
+        0x16 = Job ready screen / in job
+        0x18 = Paycheck screen in job fair
+     */
     gameplayID: Partial<Condition.Data>
 
     checkVersion(): ConditionBuilder 

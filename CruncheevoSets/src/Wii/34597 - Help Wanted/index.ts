@@ -2,7 +2,7 @@
 
 import { makeAchievements } from './achievements.js'
 import {makeLeaderboards} from './leaderboards.js'
-//import {makeRP} from './rp.js'
+import {makeRP} from './rp.js'
 
 const sett = new AchievementSet({
     gameId: 34597,
@@ -11,7 +11,7 @@ const sett = new AchievementSet({
 
 
 makeAchievements(sett)
-//makeLeaderboards(sett)
-//export const rich = makeRP()
+makeLeaderboards(sett)
+export const rich = makeRP()
 
 export const set = sett

@@ -1,10 +1,29 @@
-﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger } from '@cruncheevos/core'
+﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger, orNext, resetIf } from '@cruncheevos/core'
 import * as data from './data.js'
 import { comparison, connectAddSourceChains, calculation } from '../../helpers.js'
 import * as fs from 'fs'
 
 let Releases: Array<data.allMemory> = [data.usa, data.japan]
 const b = (s) => `local\\\\${s}.png`
+
+
+function bitflagCondition(flagAccess: string, flag: number, turnOn: boolean = true): any {
+    return {
+        core: $('1=1'),
+        alt1: $(
+            data.usa.checkVersion(),
+            data.usa.story.storyLoaded(),
+            comparison(data.usa.story[flagAccess](flag), '=', turnOn ? 0 : 1, true),
+            comparison(data.usa.story[flagAccess](flag), '=', turnOn ? 1 : 0, false)
+        ),
+        alt2: $(
+            data.japan.checkVersion(),
+            data.japan.story.storyLoaded(),
+            comparison(data.japan.story[flagAccess](flag), '=', turnOn ? 0 : 1, true),
+            comparison(data.japan.story[flagAccess](flag), '=', turnOn ? 1 : 0, false)
+        )
+    }
+}
 
 export function makeAchievements(set: AchievementSet): void {
 
@@ -20,7 +39,7 @@ export function makeAchievements(set: AchievementSet): void {
         'Not the \'70s!',
         'Not the ABC!',
         'Our Bad',
-        'Not our Memories!',
+        'Not Our Memories!',
         'Not Water Based!',
         'Do We Have Anything Stronger?',
         'Good Riddance'
@@ -46,6 +65,7 @@ export function makeAchievements(set: AchievementSet): void {
 
         set.addAchievement({
             title: titles[meteorID],
+            id: 553319 + meteorID,
             badge: b((meteorID+1).toString()),
             description: 'Defeat the ' + numbering[meteorID] + ' meteor',
             points: points[meteorID],
@@ -99,6 +119,7 @@ export function makeAchievements(set: AchievementSet): void {
 
         set.addAchievement({
             title: titles[i],
+            id: 553329 + i,
             badge: b((i + 11).toString()),
             description: (i == 11) ? ('Receive ' + itemNames[i]) : ('Use ' + itemNames[i]),
             points: points[i],
@@ -106,6 +127,197 @@ export function makeAchievements(set: AchievementSet): void {
         })
     }
 
+
+
+
+
+    //
+    // Events
+    //
+
+    set.addAchievement({
+        title: 'A Fantastic Meal',
+        id: 553341,
+        badge: b('23'),
+        description: 'Receive a free support item from either the kids or your mother',
+        points: 2,
+        conditions: bitflagCondition('dailyEventFlag', 16)
+    })
+
+    set.addAchievement({
+        title: 'Flea Market',
+        id: 553342,
+        badge: b('24'),
+        description: 'Sell an antique at a profit',
+        points: 3,
+        conditions: {
+            core: $(
+                '1=1',
+                resetIf(
+                    andNext(
+                        data.usa.checkVersion(),
+                        comparison(data.usa.gameplayID, '!=', 1)
+                    ),
+                    orNext(
+                        comparison(data.usa.story.dailyEventFlag(15), '=', 1),
+                        andNext(
+                            comparison(data.usa.story.dailyEventFlag(20), '=', 1),
+                            data.usa.checkVersion(),
+                            
+                        )
+                    ),
+                    andNext(
+                        data.usa.checkVersion(),
+                        comparison(data.usa.story.currentMoney, '!=', data.usa.story.currentMoney, true, false).withLast({ hits: 2 })
+                    )
+                ),
+                resetIf(
+                    andNext(
+                        data.japan.checkVersion(),
+                        comparison(data.japan.gameplayID, '!=', 1)
+                    ),
+                    orNext(
+                        comparison(data.japan.story.dailyEventFlag(15), '=', 1),
+                        andNext(
+                            comparison(data.japan.story.dailyEventFlag(20), '=', 1),
+                            data.japan.checkVersion(),
+
+                        )
+                    ),
+                    andNext(
+                        data.japan.checkVersion(),
+                        comparison(data.japan.story.currentMoney, '!=', data.japan.story.currentMoney, true, false).withLast({ hits: 2 })
+                    )
+                )
+            ),
+            alt1: $(
+                data.usa.checkVersion(),
+                andNext(
+                    comparison(data.usa.story.dailyEventFlag(15), '=', 1, true),
+                    comparison(data.usa.story.dailyEventFlag(15), '=', 0, false).withLast({hits: 1})
+                ),
+                comparison(data.usa.story.currentMoney, '!=', data.usa.story.currentMoney, true, false).withLast({ hits: 1 }),
+                calculation(true, data.usa.story.currentMoney, '-', data.usa.story.currentMoney, false, true),
+                '0>100000'
+            ),
+            alt2: $(
+                data.usa.checkVersion(),
+                andNext(
+                    comparison(data.usa.story.dailyEventFlag(20), '=', 1, true),
+                    comparison(data.usa.story.dailyEventFlag(20), '=', 0, false).withLast({ hits: 1 })
+                ),
+                comparison(data.usa.story.currentMoney, '!=', data.usa.story.currentMoney, true, false).withLast({ hits: 1 }),
+                calculation(true, data.usa.story.currentMoney, '-', data.usa.story.currentMoney, false, true),
+                '0>300000'
+            ),
+            alt3: $(
+                data.usa.checkVersion(),
+                comparison(data.usa.story.dailyEventFlag(21), '=', 1, true),
+                comparison(data.usa.story.dailyEventFlag(21), '=', 0, false),
+                calculation(true, data.usa.story.currentMoney, '-', data.usa.story.currentMoney, false, true).withLast({ rvalue: { type: 'Prior' } }),
+                '0>3000000'
+            ),
+            alt4: $(
+                data.japan.checkVersion(),
+                andNext(
+                    comparison(data.japan.story.dailyEventFlag(15), '=', 1, true),
+                    comparison(data.japan.story.dailyEventFlag(15), '=', 0, false).withLast({ hits: 1 })
+                ),
+                comparison(data.japan.story.currentMoney, '!=', data.japan.story.currentMoney, true, false).withLast({ hits: 1 }),
+                calculation(true, data.japan.story.currentMoney, '-', data.japan.story.currentMoney, false, true),
+                '0>100000'
+            ),
+            alt5: $(
+                data.japan.checkVersion(),
+                andNext(
+                    comparison(data.japan.story.dailyEventFlag(20), '=', 1, true),
+                    comparison(data.japan.story.dailyEventFlag(20), '=', 0, false).withLast({ hits: 1 })
+                ),
+                comparison(data.japan.story.currentMoney, '!=', data.japan.story.currentMoney, true, false).withLast({ hits: 1 }),
+                calculation(true, data.japan.story.currentMoney, '-', data.japan.story.currentMoney, false, true),
+                '0>300000'
+            ),
+            alt6: $(
+                data.japan.checkVersion(),
+                comparison(data.japan.story.dailyEventFlag(21), '=', 1, true),
+                comparison(data.japan.story.dailyEventFlag(21), '=', 0, false),
+                calculation(true, data.japan.story.currentMoney, '-', data.japan.story.currentMoney, false, true).withLast({ rvalue: { type: 'Prior' } }),
+                '0>3000000'
+            )
+        }
+    })
+
+
+    function wonEvent(flagAccess: string, flags: Array<number>): any {
+        return {
+            core: $('1=1'),
+            alt1: $(
+                data.usa.checkVersion(),
+                data.usa.story.storyLoaded(),
+                orNext(
+                    ...flags.map(x => comparison(data.usa.story[flagAccess](x), '=', 1))
+                ),
+                comparison(data.usa.gameplayID, '=', 2, true),
+                comparison(data.usa.gameplayID, '=', 3, false),
+                comparison(data.usa.paycheck.stamp, '=', 1)
+            ),
+            alt2: $(
+                data.japan.checkVersion(),
+                data.japan.story.storyLoaded(),
+                orNext(
+                    ...flags.map(x => comparison(data.japan.story[flagAccess](x), '=', 1))
+                ),
+                comparison(data.japan.gameplayID, '=', 2, true),
+                comparison(data.japan.gameplayID, '=', 3, false),
+                comparison(data.japan.paycheck.stamp, '=', 1)
+            )
+        }
+    }
+
+    set.addAchievement({
+        title: 'Keeping the Manager Happy',
+        id: 553343,
+        badge: b('25'),
+        description: 'Beat Dinewell\'s quota in any job',
+        points: 3,
+        conditions: wonEvent('dailyEventFlag', [39,40,41])
+    })
+
+    set.addAchievement({
+        title: 'Conspiracy Theory',
+        id: 553344,
+        badge: b('26'),
+        description: 'Avoid a disaster predicted by Nostradamus',
+        points: 5,
+        conditions: wonEvent('dailyEventFlag', [42])
+    })
+
+    set.addAchievement({
+        title: 'Old Money',
+        id: 553345,
+        badge: b('27'),
+        description: 'Earn triple the pay by performing a perfect job for your grandfather',
+        points: 5,
+        conditions: wonEvent('dailyEventFlag', [35])
+    })
+
+    set.addAchievement({
+        title: 'Always Growing',
+        id: 553346,
+        badge: b('28'),
+        description: 'Beat yesterday\'s paycheck to earn double or triple pay',
+        points: 10,
+        conditions: wonEvent('dailyEventFlag', [47, 48])
+    })
+
+    set.addAchievement({
+        title: 'Second Verse, Same as the First',
+        id: 553347,
+        badge: b('29'),
+        description: 'Beat Higgins\' challenge in any job',
+        points: 10,
+        conditions: wonEvent('dailyEventFlag', [24, 28])
+    })
 
 
 
@@ -170,6 +382,7 @@ export function makeAchievements(set: AchievementSet): void {
 
         set.addAchievement({
             title: titles[i],
+            id: 553348 + i,
             badge: b((i + 30).toString()),
             description: 'Reach ' + ((i < 5) ? 'Pro ' : 'Expert ') + 'level in ' +
                 ((i % 5 == 0) ?
@@ -194,27 +407,11 @@ export function makeAchievements(set: AchievementSet): void {
     // Collection Achievements
     //
 
-    function bitflagCondition(flagAccess: string, flag: number, turnOn:boolean = true): any {
-        return {
-            core: $('1=1'),
-            alt1: $(
-                data.usa.checkVersion(),
-                data.usa.story.storyLoaded(),
-                comparison(data.usa.story[flagAccess](flag), '=', turnOn ? 0:1, true),
-                comparison(data.usa.story[flagAccess](flag), '=', turnOn ? 1:0, false)
-            ),
-            alt2: $(
-                data.japan.checkVersion(),
-                data.japan.story.storyLoaded(),
-                comparison(data.japan.story[flagAccess](flag), '=', turnOn ? 0:1, true),
-                comparison(data.japan.story[flagAccess](flag), '=', turnOn ? 1:0, false)
-            )
-        }
-    }
 
 
     set.addAchievement({
         title: 'A New Wardrobe',
+        id: 553358,
         badge: b('40'),
         description: 'Expand the memorial hall to the second story',
         points: 3,
@@ -224,6 +421,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Walk-in Closet',
+        id: 553359,
         badge: b('41'),
         description: 'Expand the memorial hall to the third story',
         points: 5,
@@ -233,6 +431,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Dressing Room',
+        id: 553360,
         badge: b('42'),
         description: 'Obtain all 50 job outfits',
         points: 10,
@@ -242,9 +441,10 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Needing a Storage Unit',
+        id: 553361,
         badge: b('43'),
         description: 'Upgrade the memorial hall to red and silver',
-        points: 3,
+        points: 5,
         type: 'missable',
         conditions: bitflagCondition('storyFlag', 11, true)
     })
@@ -252,24 +452,27 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Turning Black and Blue',
+        id: 553362,
         badge: b('44'),
         description: 'Upgrade the memorial hall to white and gold',
-        points: 5,
+        points: 10,
         type: 'missable',
         conditions: bitflagCondition('storyFlag', 12, true)
     })
 
     set.addAchievement({
         title: 'A Little Conceited',
+        id: 553363,
         badge: b('45'),
         description: 'Erect a golden statue in the memorial hall lobby',
-        points: 10,
+        points: 25,
         type: 'missable',
         conditions: bitflagCondition('storyFlag', 13, true)
     })
 
     set.addAchievement({
         title: 'Sharing the Wealth',
+        id: 553364,
         badge: b('46'),
         description: 'Purchase the sparkling chandelier',
         points: 5,
@@ -279,6 +482,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Three of a Kind',
+        id: 553365,
         badge: b('47'),
         description: 'Record 75 visitors in your book',
         points: 5,
@@ -301,6 +505,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Full House',
+        id: 553366,
         badge: b('48'),
         description: 'Record all 150 visitors in your book',
         points: 5,
@@ -339,12 +544,12 @@ export function makeAchievements(set: AchievementSet): void {
         'Pass the Bleach',
         'Counting Your Macros',
         'Smoking Hot',
-        'You Can\'t Knock it Over',
+        'You Can\'t Knock It Over',
         'Scene 1, Take 105',
         'Uber Eats',
         'I\'m the Captain Now',
-        'Pedal to Metal',
-        'Nokotta, Nokotta!',
+        'Pedal to the Metal',
+        'Donning the Shozoku',
         'Hoe Connoisseur',
         'When Will You Wear Wigs?',
         'Is Superglue Conservation Grade?',
@@ -430,6 +635,7 @@ export function makeAchievements(set: AchievementSet): void {
         if ((i != 23) && (i != 31)) {
             set.addAchievement({
                 title: titles[i],
+                id: 553367 + j,
                 badge: b((j + 49).toString()),
                 description:  'Pass the ' + data.jobs[0][i].name + ' master exam',
                 points: 5,
