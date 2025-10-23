@@ -226,6 +226,14 @@ export function trimRP(clause: string): string {
     return clause.replace(/(\r\n|\n|\r|\t)/gm, "").replace(/\s+/gm, ' ').trim()
 }
 
+export function altsRP(inputs: Array<ConditionBuilder>): string {
+    let output: string = inputs[0].toString()
+    for (let alt of inputs.slice(1)) {
+        output = output + 'S' + alt.toString()
+    }
+    return output
+}
+
 /** 
  * Creates a data object for use in comparison and calculation
  */

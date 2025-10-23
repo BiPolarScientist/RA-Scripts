@@ -1,4 +1,4 @@
-﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger, orNext, resetIf } from '@cruncheevos/core'
+﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger, orNext, resetIf, measuredIf } from '@cruncheevos/core'
 import * as data from './data.js'
 import { comparison, connectAddSourceChains, calculation } from '../../helpers.js'
 import * as fs from 'fs'
@@ -42,11 +42,12 @@ export function makeAchievements(set: AchievementSet): void {
         'Not Our Memories!',
         'Not Water Based!',
         'Do We Have Anything Stronger?',
-        'Good Riddance'
+        'Good Riddance',
+        'It Deserved a Good Beating'
     ]
-    let points: Array<number> = [1, 2, 3, 4, 5, 5, 10, 10, 1, 25]
-    let numbering: Array<string> = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth']
-    for (let meteorID: number = 0; meteorID < 10; meteorID++) {
+    let points: Array<number> = [1, 2, 3, 4, 5, 5, 10, 10, 1, 10, 10]
+    let numbering: Array<string> = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'tenth']
+    for (let meteorID: number = 0; meteorID < 11; meteorID++) {
 
         let conditions: any = {
             core: $('0=0')
@@ -54,22 +55,46 @@ export function makeAchievements(set: AchievementSet): void {
 
         let i:number = 1
         for (let game of Releases) {
-            conditions['alt' + i.toString()] = $(
-                game.checkVersion(),
-                game.story.storyLoaded(),
-                comparison(game.story.meteor.ID, '=', meteorID),
-                game.story.meteor.killed()
-            )
+            if (meteorID < 9) {
+                conditions['alt' + i.toString()] = $(
+                    game.checkVersion(),
+                    game.story.storyLoaded(),
+                    comparison(game.gameplayID, '=', 1),
+                    comparison(game.story.meteor.ID, '=', meteorID),
+                    game.story.meteor.killed()
+                )
+            }
+            else {
+                conditions['alt' + i.toString()] = $(
+                    game.checkVersion(),
+                    game.story.storyLoaded(),
+                    comparison(game.gameplayID, '=', 1),
+                    comparison(
+                        game.story.cutsceneUnlockedFlag((meteorID == 9) ? 7 : 8),
+                        '=', 0, true
+                    ),
+                    comparison(
+                        game.story.cutsceneUnlockedFlag((meteorID == 9) ? 7 : 8),
+                        '=', 1, false
+                    )
+                )
+            }
+            
             i = i + 1
         }
 
         set.addAchievement({
             title: titles[meteorID],
-            id: 553319 + meteorID,
-            badge: b((meteorID+1).toString()),
-            description: 'Defeat the ' + numbering[meteorID] + ' meteor',
+            id: (meteorID != 10) ? 553319 + meteorID : 554124, 
+            badge: (meteorID == 1) ? 629102 : (
+                (meteorID < 9) ? 628291 + meteorID : (
+                (meteorID == 9) ? 629103 : (
+                (meteorID == 10) ? 629104 : ''
+                ))),
+            description: 'Defeat the ' + numbering[meteorID] + ' meteor' + ((meteorID < 9) ? '' :
+                ((meteorID == 9)?' by using a transformowatch' : ' without using a transformowatch')),
             points: points[meteorID],
-            type: (meteorID == 9) ? 'win_condition' : 'progression',
+            type: (meteorID >= 9) ? 'win_condition' : 'progression',
             conditions: conditions
         })
     }
@@ -96,9 +121,9 @@ export function makeAchievements(set: AchievementSet): void {
         'A Space Dog!',
         'Good Times'
     ]
-    let ids: Array<number> = [8, 6, 9, 18, 4, 17, 12, 9, 13, 7, 14, 15]
+    let ids: Array<number> = [8, 6, 5, 18, 4, 17, 12, 9, 13, 7, 14, 15]
     points = [1, 2, 2, 3, 5, 5, 5, 5, 5, 5, 25, 10]
-    let itemNames:Array<string> = ['a scary mask', 'a galactic blaster', 'a space fan', 'a space guitar', 'a lucky drakon stone', 'an iron volleyball', 'a mini handybot', 'a space fan 2.0', ' a lunar remote', 'some space fireworks', 'a transformowatch', 'the reminiscitron']
+    let itemNames:Array<string> = ['a scary mask', 'a galactic blaster', 'a space fan', 'a space guitar', 'a lucky drakon stone', 'an iron volleyball', 'a mini handybot', 'a space fan 2.0', ' a lunar remote', 'some space fireworks', 'a transformowatch before the tenth meteor', 'the reminiscitron']
 
     for (let i: number = 0; i < 12; i++) {
 
@@ -106,13 +131,17 @@ export function makeAchievements(set: AchievementSet): void {
             core: $('0=0')
         }
 
+        // Testing the bits turning off to time them on the screen transistion to the battle phase, except for the trans watch and reminisctron
+        // The reminis as it won't turn off as it is never "used", and the watch to avoid the weird cutscene if it's used on the final meteor
         let j: number = 1
         for (let game of Releases) {
             conditions['alt' + j.toString()] = $(
                 game.checkVersion(),
                 game.story.storyLoaded(),
-                comparison(game.story.pointsItem(ids[i]), '=', 1, (i==11)?false:true),
-                comparison(game.story.pointsItem(ids[i]), '=', 0, (i==11)?true:false)
+                comparison(game.gameplayID, '=', 1),
+                (i == 10) && comparison(game.story.meteor.ID, '<', 9, true),
+                comparison(game.story.pointsItem(ids[i]), '=', 1, (i == 11)?false:true),
+                comparison(game.story.pointsItem(ids[i]), '=', 0, (i == 11)?true:false)
             )
             j = j + 1
         }
@@ -120,7 +149,7 @@ export function makeAchievements(set: AchievementSet): void {
         set.addAchievement({
             title: titles[i],
             id: 553329 + i,
-            badge: b((i + 11).toString()),
+            badge: i + 628301,
             description: (i == 11) ? ('Receive ' + itemNames[i]) : ('Use ' + itemNames[i]),
             points: points[i],
             conditions: conditions
@@ -138,16 +167,18 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'A Fantastic Meal',
         id: 553341,
-        badge: b('23'),
+        badge: 628313,
         description: 'Receive a free support item from either the kids or your mother',
         points: 2,
         conditions: bitflagCondition('dailyEventFlag', 16)
     })
 
+    // Has a strange choice needed, selling a 1k or 3k antique you lose the item and then gain the money a few text boxes later
+    // selling a 30k antique, you gain the money first, and then lose the item. 
     set.addAchievement({
         title: 'Flea Market',
         id: 553342,
-        badge: b('24'),
+        badge: 628313+1,
         description: 'Sell an antique at a profit',
         points: 3,
         conditions: {
@@ -277,7 +308,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Keeping the Manager Happy',
         id: 553343,
-        badge: b('25'),
+        badge: 628313+2,
         description: 'Beat Dinewell\'s quota in any job',
         points: 3,
         conditions: wonEvent('dailyEventFlag', [39,40,41])
@@ -286,7 +317,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Conspiracy Theory',
         id: 553344,
-        badge: b('26'),
+        badge: 628313+3,
         description: 'Avoid a disaster predicted by Nostradamus',
         points: 5,
         conditions: wonEvent('dailyEventFlag', [42])
@@ -295,7 +326,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Old Money',
         id: 553345,
-        badge: b('27'),
+        badge: 628313+4,
         description: 'Earn triple the pay by performing a perfect job for your grandfather',
         points: 5,
         conditions: wonEvent('dailyEventFlag', [35])
@@ -304,7 +335,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Always Growing',
         id: 553346,
-        badge: b('28'),
+        badge: 628313+5,
         description: 'Beat yesterday\'s paycheck to earn double or triple pay',
         points: 10,
         conditions: wonEvent('dailyEventFlag', [47, 48])
@@ -313,7 +344,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Second Verse, Same as the First',
         id: 553347,
-        badge: b('29'),
+        badge: 628313+6,
         description: 'Beat Higgins\' challenge in any job',
         points: 10,
         conditions: wonEvent('dailyEventFlag', [24, 28])
@@ -324,7 +355,6 @@ export function makeAchievements(set: AchievementSet): void {
 
     //
     // Collective Job Level achievements
-    // NEEDS MEASUREIFS
     //
 
     titles = [
@@ -351,8 +381,8 @@ export function makeAchievements(set: AchievementSet): void {
         let j:number = 1
         for (let game of Releases) {
             conditions['alt' + j.toString()] = $(
-                game.checkVersion(),
-                game.story.storyLoaded()
+                measuredIf(game.checkVersion()),
+                measuredIf(game.story.storyLoaded())
             )
             for (let isDelta of [true, false]) {
                 for (let jobid: number = 0; jobid < 52; jobid++) {
@@ -375,6 +405,27 @@ export function makeAchievements(set: AchievementSet): void {
                     )
                 )
             }
+            if (i % 5 != 0) {
+                for (let jobid: number = 0; jobid < 52; jobid++) {
+                    if ((jobid != 23) && (jobid != 31)) {
+                        if (i < 5) {
+                            conditions['alt' + j.toString()] = conditions['alt' + j.toString()].also(
+                                game.job[jobid].isAtLeastPro(false)
+                            )
+                        }
+                        else {
+                            conditions['alt' + j.toString()] = conditions['alt' + j.toString()].also(
+                                game.job[jobid].isAtLeastExpert(false)
+                            )
+                        }
+                    }
+                }
+                conditions['alt' + j.toString()] = conditions['alt' + j.toString()].also(
+                    $(
+                        ['MeasuredIf', 'Value', '', 0, '>=', 'Value', '', jobNumbers[(i % 5) - 1]]
+                    )
+                )
+            }
             
             j = j + 1
         }
@@ -383,7 +434,7 @@ export function makeAchievements(set: AchievementSet): void {
         set.addAchievement({
             title: titles[i],
             id: 553348 + i,
-            badge: b((i + 30).toString()),
+            badge: i + 628320,
             description: 'Reach ' + ((i < 5) ? 'Pro ' : 'Expert ') + 'level in ' +
                 ((i % 5 == 0) ?
                 'your first job' :
@@ -412,7 +463,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'A New Wardrobe',
         id: 553358,
-        badge: b('40'),
+        badge: 628330,
         description: 'Expand the memorial hall to the second story',
         points: 3,
         type: 'missable',
@@ -422,7 +473,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Walk-in Closet',
         id: 553359,
-        badge: b('41'),
+        badge: 628330+1,
         description: 'Expand the memorial hall to the third story',
         points: 5,
         type: 'missable',
@@ -432,7 +483,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Dressing Room',
         id: 553360,
-        badge: b('42'),
+        badge: 628330+2,
         description: 'Obtain all 50 job outfits',
         points: 10,
         type: 'missable',
@@ -442,7 +493,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Needing a Storage Unit',
         id: 553361,
-        badge: b('43'),
+        badge: 628330+3,
         description: 'Upgrade the memorial hall to red and silver',
         points: 5,
         type: 'missable',
@@ -453,7 +504,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Turning Black and Blue',
         id: 553362,
-        badge: b('44'),
+        badge: 628330+4,
         description: 'Upgrade the memorial hall to white and gold',
         points: 10,
         type: 'missable',
@@ -463,7 +514,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'A Little Conceited',
         id: 553363,
-        badge: b('45'),
+        badge: 628330+5,
         description: 'Erect a golden statue in the memorial hall lobby',
         points: 25,
         type: 'missable',
@@ -473,7 +524,7 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Sharing the Wealth',
         id: 553364,
-        badge: b('46'),
+        badge: 628330+6,
         description: 'Purchase the sparkling chandelier',
         points: 5,
         type: 'missable',
@@ -483,20 +534,20 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Three of a Kind',
         id: 553365,
-        badge: b('47'),
+        badge: 628330+7,
         description: 'Record 75 visitors in your book',
         points: 5,
         conditions: {
             core: $('1=1'),
             alt1: $(
-                data.usa.checkVersion(),
-                data.usa.story.storyLoaded(),
+                measuredIf(data.usa.checkVersion()),
+                measuredIf(data.usa.story.storyLoaded()),
                 data.usa.story.visitorBook(true, 74),
                 data.usa.story.visitorBook(false, 75)
             ),
             alt2: $(
-                data.japan.checkVersion(),
-                data.japan.story.storyLoaded(),
+                measuredIf(data.japan.checkVersion()),
+                measuredIf(data.japan.story.storyLoaded()),
                 data.japan.story.visitorBook(true, 74),
                 data.japan.story.visitorBook(false, 75)
             )
@@ -506,21 +557,21 @@ export function makeAchievements(set: AchievementSet): void {
     set.addAchievement({
         title: 'Full House',
         id: 553366,
-        badge: b('48'),
+        badge: 628330+8,
         description: 'Record all 150 visitors in your book',
         points: 5,
         conditions: {
             core: $('1=1'),
             alt1: $(
-                data.usa.checkVersion(),
-                data.usa.story.storyLoaded(),
+                measuredIf(data.usa.checkVersion()),
+                measuredIf(data.usa.story.storyLoaded()),
                 data.usa.story.visitorBook(false, 75).withLast({ flag: 'MeasuredIf', cmp: '>=' }),
                 data.usa.story.visitorBook(true, 149),
                 data.usa.story.visitorBook(false, 150)
             ),
             alt2: $(
-                data.japan.checkVersion(),
-                data.japan.story.storyLoaded(),
+                measuredIf(data.japan.checkVersion()),
+                measuredIf(data.japan.story.storyLoaded()),
                 data.japan.story.visitorBook(false, 75).withLast({ flag: 'MeasuredIf', cmp: '>=' }),
                 data.japan.story.visitorBook(true, 149),
                 data.japan.story.visitorBook(false, 150)
@@ -538,7 +589,7 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     titles = ['Do You Have a Rewards Card?',
-        'Order up!',
+        'Order Up!',
         'Offsides, Ref!',
         'Syncronized Flag Waving',
         'Pass the Bleach',
@@ -636,12 +687,51 @@ export function makeAchievements(set: AchievementSet): void {
             set.addAchievement({
                 title: titles[i],
                 id: 553367 + j,
-                badge: b((j + 49).toString()),
+                badge: j + 628339,
                 description:  'Pass the ' + data.jobs[0][i].name + ' master exam',
-                points: 5,
+                points: 10,
                 conditions: sameMasterExam(i)
             })
             j = j + 1
         }
     }
+
+
+    let conditions: any = {
+        core: $('1=1')
+    }
+    j = 1
+    for (let game of Releases) {
+        conditions['alt' + j.toString()] = $(
+            measuredIf(game.checkVersion()),
+            measuredIf(game.story.storyLoaded())
+        )
+        for (let isDelta of [true, false]) {
+            for (let jobid: number = 0; jobid < 52; jobid++) {
+                if ((jobid != 23) && (jobid != 31)) {
+                    conditions['alt' + j.toString()] = conditions['alt' + j.toString()].also(
+                        game.job[jobid].isAtLeastMaster(isDelta)
+                    )
+                }
+            }
+            conditions['alt' + j.toString()] = conditions['alt' + j.toString()].also(
+                $(
+                    [(isDelta ? '' : 'Measured'), 'Value', '', 0, '=', 'Value', '', 50 - (isDelta ? 1 : 0)]
+                )
+            )
+        }
+        
+        j = j + 1 
+    }
+
+
+    set.addAchievement({
+        title: 'Fun Time Working',
+        id: 554125,
+        badge: 629105,
+        description: 'Pass all 50 master exams',
+        points: 25,
+        conditions: conditions
+    })
+
 }

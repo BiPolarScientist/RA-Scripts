@@ -120,6 +120,12 @@ class job {
         )
     }
 
+    isAtLeastMaster(isDelta: boolean): ConditionBuilder {
+        return $(
+            calculation(true, this.level, '/', 3, isDelta)
+        )
+    }
+
     /**
      * 
      * @param id
@@ -254,6 +260,11 @@ class storyData {
     tutorialFlag(i: number): Partial<Condition.Data> {
         return create(sizeDict[i % 8], 0x248221 + Math.floor(offsets[this.version][1] + i / 8))
     }
+    /**
+     * 7 = beat final meteor with[out] transformowatch, 8 = beat final meteor with[out] transformowatch
+     * @param i
+     * @returns
+     */
     cutsceneUnlockedFlag(i: number): Partial<Condition.Data> {
         return create(sizeDict[i % 8], 0x248225 + Math.floor(offsets[this.version][1] + i / 8))
     }
