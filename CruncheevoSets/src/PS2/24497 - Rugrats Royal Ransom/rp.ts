@@ -271,7 +271,7 @@ export function makeRP(): any {
                     ● 
                     Little 🔋 [${macro.Unsigned.at(littleBattsCollected[0])}/${littleBattsTotal[0].toString()}] 
                     ● 
-                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[0])}/${funnyMoneyTotal[0].toString()}]
+                    $$$ [${macro.Unsigned.at(funnyMoneyCollected[0])}/${funnyMoneyTotal[0].toString()}]
                 `)
             ],
 
@@ -293,7 +293,7 @@ export function makeRP(): any {
                     ● 
                     Little 🔋 [${macro.Unsigned.at(littleBattsCollected[1])}/${littleBattsTotal[1].toString()}] 
                     ● 
-                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[1])}/${funnyMoneyTotal[1].toString()}]
+                    $$$ [${macro.Unsigned.at(funnyMoneyCollected[1])}/${funnyMoneyTotal[1].toString()}]
                 `)
             ],
 
@@ -315,7 +315,7 @@ export function makeRP(): any {
                     ● 
                     Little 🔋 [${macro.Unsigned.at(littleBattsCollected[2])}/${littleBattsTotal[2].toString()}] 
                     ● 
-                    Funny 💵 [${macro.Unsigned.at(funnyMoneyCollected[2])}/${funnyMoneyTotal[2].toString()}]
+                    $$$ [${macro.Unsigned.at(funnyMoneyCollected[2])}/${funnyMoneyTotal[2].toString()}]
                 `)
             ],
 
