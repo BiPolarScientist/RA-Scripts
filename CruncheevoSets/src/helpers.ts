@@ -248,6 +248,17 @@ export function create(size: Condition.Size, address: number): Partial<Condition
     }
 }
 
+export function createDelta(size: Condition.Size, address: number): Partial<Condition.Data> {
+    return {
+        lvalue: {
+            type: 'Delta', size: size, value: address
+        },
+        rvalue: {
+            type: 'Delta', size: size, value: address
+        }
+    }
+}
+
 export const sizeDict = {
     0: 'Bit0',
     1: 'Bit1',

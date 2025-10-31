@@ -12,6 +12,6 @@ const sett = new AchievementSet({
 
 makeAchievements(sett)
 makeLeaderboards(sett)
-export const rich = makeRP()
+//export const rich = makeRP()
 
 export const set = sett
