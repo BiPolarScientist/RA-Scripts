@@ -1,4 +1,4 @@
-﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger, orNext, resetIf, measuredIf, measured } from '@cruncheevos/core'
+﻿import { define as $, ConditionBuilder, Condition, AchievementSet, andNext, trigger, orNext, resetIf, measuredIf, measured, addHits, resetNextIf, pauseIf } from '@cruncheevos/core'
 import * as data from './data.js'
 import { comparison, connectAddSourceChains, calculation, create } from '../../helpers.js'
 import * as fs from 'fs'
@@ -6,22 +6,22 @@ import { once } from 'events'
 
 let Releases: Array<data.game> = [data.usa, data.pal, data.japan]
 let DiaryEntries: Array<number> = [27, 16, 15, 19, 23, 1]
-function playerAddAddress(version: number): ConditionBuilder {
+export function playerAddAddress(version: number): ConditionBuilder {
     return data.playerBasePointer[version].withLast({ cmp: '+', rvalue: { type: 'Recall' } })
 }
 
-function convoAddAddress(version: number): ConditionBuilder {
-    return data.convoBasePointer[version].withLast({ cmp: '+' })
+export function convoAddAddress(version: number): ConditionBuilder {
+    return data.convoBasePointer[version]
 }
 
-function newCond(): any {
+export function newConds(): any {
     return {
         core: $('1=1')
     }
 }
 
 function checkDiaryEntry(area: number, entry: number): any {
-    let output = newCond()
+    let output = newConds()
     let i:number = 1
 
     for (let game of Releases) {
@@ -52,7 +52,11 @@ export function makeAchievements(set: AchievementSet): void {
     // Errand/Progression Achievements
     //
 
-    let firstFish = newCond()
+
+
+
+
+    let firstFish = newConds()
     i = 1
 
     for (let game of Releases) {
@@ -60,9 +64,9 @@ export function makeAchievements(set: AchievementSet): void {
             game.checkVersion(),
             game.inGame(),
             game.rememberPersonPlayingIs('records'),
-            game.player.totalFishCaught(true),
+            game.player.totalFishCaught(true, true),
             '0=0',
-            game.player.totalFishCaught(false),
+            game.player.totalFishCaught(false, true),
             '0=1'
         )
         i = i + 1
@@ -74,6 +78,45 @@ export function makeAchievements(set: AchievementSet): void {
         type: 'progression',
         points: 1,
         conditions: firstFish
+    })
+
+    // Types of fishing
+
+    function caughtWithRodType(rodMin: number, rodMax: number): any {
+        let output = newConds()
+        let i:number = 1
+
+        for (let game of Releases) {
+            output['alt' + i.toString()] = $(
+                game.checkVersion(),
+                game.inGame(),
+                game.rememberPersonPlayingIs('items'),
+                playerAddAddress(game.version),
+                comparison(game.player.rodChoice, '>=', rodMin),
+                playerAddAddress(game.version),
+                comparison(game.player.rodChoice, '<=', rodMax),
+                game.rememberPersonPlayingIs('records'),
+                game.player.totalFishCaught(false, true, false),
+                game.player.totalFishCaught(true, false, false),
+                '0=1'
+            )
+            i = i + 1
+        }
+        return output
+    }
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Catch a fish using a fly fishing rod',
+        points: 1,
+        conditions: caughtWithRodType(0x8, 0xa)
+    })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Catch a fish using a lure fishing rod',
+        points: 1,
+        conditions: caughtWithRodType(0xb, 0xd)
     })
 
 
@@ -132,7 +175,7 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: checkDiaryEntry(1, 0x1)
     })
 
-    let washbasinGet = newCond()
+    let washbasinGet = newConds()
     i = 1
 
     for (let game of Releases) {
@@ -278,11 +321,11 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
 
-    let caughtRiverKing = newCond()
+    let caughtRiverKing = newConds()
     i = 1
 
     for (let game of Releases) {
-        washbasinGet['alt' + i.toString()] = $(
+        caughtRiverKing['alt' + i.toString()] = $(
             game.checkVersion(),
             game.inGame(),
             game.rememberPersonPlayingIs('records'),
@@ -322,7 +365,7 @@ export function makeAchievements(set: AchievementSet): void {
      * @param options
      */
     function beatFishingCompetition(area: number, options: number): any {
-        let output = newCond()
+        let output = newConds()
         let i: number = 1
 
         for (let game of Releases) {
@@ -367,40 +410,47 @@ export function makeAchievements(set: AchievementSet): void {
         title: 'a',
         description: 'Win the Bass fishing contest',
         points: 3,
-        conditions: beatFishingCompetition(1, 0)
+        conditions: beatFishingCompetition(2, 0)
     })
 
     set.addAchievement({
         title: 'a',
         description: 'Win the Tanago fishing contest',
         points: 4,
-        conditions: beatFishingCompetition(2, 1)
+        conditions: beatFishingCompetition(4, 1)
     })
 
     set.addAchievement({
         title: 'a',
         description: 'Win the Hera fishing contest',
         points: 4,
-        conditions: beatFishingCompetition(2, 2)
+        conditions: beatFishingCompetition(4, 2)
     })
 
     set.addAchievement({
         title: 'a',
         description: 'Win the Turtle fishing contest',
         points: 5,
-        conditions: beatFishingCompetition(3, 0)
+        conditions: beatFishingCompetition(1, 0)
     })
 
     set.addAchievement({
         title: 'a',
         description: 'Win the Catfish fishing contest',
         points: 5,
-        conditions: beatFishingCompetition(4, 0)
+        conditions: beatFishingCompetition(3, 0)
     })
 
+    /**
+     * Area uses game based area codes
+     * @param area
+     * @param inSwamp
+     * @param isChallenge
+     * @returns
+     */
     function beatCookingCompetition(area: number, inSwamp: boolean, isChallenge: boolean): any {
-        let output = newCond()
-        let judgeNumbers: Array<number> = [0x5, 0x10, 0x19, 0x1c, 0x23]
+        let output = newConds()
+        let judgeNumbers: Array<number> = [0x5, 0x1c, 0x10, 0x23, 0x19]
         let i: number = 1
 
         for (let game of Releases) {
@@ -482,7 +532,7 @@ export function makeAchievements(set: AchievementSet): void {
         description: 'Win the cooking competition in the Mountain',
         type: 'missable',
         points: 3,
-        conditions: beatCookingCompetition(1, false, false)
+        conditions: beatCookingCompetition(2, false, false)
     })
 
     set.addAchievement({
@@ -490,7 +540,7 @@ export function makeAchievements(set: AchievementSet): void {
         description: 'Win the cooking competition in the Mountain starting with no fish in your basket',
         type: 'missable',
         points: 5,
-        conditions: beatCookingCompetition(1, false, true)
+        conditions: beatCookingCompetition(2, false, true)
     })
 
     set.addAchievement({
@@ -498,7 +548,7 @@ export function makeAchievements(set: AchievementSet): void {
         description: 'Win the cooking competition in the Fields',
         type: 'missable',
         points: 5,
-        conditions: beatCookingCompetition(2, false, false)
+        conditions: beatCookingCompetition(4, false, false)
     })
 
     set.addAchievement({
@@ -506,22 +556,22 @@ export function makeAchievements(set: AchievementSet): void {
         description: 'Win the cooking competition in the Fields starting with no fish in your basket',
         type: 'missable',
         points: 10,
-        conditions: beatCookingCompetition(2, false, true)
+        conditions: beatCookingCompetition(4, false, true)
     })
 
     set.addAchievement({
         title: 'a',
         description: 'Win the cooking competition in the Rapids',
         type: 'missable',
-        points: 5,
-        conditions: beatCookingCompetition(3, false, false)
+        points: 10,
+        conditions: beatCookingCompetition(1, false, false)
     })
 
     set.addAchievement({
         title: 'a',
         description: 'Win the cooking competition finals in the Swamp',
         points: 10,
-        conditions: beatCookingCompetition(4, true, false)
+        conditions: beatCookingCompetition(3, true, false)
     })
 
     set.addAchievement({
@@ -529,14 +579,10 @@ export function makeAchievements(set: AchievementSet): void {
         description: 'Win the cooking competition finals in the Swamp starting with no fish in your basket',
         type: 'missable',
         points: 10,
-        conditions: beatCookingCompetition(4, true, true)
+        conditions: beatCookingCompetition(3, true, true)
     })
 
 
-
-    //
-    // Types of fishing
-    //
 
 
 
@@ -547,7 +593,7 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     function reachSkillLevel(skill: string, level: number): any {
-        let output = newCond()
+        let output = newConds()
         let i: number = 1
 
         for (let game of Releases) {
@@ -603,7 +649,7 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     function collectionBitcounts(sources: Array<Partial<Condition.Data>>, total: number): any {
-        let output = newCond()
+        let output = newConds()
         let i: number = 1
 
         for (let game of Releases) {
@@ -615,20 +661,28 @@ export function makeAchievements(set: AchievementSet): void {
                 game.rememberPersonPlayingIs('items')
             )
 
-            for (let source of sources) {
+            for (let source in sources) {
                 output['alt' + i.toString()] = output['alt' + i.toString()].also(
                     playerAddAddress(game.version),
-                    calculation(true, source).withLast({ lvalue: { type: 'Delta' } })
+                    calculation(true, sources[source]).withLast({ lvalue: { type: 'Delta' } }),
+                    (+source == 2) && playerAddAddress(game.version),
+                    (+source == 2) && calculation(false, sources[source]).withLast({ lvalue: { type: 'Delta', size: 'Bit0' } }),
+                    (+source == 2) && playerAddAddress(game.version),
+                    (+source == 2) && calculation(false, sources[source]).withLast({ lvalue: { type: 'Delta', size: 'Bit7' } })
                 )
             }
             output['alt' + i.toString()] = output['alt' + i.toString()].also(
                 comparison(0, '=', total - 1)
             )
 
-            for (let source of sources) {
+            for (let source in sources) {
                 output['alt' + i.toString()] = output['alt' + i.toString()].also(
                     playerAddAddress(game.version),
-                    calculation(true, source)
+                    calculation(true, sources[source]),
+                    (+source == 2) && playerAddAddress(game.version),
+                    (+source == 2) && calculation(false, sources[source]).withLast({ lvalue: { size: 'Bit0' } }),
+                    (+source == 2) && playerAddAddress(game.version),
+                    (+source == 2) && calculation(false, sources[source]).withLast({ lvalue: { size: 'Bit7' } })
                 )
             }
             output['alt' + i.toString()] = output['alt' + i.toString()].also(
@@ -640,6 +694,13 @@ export function makeAchievements(set: AchievementSet): void {
         }
         return output
     }
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Own all 4 fishing bobbers',
+        points: 3,
+        conditions: collectionBitcounts([data.usa.player.bobbersBitcount], 4)
+    })
 
     set.addAchievement({
         title: 'a',
@@ -669,9 +730,13 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: collectionBitcounts([data.usa.player.recipesBitcount1, data.usa.player.recipesBitcount2, data.usa.player.recipesBitcount3] , 22)
     })
 
-
+    /**
+     * Area uses ordered area codes
+     * @param area
+     * @returns
+     */
     function allFishInAreaCollected(area: number): any {
-        let output = newCond()
+        let output = newConds()
         let fishTotals: Array<number> = [21, 27, 26, 26, 22, 14]
         let i: number = 1
 
@@ -682,10 +747,10 @@ export function makeAchievements(set: AchievementSet): void {
                     game.inGame()
                 ),
                 game.rememberPersonPlayingIs('records'),
-                game.player.fishCaughtInArea(area, true),
+                game.player.fishCaughtInArea(area, true, true),
                 comparison(0, '=', fishTotals[area] - 1),
-                game.player.fishCaughtInArea(area, false),
-                comparison(0, '=', fishTotals[area])
+                game.player.fishCaughtInArea(area, false, true),
+                measured(comparison(0, '=', fishTotals[area]))
             )
 
             i = i + 1
@@ -736,14 +801,18 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
 
-
+   
 
 
     //
     // Unique NPC achievements
     //
 
-    let fortuneTold: any = newCond()
+
+
+
+
+    let fortuneTold: any = newConds()
     i = 1
     for (let game of Releases) {
         fortuneTold['alt' + i.toString()] = $(
@@ -763,12 +832,12 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'a',
-        description: 'Have your fortune told',
-        points: 1,
+        description: 'Have an in depth fortune reading',
+        points: 2,
         conditions: fortuneTold
     })
 
-    let tanuki: any = newCond()
+    let tanuki: any = newConds()
     i = 1
     for (let game of Releases) {
         tanuki['alt' + i.toString()] = $(
@@ -792,7 +861,7 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: tanuki
     })
 
-    let panda: any = newCond()
+    let panda: any = newConds()
     i = 1
     for (let game of Releases) {
         panda['alt' + i.toString()] = $(
@@ -816,7 +885,7 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: panda
     })
 
-    let primeMinister: any = newCond()
+    let primeMinister: any = newConds()
     i = 1
     for (let game of Releases) {
         primeMinister['alt' + i.toString()] = $(
@@ -838,7 +907,7 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: primeMinister
     })
 
-    let harvestMoon: any = newCond()
+    let harvestMoon: any = newConds()
     i = 1
     for (let game of Releases) {
         harvestMoon['alt' + i.toString()] = $(
@@ -859,23 +928,25 @@ export function makeAchievements(set: AchievementSet): void {
                     )
                 )
             ),
-            andNext(
-                convoAddAddress(game.version),
-                comparison(game.convo.speaker, '=', 0xffffffff, true),
-                convoAddAddress(game.version),
-                comparison(game.convo.speaker, '=', 0x29, false).withLast({hits: 1})
-            ),
-            andNext(
-                convoAddAddress(game.version),
-                comparison(game.convo.speaker, '=', 0xffffffff, true),
-                convoAddAddress(game.version),
-                comparison(game.convo.speaker, '=', 0x2a, false).withLast({ hits: 1 })
-            ),
-            andNext(
-                convoAddAddress(game.version),
-                comparison(game.convo.speaker, '=', 0xffffffff, true),
-                convoAddAddress(game.version),
-                comparison(game.convo.speaker, '=', 0x2b, false).withLast({ hits: 1 })
+            addHits(
+                andNext(
+                    convoAddAddress(game.version),
+                    comparison(game.convo.speaker, '=', 0xffffffff, true),
+                    convoAddAddress(game.version),
+                    comparison(game.convo.speaker, '=', 0x29, false).withLast({hits: 1})
+                ),
+                andNext(
+                    convoAddAddress(game.version),
+                    comparison(game.convo.speaker, '=', 0xffffffff, true),
+                    convoAddAddress(game.version),
+                    comparison(game.convo.speaker, '=', 0x2a, false).withLast({ hits: 1 })
+                ),
+                andNext(
+                    convoAddAddress(game.version),
+                    comparison(game.convo.speaker, '=', 0xffffffff, true),
+                    convoAddAddress(game.version),
+                    comparison(game.convo.speaker, '=', 0x2b, false).withLast({ hits: 1 })
+                )
             ),
             measured(
                 $('0=1.3.')
@@ -892,7 +963,7 @@ export function makeAchievements(set: AchievementSet): void {
         conditions: harvestMoon
     })
 
-    let buttons: any = newCond()
+    let buttons: any = newConds()
     i = 1
     for (let game of Releases) {
         buttons['alt' + i.toString()] = $(
@@ -916,14 +987,14 @@ export function makeAchievements(set: AchievementSet): void {
             game.rememberPersonPlayingIs('stats'),
             ...([0, 1, 2, 3, 4].map((value: number, index: number) => {
                 return $(
-                    andNext(
+                    addHits(andNext(
                         playerAddAddress(game.version),
                         comparison(game.player.area, '=', value),
                         convoAddAddress(game.version),
                         comparison(game.convo.speaker, '=', 0xffffffff, true),
                         convoAddAddress(game.version),
                         comparison(game.convo.speaker, '=', 0x12f, false).withLast({ hits: 1 })
-                    )
+                    ))
                 )
             })),
             measured(
@@ -939,6 +1010,166 @@ export function makeAchievements(set: AchievementSet): void {
         description: 'Press all 5 spotlight buttons in one session',
         points: 3,
         conditions: buttons
+    })
+
+    let baits: any = newConds()
+    i = 1
+    for (let game of Releases) {
+        baits['alt' + i.toString()] = $(
+            measuredIf(
+                game.checkVersion(),
+                game.inGame()
+            ),
+            resetIf(
+                andNext(
+                    game.checkVersion(),
+                    comparison(
+                        create('32bit',
+                            (game.version == 0) ? 0x5b45f4 : (
+                                (game.version == 1) ? 0x5d02f4 : 0x614574
+                            )),
+                        '!=',
+                        1
+                    )
+                )
+            ),
+
+            resetNextIf(
+                convoAddAddress(game.version),
+                comparison(game.convo.speaker, '!=', 0xffffffff)
+            ),
+            resetNextIf(
+                convoAddAddress(game.version),
+                comparison(game.convo.speaker, '=', 0xffffffff).withLast({hits:5})
+            ),
+            pauseIf(
+                $('1=1')
+            ),
+            
+            ...(game.player.baitCount.map((value: Partial<Condition.Data>, index: number) => {
+                return $(
+                    addHits(andNext(
+                        game.rememberPersonPlayingIs('stats'),
+                        playerAddAddress(game.version),
+                        comparison(game.player.money, '=', game.player.money, true, false),
+                        game.rememberPersonPlayingIs('items'),
+                        playerAddAddress(game.version),
+                        comparison(value, '<', value, true, false).withLast({ hits: 1 })
+                    )),
+                )
+            })),
+            measured(
+                $('0=1.9.')
+            )
+        )
+
+        i = i + 1
+    }
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Gather one of every bait type from the environment in one session',
+        points: 5,
+        conditions: baits
+    })
+
+    /**
+     * Area uses game based area codes
+     * @param area
+     * @param animalCodes
+     * @returns
+     */
+    function animals(area: number, animalCodes: Array<number>): any {
+        let output: ConditionBuilder = newConds()
+        i = 1
+
+        for (let game of Releases) {
+            output['alt' + i.toString()] = $(
+                measuredIf(
+                    game.checkVersion(),
+                    game.inGame()
+                ),
+                resetIf(
+                    andNext(
+                        game.checkVersion(),
+                        comparison(
+                            create('32bit',
+                                (game.version == 0) ? 0x5b45f4 : (
+                                    (game.version == 1) ? 0x5d02f4 : 0x614574
+                                )),
+                            '!=',
+                            1
+                        )
+                    )
+                ),
+
+                game.rememberPersonPlayingIs('stats'),
+
+                ...(animalCodes.map((value: number, index: number) => {
+                    return $(
+                        addHits(andNext(
+                            playerAddAddress(game.version),
+                            comparison(game.player.area, (area < 5) ? '=' : '>=', area),
+                            convoAddAddress(game.version),
+                            comparison(game.convo.speaker, '=', value, true),
+                            convoAddAddress(game.version),
+                            comparison(game.convo.line, '=', 0x3, true),
+                            convoAddAddress(game.version),
+                            comparison(game.convo.line, '=', 0xffffffff, false).withLast({ hits: 1 })
+                        )),
+                    )
+                })),
+                measured(
+                    $('0=1').withLast({ hits: animalCodes.length })
+                )
+            )
+
+            i = i + 1
+        }
+
+        return output
+    }
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Correctly answer a question from all Stream animals in one session',
+        points: 5,
+        conditions: animals(0, [0x3a, 0x3b, 0x3c])
+    })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Correctly answer a question from all Mountain animals in one session',
+        points: 5,
+        conditions: animals(2, [0x3d, 0x3e, 0x3f])
+    })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Correctly answer a question from all permanent Field animals in one session',
+        points: 5,
+        conditions: animals(4, [0x40, 0x41, 0x42])
+    })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Correctly answer a question from all Rapids animals in one session',
+        points: 5,
+        conditions: animals(1, [0x44, 0x45, 0x46])
+    })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Correctly answer a question from all Swamp animals in one session',
+        points: 5,
+        conditions: animals(3, [0x47, 0x48, 0x49, 0x4a])
+    })
+
+    set.addAchievement({
+        title: 'a',
+        description: 'Correctly answer a question from all Underground Lake animals in one session',
+        points: 5,
+        conditions: animals(5, [0x4b, 0x4c, 0x4d])
     })
 
 }

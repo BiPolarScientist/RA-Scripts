@@ -169,6 +169,7 @@ class player {
     baitCount: Array<Partial<Condition.Data>>
     polesBitcount1: Partial<Condition.Data>
     polesBitcount2: Partial<Condition.Data>
+    bobbersBitcount: Partial<Condition.Data>
     washtub: Partial<Condition.Data>
     itemsBitcount: Partial<Condition.Data>
     recipesBitcount1: Partial<Condition.Data>
@@ -194,7 +195,7 @@ class player {
         return create('32bit', recordStartOffsets[area] + fishNumber * 24 + 20)
     }
 
-    fishCaughtInArea(area: number, isDelta: boolean): ConditionBuilder {
+    fishCaughtInArea(area: number, isDelta: boolean, isAddSource: boolean, isUnique: boolean = true): ConditionBuilder {
         let fishTotals: Array<number> = [21, 27, 26, 26, 22, 14]
         let recordStartOffsets: Array<number> = [0x1d90, 0x1f88, 0x2210, 0x2480, 0x26f0, 0x2900]
 
@@ -203,22 +204,24 @@ class player {
         for (let i: number = 0; i < fishTotals[area]; i++) {
             output = output.also(
                 playerBasePointer[this.gameVersion].withLast({ cmp: '+', rvalue: { type: 'Recall' } }),
-                !isDelta && calculation(true, create('32bit', recordStartOffsets[area] + i * 24 + 20 ), '/', create('32bit', recordStartOffsets[area] + i * 24 + 20)),
-                isDelta && calculation(true, createDelta('32bit', recordStartOffsets[area] + i * 24 + 20 ), '/', createDelta('32bit', recordStartOffsets[area] + i * 24 + 20))
+                !isDelta && isUnique && calculation(isAddSource, create('32bit', recordStartOffsets[area] + i * 24 + 20), '/', create('32bit', recordStartOffsets[area] + i * 24 + 20)),
+                isDelta && isUnique && calculation(isAddSource, createDelta('32bit', recordStartOffsets[area] + i * 24 + 20 ), '/', createDelta('32bit', recordStartOffsets[area] + i * 24 + 20)),
+                !isDelta && !isUnique && calculation(isAddSource, create('32bit', recordStartOffsets[area] + i * 24 + 20)),
+                isDelta && !isUnique && calculation(isAddSource, createDelta('32bit', recordStartOffsets[area] + i * 24 + 20))
             )
         }
 
         return output
     }
 
-    totalFishCaught(isDelta: boolean): ConditionBuilder {
+    totalFishCaught(isDelta: boolean, isAddSource: boolean, isUnique: boolean = true): ConditionBuilder {
         return $(
-            this.fishCaughtInArea(0, isDelta),
-            this.fishCaughtInArea(1, isDelta),
-            this.fishCaughtInArea(2, isDelta),
-            this.fishCaughtInArea(3, isDelta),
-            this.fishCaughtInArea(4, isDelta),
-            this.fishCaughtInArea(5, isDelta)
+            this.fishCaughtInArea(0, isDelta, isAddSource, isUnique),
+            this.fishCaughtInArea(1, isDelta, isAddSource, isUnique),
+            this.fishCaughtInArea(2, isDelta, isAddSource, isUnique),
+            this.fishCaughtInArea(3, isDelta, isAddSource, isUnique),
+            this.fishCaughtInArea(4, isDelta, isAddSource, isUnique),
+            this.fishCaughtInArea(5, isDelta, isAddSource, isUnique)
         )
     }
 
@@ -262,7 +265,8 @@ class player {
             create('8bit', 0x13f8 )
         ]
         this.polesBitcount1 = create('BitCount', 0x1414 )
-        this.polesBitcount2 = create('BitCount', 0x1415 )
+        this.polesBitcount2 = create('BitCount', 0x1415)
+        this.bobbersBitcount = create('BitCount', 0x1430)
         this.washtub = create('Bit0', 0x144c )
         this.itemsBitcount = create('BitCount', 0x144c )
         this.recipesBitcount1 = create('BitCount', 0x1468 )
