@@ -527,7 +527,7 @@ export function makeAchievements(set: AchievementSet): void {
                         convoAddAddress(game.version),
                         comparison(game.convo.line, '=', 0x19, false),
                         convoAddAddress(game.version),
-                        comparison(game.convo.speaker, '=', 0x38, true),
+                        comparison(game.convo.speaker, '=', 0x38 - ((game.version == 0) ? 0 : 1), true),
                         convoAddAddress(game.version),
                         comparison(game.convo.line, '=', 0x18, true),
                     )
@@ -655,7 +655,39 @@ export function makeAchievements(set: AchievementSet): void {
                         inSwamp && comparison(game.convo.line, '=', 0x3f, true),
                         !inSwamp && comparison(game.convo.line, '=', 0x1b, true)
                     )
-                ))
+                )),
+                isChallenge && orNext(
+                    convoAddAddress(game.version),
+                    comparison(game.convo.line, '=', 0xffffffff, false),
+                    andNext(
+                        convoAddAddress(game.version),
+                        inSwamp && comparison(game.convo.line, '=', 0x13, false),
+                        !inSwamp && comparison(game.convo.line, '=', 0x15, false),
+                        convoAddAddress(game.version),
+                        comparison(game.convo.speaker, '=', judgeNumbers[area], true),
+                        game.checkVersion(),
+                        convoAddAddress(game.version),
+                        resetIf(
+                            inSwamp && comparison(game.convo.line, '=', 0x12, true),
+                            !inSwamp && comparison(game.convo.line, '=', 0x14, true)
+                        )
+                    )
+                ),
+                isChallenge && inSwamp && orNext(
+                    convoAddAddress(game.version),
+                    comparison(game.convo.line, '=', 0xffffffff, false),
+                    andNext(
+                        convoAddAddress(game.version),
+                        comparison(game.convo.line, '=', 0x38, false),
+                        convoAddAddress(game.version),
+                        comparison(game.convo.speaker, '=', judgeNumbers[area], true),
+                        game.checkVersion(),
+                        convoAddAddress(game.version),
+                        resetIf(
+                            comparison(game.convo.line, '=', 0x37, true)
+                        )
+                    )
+                )
             )
             i = i + 1
         }
@@ -1204,7 +1236,7 @@ export function makeAchievements(set: AchievementSet): void {
                         convoAddAddress(game.version),
                         comparison(game.convo.speaker, '=', 0xffffffff, true),
                         convoAddAddress(game.version),
-                        comparison(game.convo.speaker, '=', 0x12f, false).withLast({ hits: 1 })
+                        comparison(game.convo.speaker, '=', 0x12f - ((game.version == 0) ? 0 : 1), false).withLast({ hits: 1 })
                     ))
                 )
             })),
@@ -1326,7 +1358,7 @@ export function makeAchievements(set: AchievementSet): void {
                             playerAddAddress(game.version),
                             comparison(game.player.area, (area < 5) ? '=' : '>=', area),
                             convoAddAddress(game.version),
-                            comparison(game.convo.speaker, '=', value, true),
+                            comparison(game.convo.speaker, '=', value - ((game.version == 0) ? 0: 1), true),
                             convoAddAddress(game.version),
                             comparison(game.convo.line, '=', 0x3, true),
                             convoAddAddress(game.version),
