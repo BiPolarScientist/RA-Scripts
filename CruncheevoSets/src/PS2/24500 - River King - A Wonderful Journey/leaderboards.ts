@@ -255,7 +255,7 @@ export function makeLeaderboards(set: AchievementSet): void {
                     start['alt' + i.toString()] = $(
                         game.checkVersion(),
                         game.inGame(),
-                        game.rememberPersonPlayingIs('stats'),
+                        game.rememberPersonPlayingIs('area'),
                         playerAddAddress(game.version),
                         comparison(game.player.area, '=', areaCodes[fishCopy[0]]),
                         game.rememberPersonPlayingIs('records'),
@@ -267,7 +267,7 @@ export function makeLeaderboards(set: AchievementSet): void {
                         measuredIf(
                             game.checkVersion(),
                             game.inGame(),
-                            game.rememberPersonPlayingIs('stats'),
+                            game.rememberPersonPlayingIs('area'),
                             playerAddAddress(game.version),
                             comparison(game.player.area, '=', areaCodes[fishCopy[0]])
                         ),

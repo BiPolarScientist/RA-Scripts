@@ -292,7 +292,9 @@ export class game {
         line: create('32bit', 0x57c)
     }
     playerOffsets = {
-        stats: 0x4,
+        area: 0x4,
+        stat: 0x3,
+        money: 0x1c,
         items: 0x26c,
         records: 0xcc4,
         counters: 0x31c,
