@@ -187,6 +187,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
     set.addLeaderboard({
         title: 'Efficiency - Speedrun',
+        id: 144774,
         description: 'Number of fish caught before catching the River King',
         lowerIsBetter: true,
         type: 'UNSIGNED',
@@ -232,6 +233,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
             set.addLeaderboard({
                 title: 'High Score - ' + fishnames[fish][0] + ' Length',
+                id: 144775 + (+fish),
                 description: 'Catch the longest ' + fishnames[fish][0] + ' measured in centimeters',
                 lowerIsBetter: false,
                 type: 'UNSIGNED',
@@ -281,6 +283,7 @@ export function makeLeaderboards(set: AchievementSet): void {
 
             set.addLeaderboard({
                 title: 'High Score - ' + fishnames[fish][0] + ' Length',
+                id: 144775 + (+fish),
                 description: 'Catch the longest ' + fishnames[fish][0] + ' measured in centimeters',
                 lowerIsBetter: false,
                 type: 'UNSIGNED',

@@ -305,10 +305,9 @@ export class game {
 
     checkVersion(): ConditionBuilder {
         return $(
-            comparison(
-                create('8bit', 0x15512), '=', (this.version == 0) ? 0x55 : (
-                (this.version == 1) ? 0x45 : 0x50)
-            )
+            (this.version == 0) && comparison(create('32bit', 0x491df3), '=' ,0x53554c53),
+            (this.version == 1) && comparison(create('32bit', 0x491cf3), '=', 0x53454c53),
+            (this.version == 2) && comparison(create('32bit', 0x4d26f3), '=', 0x53504c53)
         )
     }
 

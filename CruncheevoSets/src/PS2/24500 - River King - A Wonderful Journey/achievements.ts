@@ -154,7 +154,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch your first fish',
         type: 'progression',
         points: 1,
@@ -189,7 +190,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch a fish using a fly fishing rod',
         points: 1,
         conditions: caughtWithRodType(0x8, 0xa)
@@ -198,7 +200,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch a fish using a lure fishing rod',
         points: 1,
         conditions: caughtWithRodType(0xb, 0xd)
@@ -209,7 +212,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Beat your rival in a competition in the Stream',
         type: 'missable',
         points: 2,
@@ -219,7 +223,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Learn how to swim',
         type: 'progression',
         points: 1,
@@ -229,7 +234,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Find the hidden artifact in the Stream',
         type: 'progression',
         points: 2,
@@ -239,7 +245,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Remove the boulder blocking the path to the Mountain',
         type: 'progression',
         points: 3,
@@ -249,7 +256,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Bring a new romantic couple together',
         points: 3,
         conditions: checkDiaryEntry(0, 0x6)
@@ -258,7 +266,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Participate in the Black Bass festival',
         points: 3,
         conditions: checkDiaryEntry(1, 0x3)
@@ -267,7 +276,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help your rival catch the Great Brown Trout',
         type: 'progression',
         points: 3,
@@ -293,7 +303,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Find the washbasin',
         type: 'progression',
         points: 3,
@@ -303,7 +314,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Find the hidden artifact in the Mountain',
         type: 'progression',
         points: 3,
@@ -313,7 +325,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Solve some high school drama to unblock the way to the Field',
         type: 'progression',
         points: 4,
@@ -323,7 +336,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help your rival\'s fan get her autograph',
         points: 4,
         conditions: checkDiaryEntry(2, 0x1)
@@ -332,7 +346,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help the local science class study Killifish',
         points: 4,
         conditions: checkDiaryEntry(2, 0x4)
@@ -341,7 +356,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Find the hidden artifact in the Field',
         type: 'progression',
         points: 4,
@@ -351,7 +367,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help the curry chef to unblock the path to the Rapids',
         type: 'progression',
         points: 5,
@@ -361,7 +378,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help an old man find a lost friend',
         points: 5,
         conditions: checkDiaryEntry(3, 0x5)
@@ -370,7 +388,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Find the hidden artifact in the Rapids',
         type: 'progression',
         points: 5,
@@ -380,7 +399,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Beat your rival in a competition in the Rapids',
         type: 'missable',
         points: 5,
@@ -390,7 +410,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help solve the attempted murder to unblock the path to the Swamp',
         type: 'progression',
         points: 5,
@@ -400,7 +421,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Bring the missing kid home to the Field',
         points: 5,
         conditions: checkDiaryEntry(2, 0x8)
@@ -409,7 +431,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help a depressed cook get his mojo back',
         points: 5,
         conditions: checkDiaryEntry(4, 0x7)
@@ -418,7 +441,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help keep a fish restaurant in business',
         points: 5,
         conditions: checkDiaryEntry(4, 0x4)
@@ -427,7 +451,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Help a pop star beat your rival',
         type: 'missable',
         points: 5,
@@ -437,7 +462,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Complete a game of 7up in a final competition with your rival',
         type: 'progression',
         points: 5,
@@ -447,7 +473,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Find the hidden artifact in the Swamp',
         type: 'progression',
         points: 5,
@@ -474,7 +501,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch the River King',
         type: 'win_condition',
         points: 25,
@@ -485,7 +513,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Complete the Straw Millionaire errand line',
         points: 5,
         conditions: checkDiaryEntry(4, 0x10)
@@ -540,7 +569,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the Ayu fishing contest',
         points: 1,
         conditions: beatFishingCompetition(0,0)
@@ -549,7 +579,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the Bass fishing contest',
         points: 3,
         conditions: beatFishingCompetition(2, 0)
@@ -558,7 +589,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the Tanago fishing contest',
         points: 4,
         conditions: beatFishingCompetition(4, 1)
@@ -567,7 +599,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the Hera fishing contest',
         points: 4,
         conditions: beatFishingCompetition(4, 2)
@@ -576,7 +609,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the Turtle fishing contest',
         points: 5,
         conditions: beatFishingCompetition(1, 0)
@@ -585,7 +619,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the Catfish fishing contest',
         points: 5,
         conditions: beatFishingCompetition(3, 0)
@@ -696,7 +731,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition in the Stream',
         type: 'missable',
         points: 3,
@@ -706,7 +742,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition in the Stream starting with no fish in your basket',
         type: 'missable',
         points: 5,
@@ -716,7 +753,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition in the Mountain',
         type: 'missable',
         points: 3,
@@ -726,7 +764,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition in the Mountain starting with no fish in your basket',
         type: 'missable',
         points: 5,
@@ -736,7 +775,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition in the Fields',
         type: 'missable',
         points: 5,
@@ -746,7 +786,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition in the Fields starting with no fish in your basket',
         type: 'missable',
         points: 10,
@@ -756,7 +797,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition in the Rapids',
         type: 'missable',
         points: 10,
@@ -766,7 +808,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition finals in the Swamp',
         points: 10,
         conditions: beatCookingCompetition(3, true, false)
@@ -775,7 +818,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Win the cooking competition finals in the Swamp starting with no fish in your basket',
         type: 'missable',
         points: 10,
@@ -814,7 +858,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Reach Decent cooking skill',
         points: 5,
         conditions: reachSkillLevel('cookingSkill', 4)
@@ -823,7 +868,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Reach Professional Cooking skill',
         points: 10,
         conditions: reachSkillLevel('cookingSkill', 6)
@@ -832,7 +878,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Reach World Class cooking skill',
         points: 25,
         conditions: reachSkillLevel('cookingSkill', 8)
@@ -841,7 +888,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Reach level 3 fishing technique',
         points: 5,
         conditions: reachSkillLevel('fishingTech', 3)
@@ -850,7 +898,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Reach maximum level fishing technique',
         points: 10,
         conditions: reachSkillLevel('fishingTech', 5)
@@ -908,7 +957,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Own all 4 fishing bobbers',
         points: 3,
         conditions: collectionBitcounts([data.usa.player.bobbersBitcount], 4)
@@ -917,7 +967,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Own all 5 fish baskets',
         points: 5,
         conditions: collectionBitcounts([data.usa.player.basketsBitcount], 5)
@@ -926,7 +977,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Own all 6 permanent inventory items',
         points: 5,
         conditions: collectionBitcounts([data.usa.player.itemsBitcount], 6)
@@ -935,7 +987,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Own all 13 fishing poles',
         points: 10,
         conditions: collectionBitcounts([data.usa.player.polesBitcount1, data.usa.player.polesBitcount2], 13)
@@ -944,7 +997,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Own all 22 cooking recipes',
         points: 10,
         conditions: collectionBitcounts([data.usa.player.recipesBitcount1, data.usa.player.recipesBitcount2, data.usa.player.recipesBitcount3] , 22)
@@ -981,7 +1035,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch all 21 types of fish in the Stream area',
         points: 25,
         conditions: allFishInAreaCollected(0)
@@ -990,7 +1045,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch all 26 types of fish in the Mountain area',
         points: 25,
         conditions: allFishInAreaCollected(1)
@@ -999,7 +1055,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch all 22 types of fish in the Field area',
         points: 25,
         conditions: allFishInAreaCollected(2)
@@ -1008,7 +1065,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch all 27 types of fish in the Rapids area',
         points: 25,
         conditions: allFishInAreaCollected(3)
@@ -1017,7 +1075,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch all 26 types of fish in the Swamp area',
         points: 25,
         conditions: allFishInAreaCollected(4)
@@ -1026,7 +1085,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Catch all 14 types of fish in the Underground Lake',
         points: 25,
         conditions: allFishInAreaCollected(5)
@@ -1065,7 +1125,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Have an in depth fortune reading',
         points: 2,
         conditions: fortuneTold
@@ -1091,7 +1152,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Talk to the Tanuki who lives in the inn',
         points: 3,
         conditions: tanuki
@@ -1117,7 +1179,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Talk to the Panda who lives in the inn',
         points: 3,
         conditions: panda
@@ -1141,7 +1204,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Meet a doppleganger of a previous Prime Minister of Japan',
         points: 3,
         conditions: primeMinister
@@ -1199,7 +1263,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Talk with three strangers from a different game in one session',
         points: 3,
         conditions: harvestMoon
@@ -1250,7 +1315,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Press all 5 spotlight buttons in one session',
         points: 3,
         conditions: buttons
@@ -1313,7 +1379,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Gather one of every bait type from the environment in one session',
         points: 5,
         conditions: baits
@@ -1379,7 +1446,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Correctly answer a question from all Stream animals in one session',
         points: 5,
         conditions: animals(0, [0x3a, 0x3b, 0x3c])
@@ -1388,7 +1456,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Correctly answer a question from all Mountain animals in one session',
         points: 5,
         conditions: animals(2, [0x3d, 0x3e, 0x3f])
@@ -1397,7 +1466,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Correctly answer a question from all permanent Field animals in one session',
         points: 5,
         conditions: animals(4, [0x40, 0x41, 0x42])
@@ -1406,7 +1476,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Correctly answer a question from all Rapids animals in one session',
         points: 5,
         conditions: animals(1, [0x44, 0x45, 0x46])
@@ -1415,7 +1486,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Correctly answer a question from all Swamp animals in one session',
         points: 5,
         conditions: animals(3, [0x47, 0x48, 0x49, 0x4a])
@@ -1425,7 +1497,8 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: titles[badgenum],
-        badge: b(badgenum.toString()),
+        id: badgenum + 556710,
+        badge: 632202 + badgenum,
         description: 'Correctly answer a question from all Underground Lake animals in one session',
         points: 5,
         conditions: animals(5, [0x4b, 0x4c, 0x4d])

@@ -12,13 +12,13 @@ entryoffsets = [0, 0x1b, 0x2b, 0x3a, 0x4d, 0x64]
 # A = area code (game logic), B = Diary entry number, C = string of what you want the measured at the end added by
 def base( A, B, C ):
     return (# Sets up remember to have a pointer to the character you're playing as Area code
-            'K:0xQ15512*0xO15512_B:{recall}*6490208_A:0xO15512*6097128_K:0xQ15512*6376288_I:{recall}_I:0xX0_A:0xX44*4_I:{recall}_K:0xX0+4760' +
+            'A:0xT491cf4*279160_B:0xN491cf4*113920_K:6097128_I:{recall}_I:0xX0_A:0xX44*4_I:{recall}_K:0xX0+4760' +
             # Tests if that area code matches the area you are in
             '_I:{recall}_Q:0xX0' +
             ('=' if A < 5 else '>=') +str(
             A) +
             # Sets up remember to have a pointer to the start of your character's diary
-            '_K:0xQ15512*0xO15512_B:{recall}*6490208_A:0xO15512*6097128_K:0xQ15512*6376288_I:{recall}_I:0xX0_A:0xX44*101_I:{recall}_K:0xX0+24096' +
+            '_A:0xT491cf4*279160_B:0xN491cf4*113920_K:6097128_I:{recall}_I:0xX0_A:0xX44*101_I:{recall}_K:0xX0+24096' +
             # Checks the diary entry in question isn't 0xffff, and then measures it with offset desired (0x90*area)
             '_I:{recall}+'+str(
             B)+'_K:0x0_Q:{recall}!=65535_M:{recall}' + C
@@ -27,13 +27,13 @@ def base( A, B, C ):
 # A = area code (play time order)
 def finishedarea( A ):
     return (# Sets up remember to have a pointer to the character you're playing as Area code
-            'K:0xQ15512*0xO15512_B:{recall}*6490208_A:0xO15512*6097128_K:0xQ15512*6376288_I:{recall}_I:0xX0_A:0xX44*4_I:{recall}_K:0xX0+4760' +
+            'A:0xT491cf4*279160_B:0xN491cf4*113920_K:6097128_I:{recall}_I:0xX0_A:0xX44*4_I:{recall}_K:0xX0+4760' +
             # checks area code matches the one you are in
             '_I:{recall}_Q:0xX0'+
             ('=' if A < 5 else '>=') + str(
             areacodeconversion[A]) +
             # Sets up remember to have a pointer to the start of your character's diary
-            '_K:0xQ15512*0xO15512_B:{recall}*6490208_A:0xO15512*6097128_K:0xQ15512*6376288_I:{recall}_I:0xX0_A:0xX44*101_I:{recall}_K:0xX0+24096' +
+            '_A:0xT491cf4*279160_B:0xN491cf4*113920_K:6097128_I:{recall}_I:0xX0_A:0xX44*101_I:{recall}_K:0xX0+24096' +
             # Checks that the last entry of the area's diary isn't 0xff
             '_I:{recall}+' + str(
             entriestocheck[A] + entryoffsets[A]) + '_K:0xH0_Q:{recall}!=255' +
@@ -44,13 +44,13 @@ def finishedarea( A ):
 
 def fresharea( A ):
     return (# Sets up remember to have a pointer to the character you're playing as Area code
-            'K:0xQ15512*0xO15512_B:{recall}*6490208_A:0xO15512*6097128_K:0xQ15512*6376288_I:{recall}_I:0xX0_A:0xX44*4_I:{recall}_K:0xX0+4760'+
+            'A:0xT491cf4*279160_B:0xN491cf4*113920_K:6097128_I:{recall}_I:0xX0_A:0xX44*4_I:{recall}_K:0xX0+4760'+
             # checks area code matches the one you are in
             '_I:{recall}_Q:0xX0'+
             ('=' if A < 5 else '>=') + str(
             areacodeconversion[A]) +
             # Sets up remember to have a pointer to the start of your character's diary
-            '_K:0xQ15512*0xO15512_B:{recall}*6490208_A:0xO15512*6097128_K:0xQ15512*6376288_I:{recall}_I:0xX0_A:0xX44*101_I:{recall}_K:0xX0+24096' +
+            '_A:0xT491cf4*279160_B:0xN491cf4*113920_K:6097128_I:{recall}_I:0xX0_A:0xX44*101_I:{recall}_K:0xX0+24096' +
             # Checks that the first entry of the area's diary is 0xff
             '_I:{recall}+' + str(
             entryoffsets[A]) + '_K:0xH0_Q:{recall}=255' +
@@ -82,12 +82,12 @@ print(output)
 
 # Offsets you to fish i's caught amount if recall has a pointer to the start of your records
 def line1(i):
-    return 'I:{recall} +' + str (20 + 24 * i)
+    return 'I:{recall}+' + str (20 + 24 * i)
 # Addsource 1 if you've caught the fish, otherwise add 0
 line2 = 'A:0xX0/0xX0'
 
 # Sets up remember to house a pointer to the start of your records list
-output2 = 'K:0xQ15512*0xO15512_B:{recall}*6490208_A:0xO15512*6097128_K:0xQ15512*6376288_I:{recall}_I:0xX0_A:0xX44*3268_I:{recall}_K:0xX0+7568_'
+output2 = 'A:0xT491cf4*279160_B:0xN491cf4*113920_K:6097128_I:{recall}_I:0xX0_A:0xX44*3268_I:{recall}_K:0xX0+7568_'
 
 for i in range(0, 136):
     output2 += line1(i) + '_' + line2 + '_'
