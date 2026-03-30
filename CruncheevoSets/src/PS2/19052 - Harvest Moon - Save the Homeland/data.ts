@@ -15,13 +15,14 @@ const CharacterNames: Record<string, number> = {
     'Bob': 8,
     'Tim': 9,
     'Wallace': 10,
-    'Robert': 11,
-    'Martha': 12,
-    'Parsley': 13,
-    'Nik': 14,
-    'Nac': 15,
-    'Flak': 16,
-    'Goddess': 17
+    'Woody': 11,
+    'Ronald': 12,
+    'Martha': 13,
+    'Parsley': 14,
+    'Nik': 15,
+    'Nac': 16,
+    'Flak': 17,
+    'Goddess': 18
 }
 
 

@@ -7,20 +7,20 @@ import { once } from 'events'
 const b = (s) => `local\\\\${s}.png`
 
 
-function saveLoaded(): ConditionBuilder {
+export function saveLoaded(): ConditionBuilder {
     return $(
         comparison(data.Event(188), '=', 1, true)
     )
 }
 
-function isFirstYear(): ConditionBuilder {
+export function isFirstYear(): ConditionBuilder {
     return $(
         comparison(data.Event(192), '=', 1),
         comparison(data.Event(193), '=', 1)
     )
 }
 
-function watchEvent(index: number): ConditionBuilder {
+export function watchEvent(index: number): ConditionBuilder {
     return $(
         comparison(data.Event(index), '=', 0, true),
         comparison(data.Event(index), '=', 1, false)
@@ -35,32 +35,20 @@ function basicAchEvent(index: number): ConditionBuilder {
 }
 
 function sellOneOfAll(shop: number, items: Array<number>, isBar: boolean = false): ConditionBuilder {
-    //Pause if we aren't in the shop
-    let output: ConditionBuilder = $(
-        comparison(data.Player.Location, '!=', shop)
-    )
 
-    //Pause if we are in the bar/cafe but the opposite shop is open at the time
-    if (shop == 0x17) {
-        output = output.also(
-            isBar && comparison(data.Player.Hour, '<', 18),
-            !isBar && comparison(data.Player.Hour, '>=', 18)
-        )
-    }
-
-    //Pause if our money isn't increasing
-    output = output.also(
-        comparison(data.Player.Money, '=', data.Player.Money, true, false)
-    )
-
-    output = pauseIf(output)
-
+    let output: ConditionBuilder = $( )
 
 
     for (let item of items) {
         output = output.also(
             addHits(
-                comparison(data.Player.Item(item), '>', data.Player.Item(item), true, false)
+                andNext(
+                    comparison(data.Player.Location, '=', shop), // In the right shop area
+                    (shop == 0x17) && isBar && comparison(data.Player.Hour, '>=', 18), // for the bar and cafe, check we're in the right time
+                    (shop == 0x17) && !isBar && comparison(data.Player.Hour, '<', 18),
+                    comparison(data.Player.Money, '<', data.Player.Money, true, false), // make sure the money is increasing
+                    comparison(data.Player.Item(item), '>', data.Player.Item(item), true, false) // make sure the item is decreasing
+                )
             ).withLast({hits: 1})
         )
     }
@@ -94,11 +82,13 @@ function upgradedTool(oldCode: number, newCode: number): any {
     }
 
     for (let i: number = 0; i < 16; i++) {
-        output['alt' + i.toString()] = $(
+        output['alt' + (i+1).toString()] = $(
             comparison(create('8bit', 0x85a230 + i), '=', oldCode, true),
             comparison(create('8bit', 0x85a230 + i), '=', newCode, false)
         )
     }
+
+    return output
 }
 
 
@@ -107,15 +97,7 @@ export function makeAchievements(set: AchievementSet): void {
     let i: number = 1
     let badgenum: number = 1
 
-    let totalPeopleMet: Array<ConditionBuilder> = [$(), $()]
-    for (let i: number = 0; i <= 17; i++) {
-        totalPeopleMet[0] = totalPeopleMet[0].also(
-            calculation(true, data.MetNPC(i))
-        )
-        totalPeopleMet[1] = totalPeopleMet[1].also(
-            calculation(true, data.MetNPC(i)).withLast({ lvalue: { type: 'Delta' } })
-        )
-    }
+    
 
     set.addAchievement({
         title: 'Tour of the Town',
@@ -128,14 +110,14 @@ export function makeAchievements(set: AchievementSet): void {
                 comparison(data.Player.Day, '=', 2)
             )),
             ...(
-                Array.from({ length: 18 }, (_, i) => i).map(
+                [...Array.from({ length: 15 }, (_, i) => i), 22, 23, 24].map(
                     input => calculation(true, data.MetNPC(input)).withLast({ lvalue: { type: 'Delta' } })
                 )
             ),
             '0=17',
             measured(
                 ...(
-                    Array.from({ length: 18 }, (_, i) => i).map(
+                    [...Array.from({ length: 15 }, (_, i) => i), 22, 23, 24].map(
                         input => calculation(true, data.MetNPC(input))
                     )
                 ),
@@ -167,7 +149,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'TH3',
         description: 'Observe at the treasure of the sacred land growing with a friend',
         points: 2,
         type: 'missable',
@@ -179,7 +161,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'THT',
         description: 'Witness the Sweet Potato Festival with Tim',
         points: 10,
         type: 'win_condition',
@@ -187,7 +169,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'THD',
         description: 'Witness the Sweet Potato Festival with Dia',
         points: 10,
         type: 'win_condition',
@@ -208,7 +190,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'AS2',
         description: 'Witness talk about love between two women',
         points: 2,
         type: 'missable',
@@ -216,15 +198,15 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
-        description: 'a',
+        title: 'AS3',
+        description: 'Witness the gift of a camera in a one-sided crush',
         points: 3,
         type: 'missable',
         conditions: basicAchEvent(0x27)
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'AS4',
         description: 'Receive a bride\'s bouquet',
         points: 5,
         type: 'missable',
@@ -232,7 +214,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'AS5',
         description: 'See the Azure Butterfly',
         points: 10,
         type: 'win_condition',
@@ -245,28 +227,28 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     set.addAchievement({
-        title: 'a',
+        title: 'HR1',
         description: 'Overhear a conversation between your race rivals',
         points: 2,
         conditions: basicAchEvent(0x33)
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'HR2',
         description: 'Beat Bob in a race',
         points: 3,
         conditions: $('1=1')
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'HR3',
         description: 'Beat Gwen in a race',
         points: 5,
         conditions: $('1=1')
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'HR4',
         description: 'Win the horse race',
         points: 10,
         type: 'win_condition',
@@ -320,28 +302,28 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'a',
+        title: 'GD1',
         description: 'Find help for an aspiring fashion designer',
         points: 2,
         conditions: basicAchEvent(0x66)
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'GD2',
         description: 'Deliver the Goddess\' Cloth to the seamstress',
         points: 3,
         conditions: basicAchEvent(0x6b)
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'GD3',
         description: 'Witness an argument from a friend who feels neglected',
         points: 3,
         conditions: $('1=1')
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'GD4',
         description: 'Help the seamstress win the dress contest',
         points: 10,
         type: 'win_condition',
@@ -353,14 +335,14 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'a',
+        title: 'SF1',
         description: 'Receive the fishing rod from an avid fisher',
         points: 2,
         conditions: basicAchEvent(0x75)
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'SF2',
         description: 'Purchase the super fishing rod',
         points: 5,
         type: 'missable',
@@ -369,7 +351,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'SF3',
         description: 'Receive advice from the divine on the silver fish',
         points: 3,
         type: 'missable',
@@ -378,7 +360,7 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     set.addAchievement({
-        title: 'a',
+        title: 'SF4',
         description: 'Save the homeland with a silver scale',
         points: 10,
         type: 'win_condition',
@@ -390,7 +372,7 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'a',
+        title: 'EW1',
         description: 'Help the sprites with a weasel problem',
         points: 2,
         conditions: basicAchEvent(0x81)
@@ -398,7 +380,7 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     set.addAchievement({
-        title: 'a',
+        title: 'EW4',
         description: 'Save the homeland with the help of a weasel',
         points: 10,
         type: 'win_condition',
@@ -410,14 +392,14 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'a',
+        title: 'BB1',
         description: 'Receive the recorder from the inventor',
         points: 2,
         conditions: basicAchEvent(0x8a)
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'BB2',
         description: 'Score over 140 in your recorder preformance',
         points: 5,
         type: 'missable',
@@ -439,7 +421,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'BB3',
         description: 'Witness a proposal with a love interest',
         points: 3,
         type: 'missable',
@@ -455,7 +437,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'BB4',
         description: 'Save the valley by finding the endangered bluebird',
         points: 10,
         type: 'win_condition',
@@ -559,7 +541,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Clove',
         description: 'Sell one of everything to Clove\'s Villa in one session',
         points: 5,
         conditions: {
@@ -598,7 +580,7 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     const BFAchs: Array<Array<string>> = [
-        ['Nic', 'Snap'],
+        ['Nik', 'Snap'],
         ['Nac', 'Crackle'],
         ['Flak', 'Pop'],
         ['Ronald', 'The Store Owner'],
@@ -606,7 +588,7 @@ export function makeAchievements(set: AchievementSet): void {
         ['Katie', 'The Young Patissier'],
         ['Louis', 'The Amateur Inventor'],
         ['Lyla', 'The Fair Florist'],
-        ['Parsely', 'The Botanist Hunter'],
+        ['Parsley', 'The Botanist Hunter'],
         ['Bob', 'The Steadfast Rancher'],
         ['Tim', 'The Young Explorer'],
         ['Gwen', 'The Animal Lover'],
@@ -641,7 +623,7 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'a',
+        title: 'Sickle',
         description: 'Purchase the super sickle',
         points: 3,
         conditions: upgradedTool(0x51, 0x52)
@@ -716,7 +698,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Horse5',
         description: 'Reach 5 hearts with your horse',
         points: 5,
         conditions: $(
@@ -738,7 +720,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Dog5',
         description: 'Reach 5 hearts with your dog',
         points: 5,
         conditions: $(
@@ -750,7 +732,7 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     set.addAchievement({
-        title: 'a',
+        title: 'DogTricks',
         description: 'Have your dog preform sit down, lay down, heel, and round up cows all in one day',
         points: 5,
         conditions: $(
@@ -787,7 +769,7 @@ export function makeAchievements(set: AchievementSet): void {
     }
 
     set.addAchievement({
-        title: 'a',
+        title: 'FullChicks',
         description: 'Have a full coup of fully grown and very happy chickens',
         points: 5,
         conditions: {
@@ -811,7 +793,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'FullBarn',
         description: 'Have a full barn of fully grown and very happy cows',
         points: 5,
         conditions: {
@@ -835,7 +817,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Hatch',
         description: 'Hatch a chick',
         points: 1,
         conditions: $(
@@ -853,7 +835,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Born',
         description: 'Have one of your cows give birth',
         points: 2,
         conditions: $(
@@ -912,21 +894,21 @@ export function makeAchievements(set: AchievementSet): void {
     }
 
     set.addAchievement({
-        title: 'a',
+        title: 'Oven',
         description: 'Cook all oven recipes in one session',
         points: 10,
         conditions: cookedAllFood('Oven')
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Pot',
         description: 'Cook all pot recipes in one session',
         points: 10,
         conditions: cookedAllFood('Pot')
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Pan',
         description: 'Cook all frying pan recipes in one session',
         points: 10,
         conditions: cookedAllFood('Pan')
@@ -938,7 +920,7 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'a',
+        title: 'King',
         description: 'Catch the King of Maple Lake',
         points: 10,
         conditions: $(
@@ -949,7 +931,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Strange',
         description: 'Catch the strange fish',
         points: 10,
         conditions: $(
@@ -960,7 +942,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Full Moon',
         description: 'Pick a full moon berry',
         points: 1,
         conditions: $(
@@ -972,7 +954,7 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'BFYear1',
         description: 'Become best friends with all the humans in the valley in year 1',
         points: 25,
         conditions: $(
@@ -985,19 +967,19 @@ export function makeAchievements(set: AchievementSet): void {
                     input => calculation(true, data.NPCAP(input), '/', 200, true)
                 )
             ),
-            '0<14',
+            '0<15',
             ...(
                 Array.from({ length: 14 }, (_, i) => i).map(
                     input => calculation(true, data.NPCAP(input), '/', 200, false)
                 )
             ),
-            measured('0=14')
+            measured('0=15')
             
         )
     })
 
     set.addAchievement({
-        title: 'a',
+        title: 'Speedrun',
         description: 'Save the valley before Summer 1st',
         points: 10,
         conditions: {
