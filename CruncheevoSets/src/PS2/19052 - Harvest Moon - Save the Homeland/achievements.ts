@@ -15,8 +15,8 @@ export function saveLoaded(): ConditionBuilder {
 
 export function isFirstYear(): ConditionBuilder {
     return $(
-        comparison(data.Event(192), '=', 1),
-        comparison(data.Event(193), '=', 1)
+        comparison(data.Event(193), '=', 1),
+        comparison(data.Event(194), '=', 1)
     )
 }
 
