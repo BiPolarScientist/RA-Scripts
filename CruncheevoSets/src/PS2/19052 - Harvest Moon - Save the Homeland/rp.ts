@@ -34,8 +34,8 @@ export function makeRP(): any {
             Weather: {
                 values: {
                     0x0: 'Sunny',
-                    0x1: 'Rainy',
-                    0x2: 'Really Rainy',
+                    0x1: 'Raining',
+                    0x2: 'Heavy Rain',
                     0x3: 'Lightning Storm',
                     0x4: 'Cloudy'
                 }

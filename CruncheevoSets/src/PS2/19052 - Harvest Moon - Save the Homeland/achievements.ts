@@ -101,6 +101,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Tour of the Town',
+        badge: b(badgenum),
         description: 'Meet everyone in the valley on Spring 2nd',
         points: 3,
         conditions: $(
@@ -127,6 +128,8 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
 
+    badgenum = badgenum + 1
+
     //
     // Ending based Achievements
     //
@@ -135,22 +138,29 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Frequent Walks',
-        description: 'Take your dog for a walk and find the sacred land',
+        badge: b(badgenum),
+        description: 'Take your dog for a walk and stumble into the sacred land',
         points: 5,
         conditions: basicAchEvent(0x3)
     })
 
+    badgenum = badgenum + 1
+
 
     set.addAchievement({
         title: 'Reading Pays',
-        description: 'Find the sacred land with the help of a history buff',
+        badge: b(badgenum),
+        description: 'Discover the sacred land with the help of a history buff',
         points: 5,
         conditions: basicAchEvent(0xc)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'TH3',
-        description: 'Observe at the treasure of the sacred land growing with a friend',
+        title: 'The Golden Treasure',
+        badge: b(badgenum),
+        description: 'Look upon the treasure of the sacred land growing with a friend',
         points: 2,
         type: 'missable',
         conditions: {
@@ -160,21 +170,29 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'THT',
-        description: 'Witness the Sweet Potato Festival with Tim',
+        title: 'An Adventurer\'s Home Base',
+        badge: b(badgenum),
+        description: 'Save the valley with a rare golden potato with Tim',
         points: 10,
         type: 'win_condition',
         conditions: basicAchEvent(0x1e)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'THD',
-        description: 'Witness the Sweet Potato Festival with Dia',
+        title: 'A Kiss Amongst the Grass',
+        badge: b(badgenum),
+        description: 'Save the valley with a rare golden potato with Dia',
         points: 10,
         type: 'win_condition',
         conditions: basicAchEvent(0x1d)
     })
+
+    badgenum = badgenum + 1
 
 
     //
@@ -184,42 +202,57 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Botanist\'s Journey',
+        badge: b(badgenum),
         description: 'Find a seed for a blue flower',
         points: 2,
         conditions: basicAchEvent(0x23)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'AS2',
+        title: 'Bechdel\'s Nightmare',
+        badge: b(badgenum),
         description: 'Witness talk about love between two women',
-        points: 2,
+        points: 4,
         type: 'missable',
         conditions: basicAchEvent(0x24)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'AS3',
-        description: 'Witness the gift of a camera in a one-sided crush',
+        title: 'He Went to Bestbuy',
+        badge: b(badgenum),
+        description: 'Witness the dicussion about a camera from a one-sided crush',
         points: 3,
         type: 'missable',
         conditions: basicAchEvent(0x27)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'AS4',
+        title: 'A Bundle of Love',
+        badge: b(badgenum),
         description: 'Receive a bride\'s bouquet',
         points: 5,
         type: 'missable',
         conditions: basicAchEvent(0x2a)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'AS5',
-        description: 'See the Azure Butterfly',
+        title: 'The Butterfly Effect',
+        badge: b(badgenum),
+        description: 'Save the valley by finding the endangered butterfly',
         points: 10,
         type: 'win_condition',
         conditions: basicAchEvent(0x2c)
     })
+
+    badgenum = badgenum + 1
 
     //
     // Horse Race
@@ -227,33 +260,83 @@ export function makeAchievements(set: AchievementSet): void {
 
 
     set.addAchievement({
-        title: 'HR1',
+        title: 'Reconnaissance for the Homeland',
+        badge: b(badgenum),
         description: 'Overhear a conversation between your race rivals',
         points: 2,
         conditions: basicAchEvent(0x33)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'HR2',
+        title: 'The Horsey 500',
+        badge: b(badgenum),
         description: 'Beat Bob in a race',
-        points: 3,
-        conditions: $('1=1')
+        points: 4,
+        conditions: $(
+            saveLoaded(),
+            comparison(data.S2Event, '=', 0xff, true),
+            comparison(data.S0Event, '=', 0x03, true),
+            comparison(data.S0Event, '=', 0x12, false)
+        )
     })
 
+    badgenum = badgenum + 1
+
+    const FrameTimer: Partial<Condition.Data> = create('32bit', 0x14)
+
     set.addAchievement({
-        title: 'HR3',
-        description: 'Beat Gwen in a race',
+        title: 'The Tortoise and the Race Car',
+        badge: b(badgenum),
+        description: 'Beat Gwen\'s best time of 52 seconds around the race track',
         points: 5,
-        conditions: $('1=1')
+        type: 'missable',
+        conditions: $(
+            saveLoaded(),
+
+            andNext(
+                comparison(data.S0Event, '!=', 0x3),               
+                orNext(
+                    comparison(data.S0Event, '!=', 0x4),                  
+                    andNext(
+                        comparison(data.S2Event, '!=', 0xff),
+                        resetIf(
+                            comparison(data.Player.CurrentAction, '!=', 0xf)
+                        )
+                    )
+                )
+            ), // Reset if we aren't doing a time trial, or racing bob/gwen
+
+
+            'I:0xX2675d0',
+            comparison(FrameTimer, '=', 0).withLast({ hits: 1 }), // Timer must have been at 0 at some point, to not measure the garbage before the race
+            'I:0xX2675d0',
+            comparison(FrameTimer, '!=', 0), // Don't submit before the race has started
+            resetNextIf(
+                'I:0xX2675d0',
+                comparison(FrameTimer, '!=', FrameTimer, true, false)
+            ),
+            'I:0xX2675d0',
+            comparison(FrameTimer, '=', FrameTimer, true, false).withLast({ hits: 5 }), //Wait for the timer to stop for at least 5 frames in a row, for saftey
+            'I:0xX2675d0',
+            comparison(FrameTimer, '<', 3120) // check time is less than 52 seconds
+
+        )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'HR4',
-        description: 'Win the horse race',
+        title: 'The Goddess Derby',
+        badge: b(badgenum),
+        description: 'Save the valley by hosting a horse race',
         points: 10,
         type: 'win_condition',
-        conditions: $('1=1')
+        conditions: basicAchEvent(0x41)
     })
+
+    badgenum = badgenum + 1
 
     //
     // Cake Contest
@@ -261,21 +344,28 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'It\'s a Piece of Cake',
+        badge: b(badgenum),
         description: 'Find a recipe for an aspiring baker',
-        points: 1,
+        points: 2,
         conditions: basicAchEvent(0x45)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'To Bake a Pretty Cake',
+        badge: b(badgenum),
         description: 'Witness a private baking lesson',
         points: 3,
         type: 'missable',
         conditions: basicAchEvent(0x4d)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'If the Way Is Hazy',
+        badge: b(badgenum),
         description: 'Make Moon Drop Dew',
         points: 5,
         type: 'missable',
@@ -289,125 +379,173 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'You Gotta Do the Cookin\' by the Book',
-        description: 'Help a young baker win the baking competition',
+        badge: b(badgenum),
+        description: 'Save the valley with a world renowned cake',
         points: 10,
         type: 'win_condition',
         conditions: basicAchEvent(0x63)
     })
+
+    badgenum = badgenum + 1
 
     //
     // Goddess Dress
     //
 
     set.addAchievement({
-        title: 'GD1',
+        title: 'Florals? For Spring?',
+        badge: b(badgenum),
         description: 'Find help for an aspiring fashion designer',
         points: 2,
         conditions: basicAchEvent(0x66)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'GD2',
+        title: 'It\'s Actually Cerulean',
+        badge: b(badgenum),
         description: 'Deliver the Goddess\' Cloth to the seamstress',
         points: 3,
         conditions: basicAchEvent(0x6b)
     })
 
-    set.addAchievement({
-        title: 'GD3',
-        description: 'Witness an argument from a friend who feels neglected',
-        points: 3,
-        conditions: $('1=1')
-    })
+    badgenum = badgenum + 1
 
     set.addAchievement({
-        title: 'GD4',
-        description: 'Help the seamstress win the dress contest',
+        title: 'Truth Is, No One Can Do What I Do',
+        badge: b(badgenum),
+        description: 'Witness a quiet man soothe a scorned friend',
+        points: 5,
+        conditions: basicAchEvent(0x6e)
+    })
+
+    badgenum = badgenum + 1
+
+    set.addAchievement({
+        title: 'That\'s All',
+        badge: b(badgenum),
+        description: 'Save the valley with a world renowned dress',
         points: 10,
         type: 'win_condition',
         conditions: basicAchEvent(0x73)
     })
+
+    badgenum = badgenum + 1
 
     //
     // Silver Fish
     //
 
     set.addAchievement({
-        title: 'SF1',
+        title: 'Sharing Hobbies',
+        badge: b(badgenum),
         description: 'Receive the fishing rod from an avid fisher',
         points: 2,
         conditions: basicAchEvent(0x75)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'SF2',
+        title: 'Fish Fear Me',
+        badge: b(badgenum),
         description: 'Purchase the super fishing rod',
-        points: 5,
+        points: 3,
         type: 'missable',
         conditions: upgradedTool(0x55, 0x5b)
 
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'SF3',
+        title: 'Holy Mackerel',
+        badge: b(badgenum),
         description: 'Receive advice from the divine on the silver fish',
-        points: 3,
+        points: 5,
         type: 'missable',
-        conditions: basicAchEvent(0x7c) //DOUBLE CHECK
+        conditions: basicAchEvent(0x7c) 
     })
 
+    badgenum = badgenum + 1
+
 
     set.addAchievement({
-        title: 'SF4',
-        description: 'Save the homeland with a silver scale',
+        title: 'Tipping the Silver Scales',
+        badge: b(badgenum),
+        description: 'Save the town by finding the endangered fish',
         points: 10,
         type: 'win_condition',
         conditions: basicAchEvent(0x7e)
     })
+
+    badgenum = badgenum + 1
 
     //
     // Endangered Weasel
     //
 
     set.addAchievement({
-        title: 'EW1',
+        title: 'Don\'t Mess With Me or My Sons',
+        badge: b(badgenum),
         description: 'Help the sprites with a weasel problem',
         points: 2,
         conditions: basicAchEvent(0x81)
     })
 
+    badgenum = badgenum + 1
 
     set.addAchievement({
-        title: 'EW4',
-        description: 'Save the homeland with the help of a weasel',
+        title: 'Ding Dong',
+        badge: b(badgenum),
+        description: 'Attend a failed photoshoot',
+        points: 3,
+        conditions: basicAchEvent(0x85)
+    })
+
+    badgenum = badgenum + 1
+
+    set.addAchievement({
+        title: 'Could Have Been the Theme Park\'s Mascot',
+        badge: b(badgenum),
+        description: 'Save the town by finding the endangered weasel',
         points: 10,
         type: 'win_condition',
         conditions: basicAchEvent(0x88)
     })
+
+    badgenum = badgenum + 1
 
     //
     // Bluebird
     //
 
     set.addAchievement({
-        title: 'BB1',
+        title: 'Recruited to the Band',
+        badge: b(badgenum),
         description: 'Receive the recorder from the inventor',
         points: 2,
         conditions: basicAchEvent(0x8a)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'BB2',
-        description: 'Score over 140 in your recorder preformance',
+        title: 'Snow White Incarnate',
+        badge: b(badgenum),
+        description: 'Score over 150 in your recorder preformance',
         points: 5,
         type: 'missable',
         conditions: $(
-            saveLoaded(),
             measuredIf(
-                'I:0xX2675c4',
-                '0xHb>0'
+                saveLoaded(),
+                comparison(data.S2Event, '=', 0xff),
+                comparison(data.S0Event, '=', 0x05)
             ),
             'I:0xX2675c4',
             'd0xHb=55',
@@ -415,18 +553,21 @@ export function makeAchievements(set: AchievementSet): void {
             '0xHb=56',
             'I:0xX2675c4',
             measured(
-                '0xH8>=140'
+                '0xH8>=150'
             )
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'BB3',
+        title: 'Flashes of the Future',
+        badge: b(badgenum),
         description: 'Witness a proposal with a love interest',
         points: 3,
         type: 'missable',
         conditions: $(
-            basicAchEvent(0x8a),
+            basicAchEvent(0x92),
             orNext(
                 comparison(data.NPCAP('Gwen'), '>', 99),
                 comparison(data.NPCAP('Dia'), '>', 99),
@@ -436,8 +577,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'BB4',
+        title: 'A Storied Tradition',
+        badge: b(badgenum),
         description: 'Save the valley by finding the endangered bluebird',
         points: 10,
         type: 'win_condition',
@@ -445,10 +589,26 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
 
+    badgenum = badgenum + 1
+
     //
     // Goddess Profile
     //
 
+
+    set.addAchievement({
+        title: 'The Fledgling Goddess',
+        badge: b(badgenum),
+        description: 'Unlock Marina\'s profile',
+        points: 10,
+        conditions: $(
+            saveLoaded(),
+            comparison(data.MarinaProfile, '=', 0x0, true),
+            comparison(data.MarinaProfile, '=', 0xff, false)
+        )
+    })
+
+    badgenum = badgenum + 1
 
 
     //
@@ -457,6 +617,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Supermarket Sweep',
+        badge: b(badgenum),
         description: 'Sell one of everything to the Supermarket in one session',
         points: 5,
         conditions: {
@@ -472,8 +633,11 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Floral Fiefdom',
+        badge: b(badgenum),
         description: 'Sell one of everything to the Flower Shop in one session',
         points: 5,
         conditions: {
@@ -489,8 +653,11 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Cafe Compass',
+        badge: b(badgenum),
         description: 'Sell one of everything to the Sunny Garden Cafe in one session',
         points: 5,
         conditions: {
@@ -506,8 +673,11 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Full Carpenter Circle',
+        badge: b(badgenum),
         description: 'Sell one of everything to the Carpenter in one session',
         points: 5,
         conditions: {
@@ -523,8 +693,11 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Tool Totality',
+        badge: b(badgenum),
         description: 'Sell one of everything to the Tool Shop in one session',
         points: 5,
         conditions: {
@@ -540,8 +713,11 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Clove',
+        title: 'Villa\'s Volume',
+        badge: b(badgenum),
         description: 'Sell one of everything to Clove\'s Villa in one session',
         points: 5,
         conditions: {
@@ -557,8 +733,11 @@ export function makeAchievements(set: AchievementSet): void {
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Breadth of the Bar',
+        badge: b(badgenum),
         description: 'Sell one of everything to the bar in one session',
         points: 5,
         conditions: {
@@ -573,6 +752,8 @@ export function makeAchievements(set: AchievementSet): void {
             )
         }
     })
+
+    badgenum = badgenum + 1
 
 
     //
@@ -603,6 +784,7 @@ export function makeAchievements(set: AchievementSet): void {
     for (let Names of BFAchs) {
         set.addAchievement({
             title: Names[1],
+            badge: b(badgenum),
             description: 'Become best friends with ' + Names[0],
             points: 5,
             conditions: $(
@@ -615,6 +797,9 @@ export function makeAchievements(set: AchievementSet): void {
                 )
             )
         })
+
+        badgenum = badgenum + 1
+
     }
 
 
@@ -623,14 +808,18 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'Sickle',
+        title: 'Grass Cutting Extraodinaire',
+        badge: b(badgenum),
         description: 'Purchase the super sickle',
         points: 3,
         conditions: upgradedTool(0x51, 0x52)
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Powering Up',
+        badge: b(badgenum),
         description: 'Find two power berries',
         points: 5,
         conditions: $(
@@ -644,8 +833,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Max Power',
+        badge: b(badgenum),
         description: 'Find all five power berries',
         points: 10,
         conditions: $(
@@ -660,8 +852,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'No More Outhouse Needed',
+        badge: b(badgenum),
         description: 'Build a kitchen',
         points: 5,
         conditions: $(
@@ -670,8 +865,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'A House of One\'s Own',
+        badge: b(badgenum),
         description: 'Build a doghouse',
         points: 3,
         conditions: $(
@@ -679,6 +877,8 @@ export function makeAchievements(set: AchievementSet): void {
             watchEvent(0xb9)
         )
     })
+
+    badgenum = badgenum + 1
 
 
     //
@@ -688,6 +888,7 @@ export function makeAchievements(set: AchievementSet): void {
 
     set.addAchievement({
         title: 'Diligent Part-Timer',
+        badge: b(badgenum),
         description: 'Adopt a horse',
         points: 3,
         conditions: $(
@@ -697,8 +898,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Horse5',
+        title: 'Man\'s Best Chariot',
+        badge: b(badgenum),
         description: 'Reach 5 hearts with your horse',
         points: 5,
         conditions: $(
@@ -708,8 +912,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
         title: 'Stray\'s Salvation',
+        badge: b(badgenum),
         description: 'Adopt a dog',
         points: 3,
         conditions: $(
@@ -718,9 +925,12 @@ export function makeAchievements(set: AchievementSet): void {
             comparison(data.Dog.IsAdopted, '=', 1, false)
         )
     })
+    badgenum = badgenum + 1
+
 
     set.addAchievement({
-        title: 'Dog5',
+        title: 'Farmer\'s Best Friend',
+        badge: b(badgenum),
         description: 'Reach 5 hearts with your dog',
         points: 5,
         conditions: $(
@@ -730,9 +940,12 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
 
     set.addAchievement({
-        title: 'DogTricks',
+        title: 'Good Boy!',
+        badge: b(badgenum),
         description: 'Have your dog preform sit down, lay down, heel, and round up cows all in one day',
         points: 5,
         conditions: $(
@@ -750,6 +963,8 @@ export function makeAchievements(set: AchievementSet): void {
             measured('0=1').withLast({ hits: 4 })
         )
     })
+
+    badgenum = badgenum + 1
 
 
     function isAliveChain(animal: data.chicken | data.cow, isDelta?: boolean): ConditionBuilder {
@@ -769,7 +984,8 @@ export function makeAchievements(set: AchievementSet): void {
     }
 
     set.addAchievement({
-        title: 'FullChicks',
+        title: 'Chicken Run? I Sure Hope They Do',
+        badge: b(badgenum),
         description: 'Have a full coup of fully grown and very happy chickens',
         points: 5,
         conditions: {
@@ -782,18 +998,21 @@ export function makeAchievements(set: AchievementSet): void {
             ),
             alt1: $(
                 ...(data.Chickens.map(animal => isAliveChain(animal, true))),
-                '0=5'
+                '0<6'
             ),
             alt2: $(
                 ...(data.Chickens.map(animal => isHappyChain(animal, true))),
-                '0=5'
+                '0<6'
 
             )
         }
     })
+    badgenum = badgenum + 1
+
 
     set.addAchievement({
-        title: 'FullBarn',
+        title: '30 Gallons a Day',
+        badge: b(badgenum),
         description: 'Have a full barn of fully grown and very happy cows',
         points: 5,
         conditions: {
@@ -806,18 +1025,21 @@ export function makeAchievements(set: AchievementSet): void {
             ),
             alt1: $(
                 ...(data.Cows.map(animal => isAliveChain(animal, true))),
-                '0=4'
+                '0<5'
             ),
             alt2: $(
                 ...(data.Cows.map(animal => isHappyChain(animal, true))),
-                '0=4'
+                '0<5'
 
             )
         }
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Hatch',
+        title: 'Cheep Cheep!',
+        badge: b(badgenum),
         description: 'Hatch a chick',
         points: 1,
         conditions: $(
@@ -834,8 +1056,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Born',
+        title: 'Moo!',
+        badge: b(badgenum),
         description: 'Have one of your cows give birth',
         points: 2,
         conditions: $(
@@ -853,6 +1078,8 @@ export function makeAchievements(set: AchievementSet): void {
     })
 
 
+    badgenum = badgenum + 1
+
     //
     // Cooking
     //
@@ -865,26 +1092,27 @@ export function makeAchievements(set: AchievementSet): void {
         }
 
         if (method in Cookbook) {
-            let alt1: ConditionBuilder = pauseIf(
-                comparison(data.Player.CurrentAction, '!=', 0xb)
+            let logic: ConditionBuilder = $(
+                resetIf(saveLoaded().withLast({ cmp: '!=' }))
             )
 
             for (let food of Cookbook[method]) {
-                alt1 = alt1.also(
-                    addHits(gainedItem(food).withLast({ hits: 1 }))
+                logic = logic.also(
+                    addHits(
+                        andNext(
+                            comparison(data.Player.CurrentAction, '=', 0xb, true),
+                            comparison(data.Player.CurrentAction, '=', 0x0, false),
+                            comparison(data.Player.Holding, '=', food).withLast({ hits: 1 })
+                        )
+                    )
                 )
             }
 
-            alt1 = alt1.also(
+            logic = logic.also(
                 measured('0=1').withLast({ hits: Cookbook[method].length })
             )
 
-            return {
-                core: $(
-                    resetIf(saveLoaded().withLast({ cmp: '!=' }))
-                ),
-                alt1: alt1
-            }
+            return logic
 
         }
 
@@ -894,25 +1122,34 @@ export function makeAchievements(set: AchievementSet): void {
     }
 
     set.addAchievement({
-        title: 'Oven',
+        title: 'Oven: The Hot Food',
+        badge: b(badgenum),
         description: 'Cook all oven recipes in one session',
         points: 10,
         conditions: cookedAllFood('Oven')
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Pot',
+        title: 'Pot: The Wet Food',
+        badge: b(badgenum),
         description: 'Cook all pot recipes in one session',
         points: 10,
         conditions: cookedAllFood('Pot')
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Pan',
+        title: 'Pan: The Seared Food',
+        badge: b(badgenum),
         description: 'Cook all frying pan recipes in one session',
         points: 10,
         conditions: cookedAllFood('Pan')
     })
+
+    badgenum = badgenum + 1
 
 
     //
@@ -920,7 +1157,8 @@ export function makeAchievements(set: AchievementSet): void {
     //
 
     set.addAchievement({
-        title: 'King',
+        title: 'The Great King',
+        badge: b(badgenum),
         description: 'Catch the King of Maple Lake',
         points: 10,
         conditions: $(
@@ -930,8 +1168,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Strange',
+        title: 'The Haggard Witch',
+        badge: b(badgenum),
         description: 'Catch the strange fish',
         points: 10,
         conditions: $(
@@ -941,8 +1182,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Full Moon',
+        title: 'A Full Moon\'s Reflection on a Still Lake',
+        badge: b(badgenum),
         description: 'Pick a full moon berry',
         points: 1,
         conditions: $(
@@ -953,23 +1197,27 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'BFYear1',
+        title: 'The Talk of the Town',
+        badge: b(badgenum),
         description: 'Become best friends with all the humans in the valley in year 1',
         points: 25,
+        type: 'missable',
         conditions: $(
             measuredIf(
                 saveLoaded(),
                 isFirstYear()
             ),
             ...(
-                Array.from({ length: 14 }, (_, i) => i).map(
+                Array.from({ length: 15 }, (_, i) => i).map(
                     input => calculation(true, data.NPCAP(input), '/', 200, true)
                 )
             ),
             '0<15',
             ...(
-                Array.from({ length: 14 }, (_, i) => i).map(
+                Array.from({ length: 15 }, (_, i) => i).map(
                     input => calculation(true, data.NPCAP(input), '/', 200, false)
                 )
             ),
@@ -978,8 +1226,11 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    badgenum = badgenum + 1
+
     set.addAchievement({
-        title: 'Speedrun',
+        title: 'Just Renting',
+        badge: b(badgenum),
         description: 'Save the valley before Summer 1st',
         points: 10,
         conditions: {
@@ -1016,5 +1267,7 @@ export function makeAchievements(set: AchievementSet): void {
             )
         }
     })
-    
+
+    badgenum = badgenum + 1
+
 }

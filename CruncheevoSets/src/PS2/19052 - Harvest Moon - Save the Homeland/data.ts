@@ -3,6 +3,21 @@ import { calculation, comparison, create, createDelta, sizeDict } from '../../he
 import * as fs from 'fs'
 import * as commentjson from 'comment-json'
 
+/** 0x10 = Horse Race Ending Events
+    0xff = Minigame Events*/
+export const S2Event: Partial<Condition.Data> = create('8bit', 0x26771c)
+/** 0x03 = Bob Race
+    0x04 = Gwen Race
+    0x05 = Bluebird summoning game
+
+    0x12 = Won Bob's Race
+    0x15 = Lost Bob's Race
+    0x1b = Won Gwen's Race
+    0x1e = Lost Gwen's Race */
+export const S0Event: Partial<Condition.Data> = create('8bit', 0x267720)
+
+export const MarinaProfile: Partial<Condition.Data> = create('32bit', 0x80da0c)
+
 const CharacterNames: Record<string, number> = {
     'Lyla': 0,
     'Gwen': 1, 
@@ -121,8 +136,7 @@ interface player {
         0x1d = Brownie Farm Barn
         0x1e = Harvest Sprite Cave / Room */
     Location: Partial<Condition.Data>
-    /** [8-bit]
-        0x00 = Walking around
+    /** 0x00 = Walking around
         0x02 = Inventory screen
         0x03 = Map
         0x04 = Status Screen
@@ -131,11 +145,14 @@ interface player {
         0x08 = Calander
         0x0b = Cooking Menu
         0x0c = Watching TV
+        0x0e = Horse Racing
+        0x0f = Time Trials
         0x10 = Main Menu
         0x11 = Option Screen
         0x14 = Loading in?
         0x15 = Area Transitions
-        0x16 = Intro Cutscene*/
+        0x16 = Cutscenes
+        0x17 = Cutscene transitions?*/
     CurrentAction: Partial<Condition.Data>
     /** 0x0 = Spring
         0x1 = Summer
