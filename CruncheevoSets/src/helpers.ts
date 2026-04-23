@@ -11,7 +11,7 @@
  * @param rightdelta
  * @returns
  */
-export function comparison(leftobject: Partial<Condition.Data> | number | string, cmp:string, rightobject: Partial<Condition.Data> | number | string, leftdelta:boolean = false, rightdelta:boolean=false): ConditionBuilder {
+export function comparison(leftobject: Partial<Condition.Data> | number | string | [ConditionBuilder, Partial<Condition.Data>], cmp: string, rightobject: Partial<Condition.Data> | number | string | [ConditionBuilder, Partial<Condition.Data>], leftdelta: boolean = false, rightdelta: boolean = false): ConditionBuilder {
 
     let output: ConditionBuilder = $('0'+cmp+'0')
 
@@ -27,9 +27,17 @@ export function comparison(leftobject: Partial<Condition.Data> | number | string
         }
     }
     else {
-        output = output.withLast({ lvalue: leftobject.lvalue })
-        if (leftdelta) {
-            output = output.withLast({ lvalue: { type: 'Delta' } })
+        if (leftobject.hasOwnProperty('lvalue')) {
+            output = output.withLast({ lvalue: (leftobject as any).lvalue })
+            if (leftdelta) {
+                output = output.withLast({ lvalue: { type: 'Delta' } })
+            }
+        }
+        else {
+            return $(
+                leftobject[0],
+                comparison(leftobject[1], cmp, rightobject, leftdelta ?? false, rightdelta ?? false)
+            )
         }
     }
 
@@ -46,10 +54,19 @@ export function comparison(leftobject: Partial<Condition.Data> | number | string
         }
     }
     else {
-        output = output.withLast({ rvalue: rightobject.rvalue })
-        if (rightdelta) {
-            output = output.withLast({ rvalue: { type: 'Delta' } })
+        if (rightobject.hasOwnProperty('rvalue')) {
+            output = output.withLast({ rvalue: (rightobject as any).rvalue })
+            if (rightdelta) {
+                output = output.withLast({ rvalue: { type: 'Delta' } })
+            }
         }
+        else {
+            output = output.withLast({ rvalue: rightobject[1].rvalue })
+            if (rightdelta) {
+                output = output.withLast({ rvalue: { type: 'Delta' } })
+            }
+        }
+        
     }
 
     return output
@@ -65,7 +82,7 @@ export function comparison(leftobject: Partial<Condition.Data> | number | string
  * @param rightdelta
  * @returns
  */
-export function calculation(isAddSource: boolean, leftobject: Partial<Condition.Data> | number | string, cmp: string = 'none', rightobject: Partial<Condition.Data> | number | string = 0, leftdelta: boolean = false, rightdelta: boolean = false): ConditionBuilder {
+export function calculation(isAddSource: boolean, leftobject: Partial<Condition.Data> | number | string | [ConditionBuilder, Partial<Condition.Data>], cmp: string = 'none', rightobject: Partial<Condition.Data> | number | string | [ConditionBuilder, Partial<Condition.Data>] = 0, leftdelta: boolean = false, rightdelta: boolean = false): ConditionBuilder {
 
     let output: ConditionBuilder
 
@@ -76,9 +93,16 @@ export function calculation(isAddSource: boolean, leftobject: Partial<Condition.
         else if (typeof leftobject == 'number') {
             output = $('B:' + leftobject.toString())
         }
+        else if (leftobject.hasOwnProperty('lvalue')) {
+            output = $('B:0').withLast({ lvalue: (leftobject as any).lvalue })
+        }
         else {
-            output = $('B:0').withLast({ lvalue: leftobject.lvalue })
-        } 
+            output = $(
+                leftobject[0],
+                calculation(isAddSource, leftobject[1], cmp, rightobject, leftdelta, rightdelta)
+            )
+        }
+
 
 
         if (isAddSource) {
@@ -111,13 +135,23 @@ export function calculation(isAddSource: boolean, leftobject: Partial<Condition.
                 output = output.withLast({ lvalue: { type: 'Float', value: leftobject } })
             }
         }
-        else {
-            output = output.withLast({ lvalue: leftobject.lvalue })
+        else if (leftobject.hasOwnProperty('lvalue')) {
+            output = output.withLast({ lvalue: (leftobject as any).lvalue })
             if (leftdelta) {
                 output = output.withLast({ lvalue: { type: 'Delta' } })
             }
         }
-
+        else {
+            output = $(
+                leftobject[0],
+                isAddSource && $('A:0' + cmp + '0'),
+                !isAddSource && $('B:0' + cmp + '0')
+            )
+            output = output.withLast({ lvalue: leftobject[1].lvalue })
+            if (leftdelta) {
+                output = output.withLast({ lvalue: { type: 'Delta' } })
+            }
+        }
 
 
 
@@ -132,8 +166,14 @@ export function calculation(isAddSource: boolean, leftobject: Partial<Condition.
                 output = output.withLast({ rvalue: { type: 'Float', value: rightobject } })
             }
         }
+        else if (rightobject.hasOwnProperty('rvalue')) {
+            output = output.withLast({ rvalue: (rightobject as any).rvalue })
+            if (rightdelta) {
+                output = output.withLast({ rvalue: { type: 'Delta' } })
+            }
+        }
         else {
-            output = output.withLast({ rvalue: rightobject.rvalue })
+            output = output.withLast({ rvalue: rightobject[1].rvalue })
             if (rightdelta) {
                 output = output.withLast({ rvalue: { type: 'Delta' } })
             }
@@ -270,3 +310,14 @@ export const sizeDict = {
     7: 'Bit7'
 }
 
+
+export function wiiAddAddress(address: number | string): ConditionBuilder {
+    if (typeof address == 'number') {
+        return $('I:0xG' + address.toString(16) + '&536870911')
+    }
+    else {
+        return $( 'I:{recall}&536870911')
+    }
+    
+
+}
