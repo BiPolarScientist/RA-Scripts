@@ -87,8 +87,11 @@ function finishAct(chapter: number): ConditionBuilder {
 
 export function makeAchievements(set: AchievementSet): void {
 
+    let id:number = 604212
+
     set.addAchievement({
         title: 'Violence Isn\'t the Answer, but It Can Feel Good',
+        id: id,
         description: 'Perform a shoulder bash',
         points: 1,
         conditions: $(
@@ -110,105 +113,133 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Don\'t Be the Monster They See',
+        id: id,
         description: 'Put your creator to sleep without resorting to fisticuffs',
         points: 2,
         conditions: useItemInRoom(1, 0x4, 0x3ec)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Into the Outside World',
+        id: id,
         description: 'Escape Frankenstein\'s lab',
         points: 3,
         type: 'progression',
         conditions: useItemInRoom(1, 0x3, 0x3ed)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'A Morning Nightcap',
+        id: id,
         description: 'Help the parched jailor to a drink',
         points: 2,
         conditions: useItemInRoom(2, 0x6, 0x3f2)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'A Little Arson Is Good for the Soul',
+        id: id,
         description: 'Distract the guard dog without killing it',
         points: 3,
         conditions: useItemInRoom(2, 0x7, 0x3f3)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'They Don\'t Understand You Here',
+        id: id,
         description: 'Escape the town of Ingolstadt',
         points: 4,
         type: 'progression',
         conditions: finishAct(2)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Don\'t Refuse the Refuse',
+        id: id,
         description: 'Obtain the manure',
         points: 1,
         type: 'progression',
         conditions: obtainItem(3, 0x16, 0x3f4)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Kindness Begets Kindness',
+        id: id,
         description: 'Return some stolen jewelery to the rightful owner',
         points: 2,
         conditions: useItemInRoom(3, 0x15, 0x3f8, false, true, [0x3f9, 0x3fa])
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Nice Wolfie',
+        id: id,
         description: 'Feed a starving wolf',
         points: 2,
         conditions: useItemInRoom(3, 0xb, 0x3f9, true)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Hitching a Ride',
+        id: id,
         description: 'Take a carriage to Geneva',
         points: 5,
         type: 'progression',
         conditions: finishAct(3)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Interior Design',
+        id: id,
         description: 'Help hang up a painting',
         points: 3,
         type: 'progression',
         conditions: useItemInRoom(4, 0x9, 0x3fd, false, true, [0x40a, 0x40b])
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Animal Control',
+        id: id,
         description: 'Return a missing cat back home',
         points: 2,
         type: 'progression',
         conditions: obtainItem(4, 0xe, 0x405)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Delivery Man',
+        id: id,
         description: 'Deliver a bag of groceries',
         points: 1,
         conditions: useItemInRoom(4, 0x12, 0x403)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Floral Arrangements',
+        id: id,
         description: 'Find a vase for a bouquet of flowers',
         points: 1,
         conditions: useItemInRoom(4, 0x14, 0x405)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'You\'re Safe in this Tale',
+        id: id,
         description: 'Meet Victor\'s son William',
         points: 1,
         conditions: $(
@@ -220,34 +251,42 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'An Accumulation of Anguish',
+        id: id,
         description: 'Confront your creator in Geneva',
         points: 5,
         type: 'progression',
         conditions: finishAct(4)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'Reading It Would Be Too Evil',
+        id: id,
         description: 'Find your creator\'s diary',
         points: 2,
         type: 'progression',
         conditions: obtainItem(5, 0x4, 0x411)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'The Makings of Friendship',
+        id: id,
         description: 'Return to Geneva with the preparations nearly complete',
         points: 3,
         type: 'progression',
         conditions: finishAct(5)
     })
 
+    id = id + 1
     // FinishAct(6) doesn't work here, as the chapter data doesn't change until after a cutscene, messing up the inventory and room checks
     set.addAchievement({
         title: 'Indulging the Other',
-        description: 'Defeat Elizabeth in mortal combat',
+        id: id,
+        description: 'Defeat your opponent in the attic in mortal combat',
         points: 4,
         type: 'progression',
         conditions: $(
@@ -269,16 +308,20 @@ export function makeAchievements(set: AchievementSet): void {
         )
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'A Great and Sudden Change',
+        id: id,
         description: 'Set your old life ablaze',
         points: 10,
         type: 'win_condition',
         conditions: useItemInRoom(7, 0x4, 0x415)
     })
 
+    id = id + 1
     set.addAchievement({
         title: 'A Life of Loss',
+        id: id,
         description: 'Set off into the tundra alone',
         points: 3,
         type: 'win_condition',
@@ -300,8 +343,10 @@ export function makeAchievements(set: AchievementSet): void {
         ...Array(7).fill(null).map((_, i) => comparison(data.inventory[i + 1], '=', 0)) // and only the tarp
     )
 
+    id = id + 1
     set.addAchievement({
         title: 'Your Heart Grew Three Sizes That Day',
+        id: id,
         description: 'Finish the game with at least 3 hearts remaining',
         points: 25,
         conditions: threeHeartLogic

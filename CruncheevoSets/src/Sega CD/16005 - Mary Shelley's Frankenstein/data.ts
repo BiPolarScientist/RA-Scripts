@@ -70,12 +70,18 @@ Act 7:
 export const inventory: Array<Partial<Condition.Data>> = Array(8).fill(null).map((_, i) => create('16bit', 0x1e5c0 + 2 * i)) 
 
 export const playerHealth: [ConditionBuilder, Partial<Condition.Data>] = [
-    $('I:0xX15b80'),
+    $(
+        'I:0x138a8',
+        'I:0xX10076'
+    ),
     create('8bit', 0xe65e)
 ]
 
 export const lives: [ConditionBuilder, Partial<Condition.Data>] = [
-    $('I:0xX15b80'),
+    $(
+        'I:0x138a8',
+        'I:0xX10076'
+    ),
     create('8bit', 0xe662)
 ]
 
@@ -194,13 +200,19 @@ Act 7:
 0x3 = Above Deck 3
 0x4 = On Ice */
 export const room: [ConditionBuilder, Partial<Condition.Data>] = [
-    $('I:0xX15b80'),
+    $(
+        'I:0x138a8',
+        'I:0xX10076'
+    ),
     create('8bit', 0xe686)
 ]
 
 /** 0x25 -> 0x26 The final speech bubble with William */
 export const convo: [ConditionBuilder, Partial<Condition.Data>] = [
-    $('I:0xX15b80'),
+    $(
+        'I:0x138a8',
+        'I:0xX10076'
+    ),
     create('8bit', 0x10650)
 ]
 

@@ -101,7 +101,8 @@ export function makeRP(): any {
             [
                 $(
                     comparison(data.chapter, '=', 0),
-                    comparison(create('Bit1', 0x15b43), '=', 0)
+                    'I:0x138a8',
+                    comparison(create('Bit1', 0x10039), '=', 0)
                 ),
                 trimRP(tag`Practising Fights`)
             ],
@@ -114,7 +115,8 @@ export function makeRP(): any {
             [
                 $(
                     comparison(data.chapter, '>', 0),
-                    comparison(create('Bit1', 0x15b43), '=', 0)
+                    'I:0x138a8',
+                    comparison(create('Bit1', 0x10039), '=', 0)
                 ),
                 trimRP(tag`Act ${macro.Number.at(conditionRP(data.chapter))}: Fighting for your life`)
             ],
@@ -122,31 +124,31 @@ export function makeRP(): any {
                 $(
                     comparison(data.chapter, '<=', 2)
                 ),
-                trimRP(tag`Act ${macro.Number.at(conditionRP(data.chapter))}: In ${lookup.actonetwo.at('I:0xX15b80_M:0xe686')}`)
+                trimRP(tag`Act ${macro.Number.at(conditionRP(data.chapter))}: In ${lookup.actonetwo.at('I:0x138a8_I:0xX10076_M:0xe686')}`)
             ],
             [
                 $(
                     comparison(data.chapter, '=', 3)
                 ),
-                trimRP(tag`Act 3: In ${lookup.actthree.at('I:0xX15b80_M:0xe686')}`)
+                trimRP(tag`Act 3: In ${lookup.actthree.at('I:0x138a8_I:0xX10076_M:0xe686')}`)
             ],
             [
                 $(
                     comparison(data.chapter, '=', 4)
                 ),
-                trimRP(tag`Act 4: In ${lookup.actfour.at('I:0xX15b80_M:0xe686')}`)
+                trimRP(tag`Act 4: In ${lookup.actfour.at('I:0x138a8_I:0xX10076_M:0xe686')}`)
             ],
             [
                 $(
                     comparison(data.chapter, '=', 5)
                 ),
-                trimRP(tag`Act 5: In ${lookup.actfive.at('I:0xX15b80_M:0xe686')}`)
+                trimRP(tag`Act 5: In ${lookup.actfive.at('I:0x138a8_I:0xX10076_M:0xe686')}`)
             ],
             [
                 $(
                     comparison(data.chapter, '=', 6)
                 ),
-                trimRP(tag`Act 6: In ${lookup.actsix.at('I:0xX15b80_M:0xe686')}`)
+                trimRP(tag`Act 6: In ${lookup.actsix.at('I:0x138a8_I:0xX10076_M:0xe686')}`)
             ],
             [
                 $(
